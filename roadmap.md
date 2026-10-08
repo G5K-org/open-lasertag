@@ -6,15 +6,15 @@ Phasenplan für das Lasertag-Projekt, aufbauend auf [readme.md](readme.md) Absch
 
 ## Phase 0 – Vorbereitung
 
-- Genaue Pinbelegung für S3 (Weste) und C3 (Waffe) festlegen
-- Stückliste erstellen und bestellen: TSOP34838, IR-LEDs (TSAL6100 o. ä.), Linsen, MOSFETs (AO3400/IRLZ44N), WS2812-Streifen, MAX98357A, 1S-LiPo/18650 + Laderegler, LAN-Patchkabel + Stecker
+- [x] Pinbelegung für den einen ESP32-S3 (jetzt in der Waffe) festlegen → [pinbelegung.md](pinbelegung.md)
+- Stückliste erstellen und bestellen: TSOP34838, IR-LEDs (TSAL6100 o. ä.), Linsen, MOSFETs (AO3400/IRLZ44N), WS2812-Streifen, MAX98357A, 1S-LiPo/18650 + Laderegler, GX12/GX16-Steckverbinder + Sensorkabel
 - Organisatorisches klären: Chef, Versicherung, ggf. Betriebsrat
 
 ---
 
-## Phase 1 – Einzelpaar-Prototyp (nur IR)
+## Phase 1 – Prototyp (nur IR)
 
-- Weste + Waffe auf dem Tisch aufbauen
+- Waffe (ESP32-S3) mit angeschlossenen TSOP-Sensoren der Weste auf dem Tisch aufbauen
 - Schusserkennung, Abzug, Nachladen, Munitionszähler
 - Reichweite und Fehltreffer messen
 
@@ -32,11 +32,14 @@ Phasenplan für das Lasertag-Projekt, aufbauend auf [readme.md](readme.md) Absch
 
 ---
 
-## Phase 3 – UART-Protokoll Waffe ↔ Weste
+## Phase 3 – Sensorkabel Weste → Waffe
 
-- Waffe → Weste: `SHOT`, `RELOAD`, `AMMO n`, `READY`
-- Weste → Waffe: `ENABLE`/`DISABLE`, `AMMO_SET n`, `HIT_FX`, `TEAM/ID`
-- Warm-Plug-Verhalten und ESD-Schutz an den UART-Leitungen verifizieren
+- GX12/GX16-Steckverbinder anschließen, TSOP-Signale auf RMT-Eingänge legen
+- Kein Protokoll nötig (kein zweiter Chip mehr) – nur GPIO/RMT-Einbindung in
+  dieselbe Firmware, die auch sendet
+- RMT-Kanalaufteilung bei mehr TSOPs als freien RX-Kanälen klären (siehe
+  pinbelegung.md, offene Fragen)
+- ESD-Schutz an den Sensorleitungen verifizieren
 
 ---
 
@@ -61,12 +64,13 @@ Phasenplan für das Lasertag-Projekt, aufbauend auf [readme.md](readme.md) Absch
 ## Phase 6 – Feinschliff
 
 - Optik- und Schaltungsoptimierung nach Messwerten
-- Akku-/Laufzeitbudget pro Weste messen (WLAN + WS2812 + Sound + IR-Pulse)
-- OTA-Update-Mechanismus für Weste (und Waffe über UART-Bridge) einbauen
+- Akku-/Laufzeitbudget messen (WLAN + WS2812 + Sound + IR-Pulse)
+- Gewichtsverteilung der Waffe prüfen (Akku, Lautsprecher, LED jetzt alle dort)
+- OTA-Update-Mechanismus für die Waffe einbauen
 
 ---
 
 ## Phase 7 – Skalierung
 
-- Weitere Westen/Waffen fertigen (Platinen, Gehäuse in Serie)
+- Weitere Waffen (mit Weste/Sensoren) fertigen (Platinen, Gehäuse in Serie)
 - Sound, Spielmodi, Extras
