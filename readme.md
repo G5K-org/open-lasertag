@@ -34,8 +34,6 @@ Stand: 08.10.2026
 - Abzug und Nachladen (Mikrotaster, RC-Entprellung 10 kΩ + 100 nF)
 - Munitionszähler, optional LED-Zeile oder kleines OLED
 - Rückstoß-Vibration (Motor über eigenen MOSFET, Freilaufdiode, PWM)
-- Optional 1 TSOP oben auf der Waffe (Treffer auf Waffe = kurze Störung)
-- Eigene TSOP-Auswertung während des Sendens ausblenden
 
 ### Weste (ESP32-S3, z. B. XIAO ESP32S3 oder S3-DevKitC)
 - 4–5 TSOP34838: Stirnband vorn/hinten, Brust, Rücken, Schultern
@@ -74,9 +72,9 @@ Hinweise:
 
 - NEC über `irsend.encodeNEC(address, command)`: Adresse = Team, Command = Spieler-ID
   (Korrektur: einfaches `(TEAM << 8) | ID` wird vom Dekoder meist verworfen)
-- Optional später eigenes kürzeres Protokoll (56 kHz, 2 Bit Team, 6 Bit ID, Parität)
+- Optional später eigenes kürzeres Protokoll (**38 kHz** beibehalten – TSOP34838 ist fest auf 38 kHz gefiltert, 56 kHz würde kaum noch erkannt; 2 Bit Team, 6 Bit ID, Parität)
 - Treffer nur zählen bei: Team ungleich eigenem Team (Friendly Fire als Schalter), 2 gültige Pakete innerhalb 100 ms, Wiederholcodes ignorieren
-- 500 ms Unverwundbarkeit nach Treffer
+- 500 ms Unverwundbarkeit nach Treffer (kommerzielle Systeme nutzen meist 1,5–3 s; Wert im Praxistest gegen Mehrfachtreffer prüfen)
 - Während des Sendens Empfang pausieren, eigene ID ignorieren
 - Kein `delay()`, alles mit `millis()` oder FreeRTOS-Tasks
 - Zonenerkennung (Kopf/Arm/Bein) ist mit der Strahlbreite **nicht sinnvoll**; Kopf-Bonus eher über Regeln
@@ -98,12 +96,13 @@ Hinweise:
 - Server und möglichst viele APs per Kabel anbinden
 - Weste: `WiFi.setSleep(false)` bzw. `WIFI_PS_NONE`, statische IP, keine Scans im Spiel
 - UDP-Pakete mit Laufnummer, Treffer 2× senden, bei Aussetzern puffern und nachsenden
+- Pakete mit Shared-Secret/HMAC absichern (gemeinsames WLAN, sonst leicht fälschbare Trefferpakete)
 - Eigene Roaming-Logik: RSSI alle 1–2 s prüfen, unter ca. -75 dBm gezielt wechseln
 - Latenzmessung: Zeitstempel + Echo vom Server, RTT pro Hallenzone loggen
 - Erwartung: 3–15 ms, Ausreißer bis 200 ms bei Roaming
 
 ### Server
-- UDP-Listener (Python/FastAPI oder Node-RED), Deduplizierung über (Spieler-ID, Laufnummer)
+- UDP-Listener als eigener asyncio-`DatagramProtocol` (FastAPI selbst hört nicht nativ auf UDP, nur für WebSocket/Live-Anzeige daneben nutzen), Deduplizierung über (Spieler-ID, Laufnummer)
 - Teams, Punkte, Runden, Respawn-Freigabe
 - Live-Anzeige als Webseite (WebSocket)
 
@@ -126,6 +125,7 @@ Hinweise:
 |---|---|
 | WLAN stört IR-Empfang | S3 mit Core-Trennung, RC-Filter am TSOP, ggf. RMT-Empfang |
 | Reflexionen an Regalen/Folie | 2 gültige Pakete, früh an Gangkreuzungen testen |
+| PWM-gedimmte Hallenbeleuchtung stört/blendet TSOP | früh unter realer Beleuchtung testen, ggf. Dimmfrequenz der Lampen prüfen |
 | Spannungseinbruch beim IR-Puls | Elko am MOSFET, ausreichend dicke Adern |
 | Kabelbruch | Litzenkabel, Zugentlastung, Knickschutz, Steckverbinder mit Rastung |
 | Augen | IR-LED-Datenblatt und IEC 62471 prüfen, nicht aus der Nähe in die Optik schauen |
@@ -163,4 +163,5 @@ Befestigung: Platine mit Buchsenleisten und M3-Abstandshaltern oder gedruckte PE
 - Genaue Pinbelegung für S3 (Weste) und C3 (Waffe)
 - Weste-Code (IR-Task Core 1, UDP, Puffer, Reconnect) und Server-Code
 - Gehäuse/3D-Druck-Maße
-- Entscheidung, ob ein zusätzlicher TSOP an der Waffe gebaut wird
+- Akku-/Laufzeitbudget pro Weste (WLAN + WS2812 + Sound + IR-Pulse) für Eventplanung
+- OTA-Update-Mechanismus für Weste (und Waffe über UART-Bridge) bei mehreren Sets
