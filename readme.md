@@ -50,7 +50,20 @@ Stand: 08.10.2026
   kleiner 5-V-Boost reicht, kein 12-V-Wandler nötig.
 - Zusätzlicher Vibrationsmotor für Treffer-Feedback (getrennt von der Rückstoß-Vibration oder gemeinsam genutzt, noch zu entscheiden)
 - I²S-Verstärker (MAX98357A) + Lautsprecher für Sounds, kann denselben 5-V-Boost wie der WS2812-Strip mitnutzen (bessere Audioqualität als bei 3,3 V)
-- 1S-LiPo oder geschützte 18650, Laderegler USB-C, Akkuspannung per ADC – jetzt im Waffengehäuse, Gewicht/Balance beachten (siehe Risiken)
+- 1S-LiPo oder geschützte 18650, Akkuspannung per ADC – jetzt im Waffengehäuse, Gewicht/Balance beachten (siehe Risiken)
+- **Ladeelektronik USB-C:** nutzt **denselben USB-C-Port wie Flash/Debug** am
+  DevKitC – VBUS/5V-Pin des Boards abgreifen und auf einen Lade-IC führen,
+  z. B. **TP4056-Modul mit Schutzschaltung** (DW01A + FS8205, günstig und
+  verfügbar) oder **MCP73831** für eine minimalere Eigenbau-Lösung. Kein
+  zweiter Stecker nötig – der native USB-Port ist bereits als Device
+  beschaltet und hat die nötigen CC1/CC2-Pulldowns, damit USB-C-Netzteile
+  Spannung liefern (beim gewählten Board kurz verifizieren). Bei unprotected
+  LiPo-Pouch-Zelle zusätzliche Schutzschaltung einplanen (bei geschützter
+  18650 entfällt das). CHRG/STAT-Ausgang des Lade-ICs auf den
+  Lade-Status-GPIO (siehe pinbelegung.md) und/oder eine eigene LED.
+  Laden während des Spielens (Last + Ladestrom gleichzeitig über denselben
+  Port) ist mit einfachen Linearladern grundsätzlich möglich, aber nicht der
+  Regelfall – für den Spielbetrieb eher Akku vorher laden.
 - WLAN auf Core 0, IR-Auswertung auf Core 1 (Grund für den S3)
 
 ### Weste (nur Sensoren, keine eigene Elektronik)
