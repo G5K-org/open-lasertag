@@ -1,6 +1,8 @@
 # Pinbelegung
 
 Konkretisiert [readme.md](readme.md) Abschnitt 2 und 8 sowie Phase 0 aus [roadmap.md](roadmap.md).
+Als Schaltplan umgesetzt in [kicad/waffe_elektronik/](kicad/waffe_elektronik/waffe_elektronik.kicad_sch)
+(KiCad 10, ERC-geprüft) – siehe dort die README für Hinweise zum Öffnen.
 
 Nur noch **ein Chip** (ESP32-S3, in der Waffe) – die Weste hat keine eigene
 Elektronik mehr, nur TSOP-Sensoren am Sensorkabel.
@@ -58,8 +60,9 @@ Abschnitt 3).
 - RMT-Kanäle: ESP32-S3 hat 4 TX + 4 RX RMT-Kanäle – bei IR-LED (TX) + 5 TSOPs
   (RX) reicht ein RX-Kanal nicht für alle Sensoren gleichzeitig; ggf. einen
   Sensor per Software-Timer statt RMT auswerten, oder bei 4 Sensoren bleiben
-- I²S-SD-Pin des MAX98357A (Shutdown/Gain) eher per Spannungsteiler fest verdrahten
-  statt eigenen GPIO zu verbrauchen
+- I²S-SD-Pin (`~{SD_MODE}`) des MAX98357A im Schaltplan fest auf 5V_PERIPH
+  gelegt (immer aktiv, kein GPIO nötig), GAIN_SLOT fest auf GND (Standard-Gain)
+  – bei Bedarf im Praxistest auf andere Gain-Stufe ändern (siehe Datenblatt-Tabelle)
 - Exakte GPIO-Zuordnung nach ADC1/ADC2-Bereich und Strapping-Pins gegen das
   tatsächlich bestellte DevKitC-Board verifizieren (Pinout variiert leicht
   zwischen Revisionen)

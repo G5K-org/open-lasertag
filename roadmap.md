@@ -7,7 +7,12 @@ Phasenplan für das Lasertag-Projekt, aufbauend auf [readme.md](readme.md) Absch
 ## Phase 0 – Vorbereitung
 
 - [x] Pinbelegung für den einen ESP32-S3 (jetzt in der Waffe) festlegen → [pinbelegung.md](pinbelegung.md)
-- Stückliste erstellen und bestellen: TSOP34838, IR-LEDs (TSAL6100 o. ä.), Linsen, MOSFETs (AO3400/IRLZ44N), WS2812-Streifen, MAX98357A, 1S-LiPo/18650 + Laderegler, GX12/GX16-Steckverbinder + Sensorkabel
+- [x] Schaltplan Waffen-Elektronik (ERC-geprüft) → [kicad/waffe_elektronik/](kicad/waffe_elektronik/waffe_elektronik.kicad_sch)
+- Stückliste erstellen und bestellen: TSOP34838, IR-LEDs (TSAL6100 o. ä.), Linsen,
+  MOSFETs (AO3400/IRLZ44N), WS2812(B)-Streifen (echte 5-V-Variante), MAX98357A,
+  1S-LiPo/18650, Pegelwandler (74AHCT125), kleiner 5-V-Boost-Converter,
+  Lade-IC (TP4056-Modul mit Schutzschaltung oder MCP73831),
+  GX12/GX16-Steckverbinder + Sensorkabel
 - Organisatorisches klären: Chef, Versicherung, ggf. Betriebsrat
 
 ---
@@ -15,10 +20,12 @@ Phasenplan für das Lasertag-Projekt, aufbauend auf [readme.md](readme.md) Absch
 ## Phase 1 – Prototyp (nur IR)
 
 - Waffe (ESP32-S3) mit angeschlossenen TSOP-Sensoren der Weste auf dem Tisch aufbauen
+- Power-Tree verifizieren: Laden über den nativen USB-C-Port (VBUS → Lade-IC),
+  5-V-Boost-Converter, Pegelwandler für WS2812-Datenleitung
 - Schusserkennung, Abzug, Nachladen, Munitionszähler
 - Reichweite und Fehltreffer messen
 
-**Exit:** Reichweite 30–50 m frei gemessen.
+**Exit:** Reichweite 30–50 m frei gemessen, Laden + 5-V-Rail funktionieren.
 
 ---
 
