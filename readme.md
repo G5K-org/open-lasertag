@@ -146,6 +146,9 @@ Komplett an der Waffe montiert (WS2812-Streifen, Vibration, Lautsprecher).
   über Sensor-Segment
 - Tod: rot pulsierend bis Respawn, langes Vibrationsmuster
 - Team: Lichtband an der Waffe in Teamfarbe
+- Mündungsfeuer: WS2812-Ringlicht vorne an der MP5, als letztes Glied der
+  WS2812-Kette über denselben LED-Stecker (kein eigener Pin), kurzer warmer
+  Blitz bei jedem Schuss, Helligkeit wegen Stromspitze am 5-V-Boost begrenzt
 - Lokale Anzeige zuerst, Netzmeldung danach
 - Helligkeit per Skalierungsfaktor in der `led_strip`-Pixel-Berechnung
   begrenzen, Diffusor über den LEDs

@@ -66,7 +66,8 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   Weste).
 - **WS2812:** läuft über einen 74HCT125-Pegelwandler (3,3→5 V) plus
   330 Ω-Vorwiderstand; die Munitionsanzeige hängt als weitere WS2812-Pixel am
-  physischen DOUT-Pin des HP-Streifens (Daisy-Chain).
+  physischen DOUT-Pin des HP-Streifens (Daisy-Chain), am Ende der Kette sitzt
+  das Ringlicht für das Mündungsfeuer vorne an der Waffe.
 - **PWR_FLAG-Symbole** (`#FLG*`) markieren Netze, die ERC sonst als "nicht
   getrieben" anmahnen würde (Boost-Ausgang, Lader-VBUS).
 

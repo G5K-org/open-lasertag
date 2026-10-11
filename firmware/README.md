@@ -26,7 +26,7 @@ dann flashen.
 | `nec.c` | NEC-Codec, Toleranzen für TSOP-Verzerrung, Wiederholcodes werden ignoriert | – |
 | `game.c` | HP, Munition, Nachladen, Treffer, Tod, Respawn; lokales Feedback zuerst, dann Meldung ans Netz | 1 |
 | `input.c` | Abzug/Nachladen (aktiv low), 2-ms-Abfrage mit Entprellung | 1 |
-| `leds.c` | WS2812-Kette: HP-Balken (grün → gelb → rot, blinkt unter 20 %), Munition, Teamfarbe; Treffer-Blitz, rotes Pulsieren als tot, Lade-/Akku-/Offline-Anzeige | 1 |
+| `leds.c` | WS2812-Kette (HP → Munition → Team → Ringlicht vorne): Mündungsfeuer auf dem Ring bei jedem Schuss (~120 ms, warm flackernd, eigene Helligkeitsgrenze), HP-Balken (grün → gelb → rot, blinkt unter 20 %), Munition, Teamfarbe; Treffer-Blitz, rotes Pulsieren als tot, Lade-/Akku-/Offline-Anzeige | 1 |
 | `haptics.c` | Rückstoß- und Treffer-Motor per LEDC-PWM (20 kHz), Muster per `esp_timer` | – |
 | `audio.c` | MAX98357A über I²S, Effekte synthetisch (keine Sound-Dateien) | 0 |
 | `battery.c` | Akkuspannung (ADC1_CH7, Teiler 1:2, Kurven-Kalibrierung), Ladestatus MCP73831 | 0 |
@@ -67,5 +67,7 @@ gcc -I main test/test_nec.c main/nec.c -o /tmp/test_nec && /tmp/test_nec
 
 - Alles nur gebaut, noch nicht auf der Platine getestet.
 - TSOP 6 (GPIO21) ist im Schaltplan noch nicht verdrahtet, standardmäßig aus.
-- Pixelzahlen der WS2812-Kette (`LT_LEDS_*`) an den realen Streifen anpassen.
+- Pixelzahlen der WS2812-Kette (`LT_LEDS_*`) an die realen Streifen und den Ring anpassen.
+- Stromspitze im Schuss (Ring + Rückstoß-Motor + Sound auf `5V_PERIPH`) am MT3608 messen,
+  ggf. `LT_MUZZLE_BRIGHTNESS` senken.
 - OTA: Partitionstabelle hat bereits zwei OTA-Slots, der Update-Weg fehlt noch.

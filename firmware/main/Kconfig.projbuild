@@ -113,6 +113,23 @@ menu "Lasertag Waffe"
             int "WS2812: Pixel Teamfarbe (hinter Munition)"
             default 2
 
+        config LT_LEDS_MUZZLE
+            int "WS2812: Pixel Ringlicht Muendungsfeuer (Ende der Kette)"
+            range 0 64
+            default 12
+            help
+                WS2812-Ring vorne an der Muendung, haengt am LED-Stecker als
+                letztes Glied der Daisy-Chain. 0 = kein Ring.
+
+        config LT_MUZZLE_BRIGHTNESS
+            int "Helligkeit Muendungsfeuer (0-255)"
+            range 0 255
+            default 128
+            help
+                Eigene Grenze, weil der Blitz zeitgleich mit Rueckstoss-Motor,
+                Schuss-Sound und IR-Puls kommt. Bei 12 Pixeln und 128 zieht der
+                Ring im Blitz etwa 0,25 A aus 5V_PERIPH (MT3608).
+
         config LT_LED_BRIGHTNESS
             int "Helligkeit (0-255)"
             range 0 255

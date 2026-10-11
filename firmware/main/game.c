@@ -115,6 +115,7 @@ static void fire(int64_t now)
     s_last_shot_us = now;
     s_state.ammo--;
     s_state.shots++;
+    leds_flash_muzzle();
     haptics_play(HAPTIC_RECOIL);
     audio_play(SND_SHOT);
 }
