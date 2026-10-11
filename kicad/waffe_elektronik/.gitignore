@@ -1,2 +1,4 @@
-kicad*.prl
+*.kicad_prl
 *-erc.rpt
+*.lck
+__pycache__/
