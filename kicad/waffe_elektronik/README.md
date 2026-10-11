@@ -16,11 +16,16 @@ starten. Die Bibliotheken sind über die mitgelieferte projekteigene
 Der Schaltplan wurde programmatisch erzeugt (Python + [kiutils][1],
 [scripts/build_sch.py](scripts/build_sch.py) +
 [scripts/build_full.py](scripts/build_full.py)), per `kicad-cli sch erc` auf
-0 Fehler geprüft. Signalnetze sind mit echten Leitungen verbunden; nur die
-globalen Versorgungsnetze (`GND`, `3V3_MCU`, `5V_PERIPH`, `BAT_P`,
-`VBUS_NATIVE`) laufen weiterhin über Netz-Label – alles andere über die
-ganze Seite zu verdrahten wäre nur Kabelsalat, das ist auch in handgezeichneten
-Schaltplänen so üblich.
+0 Fehler geprüft. Alle Signalnetze sind mit echten, automatisch geroutetem
+Leitungen verbunden (inkl. der langen Läufe zum MCU-Modul, mit
+Kollisionsprüfung gegen fremde Pins/Leitungen); nur die globalen
+Versorgungsnetze (`GND`, `3V3_MCU`, `5V_PERIPH`, `BAT_P`, `VBUS_NATIVE`)
+laufen weiterhin über Netz-Label – alles andere über die ganze Seite zu
+verdrahten wäre nur Kabelsalat, das ist auch in handgezeichneten Schaltplänen
+so üblich. Bekannte Einschränkung: an einigen dicht bepinnten Bauteilen
+(Regler, Pegelwandler, Verstärker) überlappt Beschriftungstext optisch – das
+ist rein kosmetisch (ERC/Konnektivität korrekt) und lässt sich bei Bedarf in
+KiCad per Hand nachjustieren.
 
 [1]: https://github.com/mvnmgrx/kiutils
 
