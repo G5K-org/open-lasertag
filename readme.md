@@ -1,6 +1,6 @@
 # Lasertag-System (Eigenbau) – Planung
 
-Infrarot-Lasertag mit ESP32 für eine große Lagerhalle mit Metallregalen und Mesh-WLAN.
+Infrarot-Lasertag mit ESP32.
 Stand: 08.10.2026
 
 ---
