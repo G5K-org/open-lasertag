@@ -42,8 +42,7 @@ Phasenplan für das Lasertag-Projekt, aufbauend auf [readme.md](readme.md) Absch
 ## Phase 3 – Sensorkabel Weste → Waffe
 
 - GX12/GX16-Steckverbinder anschließen, TSOP-Signale auf RMT-Eingänge legen
-- Kein Protokoll nötig (kein zweiter Chip mehr) – nur GPIO/RMT-Einbindung in
-  dieselbe Firmware, die auch sendet
+- Kein Protokoll, nur GPIO/RMT-Einbindung in dieselbe Firmware, die auch sendet
 - RMT-Kanalaufteilung bei mehr TSOPs als freien RX-Kanälen klären (siehe
   [pinbelegung.md, Offene Fragen für den Praxistest](pinbelegung.md#offene-fragen-für-den-praxistest))
 - ESD-Schutz an den Sensorleitungen verifizieren
@@ -52,7 +51,7 @@ Phasenplan für das Lasertag-Projekt, aufbauend auf [readme.md](readme.md) Absch
 
 ## Phase 4 – Netzwerk & Server-Grundgerüst
 
-- UniFi-SSID/VLAN einrichten, feste Kanäle, Band-Steering aus
+- WLAN-SSID/VLAN einrichten, feste Kanäle, Band-Steering aus
 - Eigene Roaming-Logik auf dem ESP32 (RSSI-Check alle 1–2 s)
 - UDP-Server (eigener asyncio-`DatagramProtocol`) mit Deduplizierung über (Spieler-ID, Laufnummer) und Shared-Secret/HMAC gegen gefälschte Pakete
 - Latenzmessung: RTT pro Hallenzone loggen
