@@ -39,8 +39,14 @@ Funkebene), ab 20 Waffen per Broadcast.
 
 ## Hinweise
 
-- Beim Öffnen des Ports durch den Server startet der Chip einmal neu (~0,3 s).
-  Pakete in dieser Zeit wiederholen die Waffen.
+- Der Server setzt das Gateway beim Öffnen des Ports gezielt zurück (DTR aus,
+  RTS-Puls), weil Linux beim Öffnen DTR/RTS setzt und der native USB des
+  ESP32 das sonst als „in den Bootloader“ deuten kann. Der Neustart dauert
+  ~0,3 s, Pakete in dieser Zeit wiederholen die Waffen.
+- Hängt das Gateway trotzdem im Bootloader (`waiting for download` im
+  Server-Log): `esptool --port <PORT> --after watchdog-reset chip-id`.
+- Auf einem ESP32-S3 getestet: Waffe im Fallback ↔ Gateway ↔ Server in beide
+  Richtungen, RTT ~22 ms.
 - Kanal so wählen, dass er zu einem Access Point in der Nähe passt oder frei
   ist. Waffen im WLAN hören das Gateway nur, wenn ihr AP auf demselben Kanal
   funkt; im Fallback sitzen sie fest auf diesem Kanal.

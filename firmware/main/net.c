@@ -498,6 +498,9 @@ static void espnow_poll(int64_t now)
             if (!s_gw_known || memcmp(s_gw_mac, f.mac, 6) != 0) {
                 ESP_LOGI(TAG, "ESP-NOW gateway " MACSTR, MAC2STR(f.mac));
             }
+            if (!gw_reachable()) {
+                s_send_hello = true;  // server may have (re)started meanwhile
+            }
             memcpy(s_gw_mac, f.mac, 6);
             s_gw_known = true;
             s_gw_heard_us = now;

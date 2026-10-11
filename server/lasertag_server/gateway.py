@@ -8,9 +8,12 @@ Other lines are log output of the gateway.
 Stdlib only (termios), so Linux and macOS.
 """
 import asyncio
+import fcntl
 import logging
 import os
+import struct
 import termios
+import time
 import tty
 
 log = logging.getLogger("gateway")
@@ -52,9 +55,25 @@ class SerialGateway:
         except termios.error:
             os.close(fd)
             raise
+        self._hard_reset(fd)
         self.fd = fd
         self.buf = b""
         self.loop.add_reader(fd, self._readable)
+
+    @staticmethod
+    def _hard_reset(fd):
+        """Opening the port raises DTR and RTS, which the ESP32's USB-Serial-JTAG
+        can take as "reset into the bootloader". Release DTR (= boot pin high)
+        and pulse RTS (= reset) so the gateway always starts its firmware."""
+        def lines(op, bits):
+            fcntl.ioctl(fd, op, struct.pack("I", bits))
+        try:
+            lines(termios.TIOCMBIC, termios.TIOCM_DTR)
+            lines(termios.TIOCMBIS, termios.TIOCM_RTS)
+            time.sleep(0.1)
+            lines(termios.TIOCMBIC, termios.TIOCM_RTS)
+        except OSError:
+            pass  # not a real serial port (tests use a pty)
 
     def _close(self):
         if self.fd is not None:

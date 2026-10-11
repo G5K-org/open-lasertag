@@ -230,7 +230,7 @@ python3 sim_weapon.py --count 6
 | Schaltplan und Platine | fertig, ERC/DRC ohne Fehler, Bestellpaket für JLCPCB erstellt |
 | Firmware | erste Fassung, auf einem ESP32-S3 geflasht und gestartet; Peripherie noch nicht getestet |
 | Server | erste Fassung, mit simulierten Waffen getestet |
-| ESP-NOW | Waffe und Gateway bauen und starten; serielle Strecke Gateway ↔ Server auf Hardware getestet, Funkstrecke Waffe ↔ Gateway braucht zwei Boards |
+| ESP-NOW | Fallback Waffe ↔ Gateway ↔ Server mit zwei ESP32-S3 getestet (beide Richtungen, RTT ~22 ms); Trefferbestätigung Waffe zu Waffe noch ungetestet |
 | Gehäuse | Basismodell ausgewählt, Umbau für die Elektronik offen |
 | Weste | Sensoren und Kabel geplant |
 
