@@ -1,0 +1,6 @@
+menu "Lasertag Gateway"
+    config GW_CHANNEL
+        int "ESP-NOW-Kanal (= LT_ESPNOW_CHANNEL der Waffen)"
+        range 1 13
+        default 1
+endmenu

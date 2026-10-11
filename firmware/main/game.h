@@ -20,6 +20,8 @@ typedef struct {
     int64_t death_us;
     uint32_t shots;
     uint32_t hits_taken;
+    uint32_t hits_given;  // confirmed by the victims over ESP-NOW
+    uint32_t kills;
 } game_state_t;
 
 esp_err_t game_start(uint8_t team, uint8_t player);

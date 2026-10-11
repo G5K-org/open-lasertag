@@ -1,6 +1,11 @@
 // Network: WLAN station plus one UDP socket to the server.
 // One task owns the socket and the resend buffer; other tasks hand in
 // reports through a queue.
+//
+// ESP-NOW: hit confirmations go straight to the shooter's weapon. If the
+// WLAN is gone for a while, the weapon parks on the gateway's channel and
+// talks to the server through the ESP-NOW gateway (gateway/) instead,
+// trying the WLAN again from time to time.
 #include "net.h"
 
 #include <string.h>
@@ -14,6 +19,7 @@
 #include "esp_random.h"
 #include "esp_timer.h"
 #include "esp_wifi.h"
+#include "espnow.h"
 #include "events.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
@@ -33,6 +39,21 @@
 #define ROAM_SCAN_HOLDOFF_US 10000000
 #define ROAM_MIN_GAIN_DB 8
 #define BSSID_LOCK_MAX_FAILS 3
+#define GW_TIMEOUT_US 3000000        // gateway counts as reachable this long after a packet
+#define CONNECT_TIMEOUT_US 10000000  // give up a WLAN attempt in fallback mode
+
+#if CONFIG_LT_ESPNOW_ENABLE
+#define ESPNOW_ON 1
+#define FALLBACK_US (CONFIG_LT_ESPNOW_FALLBACK_S * 1000000LL)
+#define WIFI_RETRY_US (CONFIG_LT_ESPNOW_WIFI_RETRY_S * 1000000LL)
+#else
+#define ESPNOW_ON 0
+#endif
+#if CONFIG_LT_HIT_CONFIRM
+#define HIT_CONFIRM_ON 1
+#else
+#define HIT_CONFIRM_ON 0
+#endif
 
 typedef struct {
     uint8_t type;
@@ -64,9 +85,36 @@ static int s_reconnect_fails;
 static bool s_bssid_locked;
 static volatile bool s_send_hello;
 
+// ESP-NOW fallback state
+static volatile bool s_fallback;
+static volatile bool s_connecting;      // a WLAN connect attempt is running
+static volatile int64_t s_disc_since_us; // -1 while connected
+static int64_t s_connect_start_us __attribute__((unused));  // only with ESP-NOW
+static int64_t s_gw_heard_us = -GW_TIMEOUT_US;
+static uint8_t s_gw_mac[6];
+static bool s_gw_known;
+static int8_t s_gw_rssi;
+
+// replay protection for weapon -> weapon frames, per sender id
+static struct {
+    bool seen;
+    uint32_t session, seq;
+} s_peer[256];
+
+static bool gw_reachable(void)
+{
+    return s_fallback && esp_timer_get_time() - s_gw_heard_us < GW_TIMEOUT_US;
+}
+
+// Is there any way to the server right now?
+static bool link_up(void)
+{
+    return s_connected || s_fallback;
+}
+
 bool net_connected(void)
 {
-    return s_connected;
+    return s_connected || gw_reachable();
 }
 
 // ---- WLAN ---------------------------------------------------------------
@@ -97,16 +145,30 @@ static void unlock_bssid(void)
 static void on_wifi(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     if (base == WIFI_EVENT && id == WIFI_EVENT_STA_START) {
+        s_connecting = true;
         esp_wifi_connect();
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         s_connected = false;
+        s_connecting = false;
+        if (s_disc_since_us < 0) {
+            s_disc_since_us = esp_timer_get_time();
+        }
         if (s_bssid_locked && ++s_reconnect_fails >= BSSID_LOCK_MAX_FAILS) {
             unlock_bssid();  // roaming target gone, fall back to any AP
         }
-        esp_wifi_connect();
+        if (!s_fallback) {  // in fallback the net task decides when to retry
+            s_connecting = true;
+            esp_wifi_connect();
+        }
     } else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t *ev = data;
         ESP_LOGI(TAG, "connected, IP " IPSTR, IP2STR(&ev->ip_info.ip));
+        if (s_fallback) {
+            ESP_LOGI(TAG, "WLAN back, leaving ESP-NOW fallback");
+        }
+        s_fallback = false;
+        s_connecting = false;
+        s_disc_since_us = -1;
         s_reconnect_fails = 0;
         s_connected = true;
         s_send_hello = true;
@@ -215,6 +277,9 @@ static void send_raw(const uint8_t *buf, size_t len)
 {
     if (s_connected) {
         sendto(s_sock, buf, len, 0, (struct sockaddr *)&s_server, sizeof(s_server));
+    } else if (s_fallback) {
+        // unicast once the gateway is known: MAC-level acks and retries
+        espnow_send(s_gw_known ? s_gw_mac : NULL, buf, len);
     }
 }
 
@@ -260,7 +325,7 @@ static uint32_t pending_count(void)
 
 static void resend_pending(int64_t now)
 {
-    if (!s_connected) {
+    if (!link_up()) {
         return;
     }
     for (int i = 0; i < PENDING_MAX; i++) {
@@ -291,30 +356,34 @@ static void send_status(void)
         .pending = pending_count(),
     };
     wifi_ap_record_t ap;
-    if (esp_wifi_sta_get_ap_info(&ap) == ESP_OK) {
+    if (s_connected && esp_wifi_sta_get_ap_info(&ap) == ESP_OK) {
         st.rssi = ap.rssi;
         memcpy(st.bssid, ap.bssid, 6);
+    } else if (s_fallback && s_gw_known) {
+        st.rssi = s_gw_rssi;  // the gateway is the "zone"
+        memcpy(st.bssid, s_gw_mac, 6);
     }
     s_rtt_max_ms = 0;
     send_now(PKT_STATUS, &st, sizeof(st));
 }
 
-static void handle_rx(const uint8_t *buf, size_t n, int64_t now)
+// Server packet, via UDP or the ESP-NOW gateway. Returns false if invalid.
+static bool handle_rx(const uint8_t *buf, size_t n, int64_t now)
 {
     const pkt_hdr_t *h;
     const uint8_t *pl;
-    if (!proto_verify(buf, n, &h, &pl)) {
+    if (!proto_verify(buf, n, &h, &pl) || h->type < 0x80) {
         ESP_LOGD(TAG, "dropped invalid packet (%u bytes)", (unsigned)n);
-        return;
+        return false;
     }
     game_state_t g;
     game_snapshot(&g);
     if (h->player != PROTO_PLAYER_ALL && h->player != g.player) {
-        return;
+        return true;
     }
     // replay protection; a new server session (server restart) resets it
     if (s_server_seen && h->session == s_server_session && h->seq <= s_server_seq) {
-        return;
+        return true;
     }
     s_server_seen = true;
     s_server_session = h->session;
@@ -373,6 +442,108 @@ static void handle_rx(const uint8_t *buf, size_t n, int64_t now)
     default:
         break;
     }
+    return true;
+}
+
+// ---- ESP-NOW ------------------------------------------------------------
+
+static void send_hit_confirm(const outmsg_t *m)
+{
+    uint8_t buf[PKT_MAX];
+    size_t len = build(buf, PKT_HIT_CONFIRM, m->payload, m->len);
+    espnow_send(NULL, buf, len);  // broadcast has no MAC retries: send twice
+    espnow_send(NULL, buf, len);
+}
+
+static void hit_confirm_rx(const pkt_hdr_t *h, const uint8_t *pl, int64_t now)
+{
+    if (h->len != sizeof(pl_hit_confirm_t)) {
+        return;
+    }
+    if (s_peer[h->player].seen && s_peer[h->player].session == h->session &&
+        h->seq <= s_peer[h->player].seq) {
+        return;  // second copy or replay
+    }
+    s_peer[h->player].seen = true;
+    s_peer[h->player].session = h->session;
+    s_peer[h->player].seq = h->seq;
+
+    const pl_hit_confirm_t *c = (const pl_hit_confirm_t *)pl;
+    game_state_t g;
+    game_snapshot(&g);
+    if (c->shooter_player != g.player || c->shooter_team != g.team) {
+        return;  // somebody else's hit
+    }
+    event_t ev = {
+        .type = EV_HIT_CONFIRM,
+        .time_us = now,
+        .confirm = {.victim_team = h->team, .victim_player = h->player, .killed = c->killed},
+    };
+    game_post(&ev);
+}
+
+static void espnow_poll(int64_t now)
+{
+    espnow_frame_t f;
+    while (espnow_recv(&f, 0)) {
+        const pkt_hdr_t *h;
+        const uint8_t *pl;
+        if (!proto_verify(f.data, f.len, &h, &pl)) {
+            continue;
+        }
+        if (h->type == PKT_HIT_CONFIRM) {
+            hit_confirm_rx(h, pl, now);
+        } else if (h->type >= 0x80 && handle_rx(f.data, f.len, now)) {
+            // the gateway relays server packets
+            if (!s_gw_known || memcmp(s_gw_mac, f.mac, 6) != 0) {
+                ESP_LOGI(TAG, "ESP-NOW gateway " MACSTR, MAC2STR(f.mac));
+            }
+            memcpy(s_gw_mac, f.mac, 6);
+            s_gw_known = true;
+            s_gw_heard_us = now;
+            s_gw_rssi = f.rssi;
+        }
+    }
+}
+
+// Switch between WLAN and the ESP-NOW gateway.
+static void link_manage(int64_t now)
+{
+    if (!ESPNOW_ON) {
+        return;
+    }
+#if CONFIG_LT_ESPNOW_ENABLE
+    if (!s_connected && !s_fallback && s_disc_since_us >= 0 &&
+        now - s_disc_since_us > FALLBACK_US) {
+        ESP_LOGW(TAG, "no WLAN for %d s, ESP-NOW fallback on channel %d",
+                 CONFIG_LT_ESPNOW_FALLBACK_S, CONFIG_LT_ESPNOW_CHANNEL);
+        s_fallback = true;
+        s_connecting = false;
+        s_connect_start_us = now;  // first retry after WIFI_RETRY_US
+        esp_wifi_disconnect();     // stop the automatic reconnects
+        s_send_hello = true;
+    }
+    if (!s_fallback) {
+        return;
+    }
+    if (s_connecting && now - s_connect_start_us > CONNECT_TIMEOUT_US) {
+        esp_wifi_disconnect();  // e.g. stuck in DHCP
+        s_connecting = false;
+    }
+    if (!s_connecting && now - s_connect_start_us >= WIFI_RETRY_US) {
+        s_connecting = true;
+        s_connect_start_us = now;
+        esp_wifi_connect();  // scans all channels; ESP-NOW is deaf meanwhile
+        return;
+    }
+    if (!s_connecting) {
+        uint8_t ch;
+        wifi_second_chan_t second;
+        if (esp_wifi_get_channel(&ch, &second) == ESP_OK && ch != CONFIG_LT_ESPNOW_CHANNEL) {
+            esp_wifi_set_channel(CONFIG_LT_ESPNOW_CHANNEL, WIFI_SECOND_CHAN_NONE);
+        }
+    }
+#endif
 }
 
 static void net_task(void *arg)
@@ -392,9 +563,17 @@ static void net_task(void *arg)
         }
 
         int64_t now = esp_timer_get_time();
+        if (ESPNOW_ON) {
+            espnow_poll(now);
+            link_manage(now);
+        }
         outmsg_t m;
         while (xQueueReceive(s_out_q, &m, 0) == pdTRUE) {
-            send_reliable(&m, now);
+            if (m.type == PKT_HIT_CONFIRM) {
+                send_hit_confirm(&m);
+            } else {
+                send_reliable(&m, now);
+            }
         }
         if (s_send_hello) {
             s_send_hello = false;
@@ -403,12 +582,12 @@ static void net_task(void *arg)
             send_now(PKT_HELLO, &hello, sizeof(hello));
         }
         resend_pending(now);
-        if (s_connected && now - last_ping >= PING_US) {
+        if (link_up() && now - last_ping >= PING_US) {
             last_ping = now;
             pl_ping_t p = {.t_us = now};
             send_now(PKT_PING, &p, sizeof(p));
         }
-        if (s_connected && now - last_status >= STATUS_US) {
+        if (link_up() && now - last_status >= STATUS_US) {
             last_status = now;
             send_status();
         }
@@ -441,6 +620,19 @@ void net_report_hit(uint8_t shooter_team, uint8_t shooter_player, uint8_t sensor
     queue_msg(PKT_HIT, &p, sizeof(p));
 }
 
+void net_hit_confirm(uint8_t shooter_team, uint8_t shooter_player, bool killed)
+{
+    if (!HIT_CONFIRM_ON) {
+        return;
+    }
+    pl_hit_confirm_t p = {
+        .shooter_team = shooter_team,
+        .shooter_player = shooter_player,
+        .killed = killed,
+    };
+    queue_msg(PKT_HIT_CONFIRM, &p, sizeof(p));
+}
+
 void net_report_death(uint8_t killer_team, uint8_t killer_player)
 {
     pl_death_t p = {
@@ -454,10 +646,14 @@ void net_report_death(uint8_t killer_team, uint8_t killer_player)
 esp_err_t net_start(void)
 {
     s_session = esp_random();
+    s_disc_since_us = esp_timer_get_time();  // not connected yet
     s_out_q = xQueueCreate(16, sizeof(outmsg_t));
     ESP_RETURN_ON_FALSE(s_out_q, ESP_ERR_NO_MEM, TAG, "queue");
     ESP_RETURN_ON_ERROR(proto_init(CONFIG_LT_HMAC_KEY), TAG, "crypto");
     ESP_RETURN_ON_ERROR(wifi_init(), TAG, "wifi");
+    if (ESPNOW_ON) {
+        ESP_RETURN_ON_ERROR(espnow_init(), TAG, "espnow");
+    }
 
     s_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     ESP_RETURN_ON_FALSE(s_sock >= 0, ESP_FAIL, TAG, "socket");

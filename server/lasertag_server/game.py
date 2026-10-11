@@ -143,12 +143,15 @@ class Game:
         return pl
 
     def handle(self, pkt: p.Packet, addr) -> None:
+        """addr: (ip, port) for UDP or ("espnow", mac) via the gateway."""
+        if pkt.type >= p.HIT_CONFIRM:
+            return  # weapon -> weapon or server -> weapon, not ours
+        pl = self.player(pkt, addr)  # first, so replies know the path
         if pkt.type in (p.HIT, p.DEATH):
             # ack every copy, the weapon resends until it gets one
             self.send(p.ACK, pkt.player, p.ACK_FMT.pack(pkt.session, pkt.seq))
         if self.is_duplicate(pkt):
             return
-        pl = self.player(pkt, addr)
         if pkt.type == p.PING:
             self.send(p.PONG, pkt.player, pkt.payload)
         elif pkt.type == p.HELLO:
@@ -339,6 +342,8 @@ class Game:
             players.append({
                 "id": pl.id, "team": pl.team, "name": pl.name, "online": self.online(pl),
                 "ip": pl.addr[0] if pl.addr else None, "fw": pl.firmware,
+                "link": ("espnow" if pl.addr and pl.addr[0] == "espnow" else "wlan")
+                if pl.addr else None,
                 "alive": pl.alive, "respawn_in": respawn_in,
                 "kills": pl.kills, "deaths": pl.deaths, "hits_given": pl.hits_given,
                 "hits_taken": pl.hits_taken, "team_kills": pl.team_kills, "score": pl.score,

@@ -64,11 +64,19 @@ static const seg_t START[] = {
     {WAVE_SINE, 1760, 1760, 300, 0.8f, 0.0f},
 };
 
+static const seg_t HIT_CONFIRM[] = {{WAVE_SINE, 2400, 2400, 45, 0.7f, 0.0f}};
+static const seg_t KILL_CONFIRM[] = {
+    {WAVE_SINE, 1800, 1800, 70, 0.7f, 0.5f},
+    {WAVE_SINE, 0, 0, 30, 0, 0},
+    {WAVE_SINE, 2700, 2700, 150, 0.8f, 0.0f},
+};
+
 static const sfx_t SOUNDS[] = {
     [SND_SHOT] = SFX(SHOT),       [SND_EMPTY] = SFX(EMPTY),
     [SND_RELOAD] = SFX(RELOAD),   [SND_HIT] = SFX(HIT),
     [SND_DEATH] = SFX(DEATH),     [SND_RESPAWN] = SFX(RESPAWN),
     [SND_START] = SFX(START),
+    [SND_HIT_CONFIRM] = SFX(HIT_CONFIRM), [SND_KILL_CONFIRM] = SFX(KILL_CONFIRM),
 };
 
 static i2s_chan_handle_t s_tx;

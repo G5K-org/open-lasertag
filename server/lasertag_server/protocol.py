@@ -16,6 +16,8 @@ PLAYER_ALL = 0xFF
 
 # weapon -> server
 HELLO, STATUS, HIT, DEATH, PING = 0x01, 0x02, 0x03, 0x04, 0x05
+# weapon -> weapon (ESP-NOW), not for the server
+HIT_CONFIRM = 0x10
 # server -> weapon
 ACK, PONG, GAME_START, GAME_STOP, RESPAWN, SET_IDENTITY = 0x81, 0x82, 0x83, 0x84, 0x85, 0x86
 

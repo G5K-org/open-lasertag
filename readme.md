@@ -25,6 +25,8 @@ Ein komplettes Lasertag-System im Eigenbau für Spiele in einer großen Halle:
   und Schultern, per Kabel an der Waffe. Die Weste hat keine eigene Elektronik.
 - **Server:** ein Python-Programm mit Live-Anzeige im Browser. Es zählt
   Punkte, führt Runden und gibt den Respawn frei.
+- **Gateway (optional):** ein kleiner ESP32 am Server-PC. Über ihn erreichen
+  die Waffen den Server per ESP-NOW, wenn das WLAN ausfällt.
 
 Geschossen wird mit einer 940-nm-IR-LED hinter einer Linse, nicht mit einem
 echten Laser. Die Spiellogik läuft lokal in der Waffe, damit Treffer sofort
@@ -63,6 +65,7 @@ Licht, Ton und Vibration auslösen. Das Netz meldet nur nach.
 | 📳 **Feedback** | Rückstoß- und Treffervibration, Soundeffekte über I²S-Verstärker, weißer Blitz bei Treffer, rotes Pulsieren als tot |
 | 🔋 **Akku** | 1S-LiPo, Laden über USB-C, Spannungs- und Ladeanzeige |
 | 📡 **Netz** | WLAN mit eigenem Roaming zwischen Access Points, UDP mit HMAC-Signatur, Treffer werden bis zur Bestätigung wiederholt |
+| 🛟 **ESP-NOW** | Fallback zum Server über ein Gateway, wenn das WLAN ausfällt; Trefferbestätigung direkt an die Waffe des Schützen (Ton + grüner Blitz) |
 | 🖥️ **Server** | Runden mit Zeitlimit, Teamwertung, Respawn-Freigabe, Live-Anzeige und Bedienung im Browser, Latenzmessung pro Hallenzone |
 
 ## Systemüberblick
@@ -84,14 +87,19 @@ flowchart LR
         NET["WLAN / UDP"]
     end
     SRV["Server (Python)<br>Punkte, Runden"]
+    GW["Gateway<br>ESP32-C3"]
     WEB["Browser<br>Live-Anzeige"]
+    W2["andere Waffe"]
 
     Weste -->|"Sensorkabel<br>GX16, 7 Adern"| RX
     RX --> GAME
     GAME --> TX
     GAME --> FX
     GAME <--> NET
-    NET <-->|"UDP + HMAC"| SRV
+    NET <-->|"WLAN: UDP + HMAC"| SRV
+    NET <-.->|"Fallback: ESP-NOW"| GW
+    GW <-->|USB| SRV
+    NET -.->|"ESP-NOW: Treffer bestätigt"| W2
     SRV <-->|WebSocket| WEB
     TX -.->|IR-Schuss| G(("Gegner"))
 ```
@@ -146,6 +154,8 @@ Core 0, IR-Empfang und Spiellogik auf Core 1.
   werden synthetisch erzeugt (keine Sound-Dateien).
 - **Netz:** kein Stromsparmodus, eigenes Roaming unter −75 dBm, Treffer
   werden gepuffert und wiederholt, bis der Server bestätigt.
+- **ESP-NOW:** ohne WLAN nach 5 s Fallback über das [Gateway](gateway/);
+  getroffene Waffen bestätigen dem Schützen den Treffer direkt.
 - **Einstellungen:** Team, Spieler-ID, WLAN, Server und Spielregeln unter
   `idf.py menuconfig`. Team und ID kann auch der Server setzen.
 
@@ -161,7 +171,7 @@ Zeitlimit und gibt den Respawn frei. Im Browser gibt es Teamwertung,
 Spielerwerte (HP, Munition, K/D, Akku, Signal, Latenz), Abschussliste und die
 Latenz pro Access Point. Ein Waffen-Simulator erlaubt Tests ohne Hardware.
 
-Details: [server/](server/)
+Details: [server/](server/) · ESP-NOW-Gateway: [gateway/](gateway/)
 
 ## Schnellstart
 
@@ -198,6 +208,7 @@ python3 sim_weapon.py --count 6
 │   ├── main/              Module: IR, Spiellogik, LEDs, Sound, Netz, …
 │   ├── test/              Host-Test des NEC-Decoders
 │   └── tools/             kleiner UDP-Testserver
+├── gateway/               ESP-NOW-Gateway (ESP32-C3) für den Server
 ├── server/                Spielserver in Python
 │   ├── lasertag_server/   UDP, Spiellogik, Web/WebSocket, Oberfläche
 │   ├── sim_weapon.py      Waffen-Simulator
@@ -219,6 +230,7 @@ python3 sim_weapon.py --count 6
 | Schaltplan und Platine | fertig, ERC/DRC ohne Fehler, Bestellpaket für JLCPCB erstellt |
 | Firmware | erste Fassung, auf einem ESP32-S3 geflasht und gestartet; Peripherie noch nicht getestet |
 | Server | erste Fassung, mit simulierten Waffen getestet |
+| ESP-NOW | Waffe und Gateway bauen und starten; serielle Strecke Gateway ↔ Server auf Hardware getestet, Funkstrecke Waffe ↔ Gateway braucht zwei Boards |
 | Gehäuse | Basismodell ausgewählt, Umbau für die Elektronik offen |
 | Weste | Sensoren und Kabel geplant |
 
@@ -240,7 +252,7 @@ Stand der Planung: 08.10.2026
 | Verbindung Weste–Waffe | reines Sensorkabel (3,3 V + GND + je 1 Ader pro TSOP) |
 | Netz | WLAN + UDP zu einem Server |
 | Spiellogik | lokal in der Waffe (HP, Vibration, LEDs, Sound), Netz meldet nur nach |
-| ESP-NOW | vorerst nicht nutzen, nur Rettungsanker |
+| ESP-NOW | Fallback zum Server über ein Gateway und Trefferbestätigung Waffe zu Waffe, WLAN bleibt der Hauptweg |
 | Firmware-Framework | ESP-IDF, kein Arduino – nur offizielle Espressif-Komponenten (RMT, I²S, led_strip, esp_wifi) |
 
 ---
@@ -344,6 +356,10 @@ kein Protokoll.
   wechseln
 - Latenzmessung: Zeitstempel + Echo vom Server, RTT pro Hallenzone loggen
 - Erwartung: 3–15 ms, Ausreißer bis 200 ms bei Roaming
+- ESP-NOW als Rettungsanker: ohne WLAN Fallback über ein Gateway-ESP32 am
+  Server (fester Kanal), dazu Trefferbestätigung direkt an den Schützen. ESP-NOW
+  funkt auf dem aktuellen WLAN-Kanal, Waffen hören sich also nur auf gleichem
+  Kanal
 
 ### Server
 - UDP-Listener als eigener asyncio-`DatagramProtocol`, Deduplizierung über

@@ -12,6 +12,7 @@ typedef enum {
     EV_NET_STOP,
     EV_NET_RESPAWN,
     EV_NET_IDENTITY,  // new team/player id from the server
+    EV_HIT_CONFIRM,   // a victim confirmed our hit (ESP-NOW)
 } event_type_t;
 
 typedef struct {
@@ -36,6 +37,11 @@ typedef struct {
             uint8_t team;
             uint8_t player;
         } identity;
+        struct {
+            uint8_t victim_team;
+            uint8_t victim_player;
+            uint8_t killed;
+        } confirm;
         game_config_t config;
     };
 } event_t;

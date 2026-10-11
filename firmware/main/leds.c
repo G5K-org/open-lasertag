@@ -24,6 +24,8 @@
 #define FLASH_US 150000
 #define MUZZLE_HOLD_US 40000   // full brightness
 #define MUZZLE_FADE_US 80000   // then fade out
+#define CONFIRM_HIT_US 120000
+#define CONFIRM_KILL_US 400000
 
 typedef struct {
     uint8_t r, g, b;
@@ -38,6 +40,8 @@ static led_strip_handle_t s_strip;
 static TaskHandle_t s_task;
 static volatile int64_t s_flash_until;
 static volatile int64_t s_muzzle_us = -1;
+static volatile int64_t s_confirm_until;
+static volatile bool s_confirm_kill;
 
 void leds_flash_hit(void)
 {
@@ -50,6 +54,12 @@ void leds_flash_muzzle(void)
     if (s_task) {
         xTaskNotifyGive(s_task);  // render now instead of on the next 20 ms frame
     }
+}
+
+void leds_flash_confirm(bool kill)
+{
+    s_confirm_kill = kill;
+    s_confirm_until = esp_timer_get_time() + (kill ? CONFIRM_KILL_US : CONFIRM_HIT_US);
 }
 
 static void put_raw(int idx, rgb_t c, float k)
@@ -125,7 +135,11 @@ static void render(const game_state_t *g, int64_t now)
     // ammo bar, sweeping while reloading
     for (int i = 0; i < N_AMMO; i++) {
         int idx = N_HP + i;
-        if (g->reloading) {
+        if (now < s_confirm_until) {
+            // kill: blinking, hit: steady green
+            bool on = !s_confirm_kill || ((now / 70000) & 1);
+            put(idx, (rgb_t){0, 255, 60}, on ? 1 : 0);
+        } else if (g->reloading) {
             int pos = (now / 60000) % N_AMMO;
             put(idx, (rgb_t){0, 120, 255}, i == pos ? 1 : 0);
         } else {

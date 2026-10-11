@@ -32,6 +32,7 @@ dann flashen.
 | `battery.c` | Akkuspannung (ADC1_CH7, Teiler 1:2, Kurven-Kalibrierung), Ladestatus MCP73831 | 0 |
 | `net.c` | WLAN-STA ohne Power-Save, optional statische IP, eigenes Roaming (RSSI-Prüfung alle 1,5 s, Wechsel unter −75 dBm bei ≥ 8 dB besserem AP), UDP | 0 |
 | `proto.c` | Paketformat + HMAC-SHA256 (PSA-API), auf 16 Byte gekürzt | – |
+| `espnow.c` | ESP-NOW-Transport: Trefferbestätigung Waffe → Schütze, Fallback zum Server über das [Gateway](../gateway/) | 0 |
 
 ## Trefferregeln
 
@@ -41,13 +42,30 @@ dann flashen.
 - 500 ms unverwundbar nach einem Treffer.
 - Ohne Server (`LT_STANDALONE`) läuft das Spiel sofort, Respawn lokal nach 10 s.
 
+## ESP-NOW
+
+Zwei Aufgaben (Menü „ESP-NOW“ in `menuconfig`):
+
+- **Trefferbestätigung:** Die getroffene Waffe schickt dem Schützen per
+  ESP-NOW-Broadcast `HIT_CONFIRM` (signiert wie alle Pakete). Der Schütze hört
+  einen kurzen Bestätigungston, beim Abschuss einen Doppelton, und sein
+  Munitionsbalken blitzt grün. Das geht ohne Server, aber nur zwischen Waffen
+  auf demselben WLAN-Kanal.
+- **Fallback zum Server:** Ist das WLAN länger als `LT_ESPNOW_FALLBACK_S`
+  (5 s) weg, wechselt die Waffe auf `LT_ESPNOW_CHANNEL` und schickt ihre
+  Pakete per ESP-NOW an das Gateway am Server. Treffer werden weiter bis
+  zum ACK wiederholt. Alle `LT_ESPNOW_WIFI_RETRY_S` (20 s) versucht sie das WLAN
+  erneut; während der Suche (~2 s) ist ESP-NOW taub. Im Status steht dann
+  das Gateway als „Access Point“, die Weboberfläche markiert die Waffe mit
+  „ESP-NOW“.
+
 ## UDP-Protokoll
 
 Format in [`main/proto.h`](main/proto.h): 16-Byte-Header (Magic `LT`, Typ, Team,
 Spieler, Länge, Session, Laufnummer) + Nutzdaten + 16 Byte HMAC. Waffe → Server:
 `HELLO`, `STATUS` (1 s, mit RSSI, BSSID und RTT für die Messung pro Hallenzone),
 `HIT`/`DEATH` (sofort 2×, dann alle 250 ms bis zum `ACK`, offline gepuffert),
-`PING`. Server → Waffe: `ACK`, `PONG`, `GAME_START` (Regeln), `GAME_STOP`,
+`PING`. Waffe → Waffe: `HIT_CONFIRM` (nur ESP-NOW). Server → Waffe: `ACK`, `PONG`, `GAME_START` (Regeln), `GAME_STOP`,
 `RESPAWN`, `SET_IDENTITY` (Team/Spieler, wird im NVS gespeichert).
 
 Testserver:

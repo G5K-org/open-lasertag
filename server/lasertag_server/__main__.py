@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 
 from .game import Game, Rules
+from .gateway import SerialGateway
 from .udp import WeaponProtocol
 from .web import WebServer
 
@@ -46,6 +47,8 @@ async def main():
     ap.add_argument("--http-port", type=int, default=8080)
     ap.add_argument("--bind", default="0.0.0.0")
     ap.add_argument("--admin-token", help="required as ?token= for controls in the web UI")
+    ap.add_argument("--gateway", metavar="PORT",
+                    help="ESP-NOW gateway on this serial port, e.g. /dev/ttyACM0")
     ap.add_argument("--no-control", action="store_true",
                     help="do not force the weapons' running state (free play)")
     ap.add_argument("--log-dir", default="logs")
@@ -86,6 +89,9 @@ async def main():
     game.rules = make_rules(Rules(), cfg.get("rules", {}))
     udp.game = game
     await loop.create_datagram_endpoint(lambda: udp, local_addr=(a.bind, a.udp_port))
+    if a.gateway:
+        udp.gateway = SerialGateway(a.gateway, udp.gateway_packet)
+        asyncio.create_task(udp.gateway.run())
 
     def on_command(c: dict):
         cmd = c["cmd"]

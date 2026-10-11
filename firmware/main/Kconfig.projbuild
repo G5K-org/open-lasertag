@@ -100,6 +100,38 @@ menu "Lasertag Waffe"
                 GPIO21 ist im aktuellen Schaltplan noch nicht verdrahtet.
     endmenu
 
+    menu "ESP-NOW"
+        config LT_ESPNOW_ENABLE
+            bool "ESP-NOW verwenden"
+            default y
+            help
+                Trefferbestaetigung Waffe zu Waffe und Fallback zum Server ueber
+                ein Gateway-ESP32 (gateway/), wenn das WLAN ausfaellt.
+
+        config LT_ESPNOW_CHANNEL
+            int "Kanal des Gateways (Fallback)"
+            depends on LT_ESPNOW_ENABLE
+            range 1 13
+            default 1
+
+        config LT_ESPNOW_FALLBACK_S
+            int "WLAN so lange weg -> Fallback auf ESP-NOW [s]"
+            depends on LT_ESPNOW_ENABLE
+            default 5
+
+        config LT_ESPNOW_WIFI_RETRY_S
+            int "Im Fallback alle [s] wieder WLAN versuchen"
+            depends on LT_ESPNOW_ENABLE
+            default 20
+
+        config LT_HIT_CONFIRM
+            bool "Treffer an den Schuetzen bestaetigen (Waffe zu Waffe)"
+            depends on LT_ESPNOW_ENABLE
+            default y
+            help
+                Klappt nur zwischen Waffen auf demselben WLAN-Kanal.
+    endmenu
+
     menu "LEDs"
         config LT_LEDS_HP
             int "WS2812: Pixel Lebensanzeige"

@@ -167,5 +167,63 @@ class GameTest(unittest.TestCase):
         json.dumps(self.g.snapshot())
 
 
+def read_master(fd, timeout=1.0):
+    import os
+    import select
+    if not select.select([fd], [], [], timeout)[0]:
+        raise AssertionError("no data from the server on the pty")
+    return os.read(fd, 4096)
+
+
+class GatewayTest(unittest.TestCase):
+    """Serial line protocol against a pseudo terminal standing in for the gateway."""
+
+    def test_roundtrip_over_pty(self):
+        import asyncio
+        import os
+        import pty
+        from lasertag_server.gateway import SerialGateway
+        from lasertag_server.udp import WeaponProtocol
+
+        async def run():
+            master, slave = pty.openpty()
+            udp = WeaponProtocol(KEY)
+            udp.transport = object()  # not used for espnow targets
+            sent = []
+            udp.game = Game(udp.send)
+            udp.gateway = SerialGateway(os.ttyname(slave), udp.gateway_packet)
+            task = asyncio.create_task(udp.gateway.run())
+            await asyncio.sleep(0.05)
+            self.assertTrue(udp.gateway.connected)
+
+            # weapon HIT via the gateway, plus a log line
+            hit = p.build(KEY, p.HIT, 1, 7, 99, 1, p.HIT_FMT.pack(0, 3, 3, 0, 90, 0))
+            os.write(master, b"gw log line\nLT:aabbccddeeff:" + hit.hex().encode() + b"\n")
+            await asyncio.sleep(0.05)
+            self.assertIn(7, udp.game.players)
+            self.assertEqual(udp.game.players[7].addr, ("espnow", "aabbccddeeff"))
+
+            # the ACK went back to the gateway, addressed to the weapon's MAC
+            out = read_master(master).decode().strip().split("\n")
+            self.assertTrue(out[0].startswith("LT:aabbccddeeff:"))
+            ack = p.parse(KEY, bytes.fromhex(out[0].split(":")[2]))
+            self.assertEqual((ack.type, ack.player), (p.ACK, 7))
+            self.assertEqual(p.ACK_FMT.unpack(ack.payload), (99, 1))
+
+            # broadcast to all goes out once as ffffffffffff
+            udp.game.start_round()
+            out = read_master(master).decode().strip().split("\n")
+            self.assertEqual([ln.split(":")[1] for ln in out], ["ffffffffffff"])
+            task.cancel()
+            os.close(master)
+
+        asyncio.run(run())
+
+    def test_hit_confirm_ignored(self):
+        g = Game(lambda *a: None)
+        g.handle(pkt(p.HIT_CONFIRM, 5, 0, 1, b"\0\0\0\0"), ("espnow", "x"))
+        self.assertNotIn(5, g.players)
+
+
 if __name__ == "__main__":
     unittest.main()

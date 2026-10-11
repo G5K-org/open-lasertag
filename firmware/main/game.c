@@ -201,6 +201,7 @@ static void ir_frame(const event_t *ev)
         haptics_play(HAPTIC_HIT);
         audio_play(SND_HIT);
     }
+    net_hit_confirm(team, player, s_state.hp == 0);
     net_report_hit(team, player, ev->ir.sensor, s_state.hp);
     if (s_state.hp == 0) {
         net_report_death(team, player);
@@ -220,6 +221,19 @@ static void handle(const event_t *ev)
         break;
     case EV_IR_FRAME:
         ir_frame(ev);
+        break;
+    case EV_HIT_CONFIRM:
+        // feedback for the shooter: our shot landed
+        if (s_state.running) {
+            s_state.hits_given++;
+            if (ev->confirm.killed) {
+                s_state.kills++;
+            }
+            leds_flash_confirm(ev->confirm.killed);
+            audio_play(ev->confirm.killed ? SND_KILL_CONFIRM : SND_HIT_CONFIRM);
+            ESP_LOGI(TAG, "%s team %u player %u", ev->confirm.killed ? "killed" : "hit",
+                     ev->confirm.victim_team, ev->confirm.victim_player);
+        }
         break;
     case EV_NET_START:
         s_cfg = ev->config;

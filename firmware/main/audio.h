@@ -10,6 +10,8 @@ typedef enum {
     SND_DEATH,
     SND_RESPAWN,
     SND_START,
+    SND_HIT_CONFIRM,   // our shot landed
+    SND_KILL_CONFIRM,  // our shot killed
 } sound_t;
 
 // MAX98357A over I2S, sounds are synthesised (no sample files).

@@ -27,6 +27,7 @@ diese IP und `LT_SERVER_PORT` auf 4210 setzen.
 | `--key` | HMAC-Schlüssel (überschreibt `key` aus der Config) |
 | `--udp-port` / `--http-port` | Standard 4210 / 8080 |
 | `--admin-token TOKEN` | Bedienung nur mit `http://…:8080/?token=TOKEN`, ohne Token nur Anzeige (z. B. für einen Beamer) |
+| `--gateway PORT` | ESP-NOW-Gateway ([../gateway/](../gateway/)) an diesem seriellen Port, z. B. `/dev/ttyACM0` |
 | `--no-control` | Waffen nicht zwingen, den Spielstand des Servers zu übernehmen (freies Spiel ohne Runde) |
 | `--log-dir` | Standard `logs/`: `events-*.jsonl` (alle Ereignisse), `rtt-*.csv` (RTT-Messung pro AP) |
 
@@ -44,6 +45,10 @@ diese IP und `LT_SERVER_PORT` auf 4210 setzen.
 - Meldet der Status einen Tod, bevor das `DEATH`-Paket ankommt, wird der
   Spieler sofort als tot geführt; der Abschuss wird gutgeschrieben, sobald
   `DEATH` eintrifft.
+- Mit Gateway antwortet der Server jeder Waffe auf dem Weg, über den ihr
+  letztes Paket kam (UDP oder ESP-NOW). Befehle an alle gehen zusätzlich
+  einmal als ESP-NOW-Broadcast raus. Waffen im Fallback sind in der
+  Weboberfläche mit „ESP-NOW“ markiert.
 - Team- und ID-Wechsel aus der Weboberfläche gehen per `SET_IDENTITY` an die
   Waffe und werden dort im NVS gespeichert.
 

@@ -25,6 +25,8 @@ typedef enum {
     PKT_HIT = 0x03,     // reliable, until ACK
     PKT_DEATH = 0x04,   // reliable, until ACK
     PKT_PING = 0x05,    // RTT measurement
+    // weapon -> weapon (ESP-NOW broadcast)
+    PKT_HIT_CONFIRM = 0x10,  // victim tells the shooter about the hit
     // server -> weapon
     PKT_ACK = 0x81,
     PKT_PONG = 0x82,
@@ -82,6 +84,13 @@ typedef struct __attribute__((packed)) {
 } pl_death_t;
 
 typedef struct __attribute__((packed)) {
+    uint8_t shooter_team;
+    uint8_t shooter_player;
+    uint8_t killed;
+    uint8_t reserved;
+} pl_hit_confirm_t;
+
+typedef struct __attribute__((packed)) {
     uint64_t t_us;      // echoed back by the server in PKT_PONG
 } pl_ping_t;
 
@@ -110,6 +119,7 @@ _Static_assert(sizeof(pl_hello_t) == 16, "hello");
 _Static_assert(sizeof(pl_status_t) == 32, "status");
 _Static_assert(sizeof(pl_hit_t) == 10, "hit");
 _Static_assert(sizeof(pl_death_t) == 6, "death");
+_Static_assert(sizeof(pl_hit_confirm_t) == 4, "hit confirm");
 _Static_assert(sizeof(pl_ping_t) == 8, "ping");
 _Static_assert(sizeof(pl_ack_t) == 8, "ack");
 _Static_assert(sizeof(pl_game_start_t) == 8, "game start");
