@@ -1,0 +1,176 @@
+menu "Lasertag Waffe"
+
+    menu "Identitaet"
+        config LT_TEAM
+            int "Team (NEC-Adresse, Vorgabe bis der Server etwas anderes setzt)"
+            range 0 7
+            default 0
+
+        config LT_PLAYER_ID
+            int "Spieler-ID (NEC-Command)"
+            range 1 254
+            default 1
+    endmenu
+
+    menu "Spielregeln"
+        config LT_STANDALONE
+            bool "Ohne Server sofort spielbereit"
+            default y
+            help
+                An: das Spiel laeuft nach dem Einschalten, der Server meldet nur nach.
+                Aus: die Waffe wartet auf GAME_START vom Server.
+
+        config LT_MAX_HP
+            int "Lebenspunkte"
+            range 1 1000
+            default 100
+
+        config LT_DAMAGE
+            int "Schaden pro Treffer"
+            range 1 1000
+            default 10
+
+        config LT_MAGAZINE
+            int "Schuss pro Magazin"
+            range 1 255
+            default 30
+
+        config LT_MAGAZINES
+            int "Magazine (0 = unbegrenzt)"
+            range 0 255
+            default 0
+
+        config LT_RELOAD_MS
+            int "Nachladezeit [ms]"
+            default 1500
+
+        config LT_FIRE_INTERVAL_MS
+            int "Minimaler Abstand zwischen zwei Schuessen [ms]"
+            range 120 5000
+            default 200
+            help
+                Ein Schuss besteht aus zwei NEC-Frames (~150 ms Sendedauer).
+
+        config LT_FULL_AUTO
+            bool "Dauerfeuer bei gehaltenem Abzug"
+            default n
+
+        config LT_FRIENDLY_FIRE
+            bool "Friendly Fire"
+            default n
+
+        config LT_HIT_CONFIRM_FRAMES
+            int "Gueltige Frames pro Treffer (2 = beide Frames eines Schusses)"
+            range 1 2
+            default 2
+
+        config LT_HIT_WINDOW_MS
+            int "Zeitfenster fuer die Bestaetigungs-Frames [ms]"
+            default 100
+
+        config LT_INVULN_MS
+            int "Unverwundbarkeit nach Treffer [ms]"
+            default 500
+
+        config LT_RESPAWN_S
+            int "Lokaler Respawn nach [s] (0 = nur auf Befehl vom Server)"
+            range 0 255
+            default 10
+    endmenu
+
+    menu "IR"
+        config LT_IR_DUTY_PERCENT
+            int "Traeger-Tastgrad [%]"
+            range 10 50
+            default 33
+
+        config LT_IR_FRAME_GAP_MS
+            int "Pause zwischen den zwei Frames eines Schusses [ms]"
+            range 7 30
+            default 10
+
+        config LT_TSOP5_ENABLE
+            bool "TSOP 5 (Schultern, GPIO14) auswerten"
+            default y
+
+        config LT_TSOP6_ENABLE
+            bool "TSOP 6 (Waffe vorne, GPIO21) auswerten"
+            default n
+            help
+                GPIO21 ist im aktuellen Schaltplan noch nicht verdrahtet.
+    endmenu
+
+    menu "LEDs"
+        config LT_LEDS_HP
+            int "WS2812: Pixel Lebensanzeige"
+            default 10
+
+        config LT_LEDS_AMMO
+            int "WS2812: Pixel Munitionsanzeige (Daisy-Chain hinter HP)"
+            default 10
+
+        config LT_LEDS_TEAM
+            int "WS2812: Pixel Teamfarbe (hinter Munition)"
+            default 2
+
+        config LT_LED_BRIGHTNESS
+            int "Helligkeit (0-255)"
+            range 0 255
+            default 64
+    endmenu
+
+    menu "Sound"
+        config LT_AUDIO_VOLUME
+            int "Lautstaerke (0-100)"
+            range 0 100
+            default 60
+    endmenu
+
+    menu "Netzwerk"
+        config LT_WIFI_SSID
+            string "WLAN-SSID"
+            default "lasertag"
+
+        config LT_WIFI_PASSWORD
+            string "WLAN-Passwort"
+            default ""
+
+        config LT_STATIC_IP
+            string "Statische IP (leer = DHCP)"
+            default ""
+
+        config LT_STATIC_NETMASK
+            string "Netzmaske"
+            default "255.255.255.0"
+
+        config LT_STATIC_GW
+            string "Gateway"
+            default ""
+
+        config LT_SERVER_IP
+            string "Server-IP"
+            default "192.168.10.1"
+
+        config LT_SERVER_PORT
+            int "Server-UDP-Port"
+            default 4210
+
+        config LT_LOCAL_PORT
+            int "Lokaler UDP-Port"
+            default 4211
+
+        config LT_HMAC_KEY
+            string "Shared Secret fuer HMAC"
+            default "change-me"
+
+        config LT_ROAM_RSSI
+            int "Roaming-Schwelle [dBm]"
+            range -95 -40
+            default -75
+
+        config LT_ROAM_CHECK_MS
+            int "RSSI-Pruefintervall [ms]"
+            default 1500
+    endmenu
+
+endmenu

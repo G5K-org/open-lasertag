@@ -200,14 +200,14 @@ Akku und Metall), USB-Zugang einplanen.
 ## 10. Offene Punkte
 
 - Genaue Pinbelegung für den einen ESP32-S3 (jetzt in der Waffe)
-- Waffe-Code (IR-Task Core 1, TSOP-Auswertung, UDP, Puffer, Reconnect) und Server-Code
+- Waffe-Code: erste Fassung in [firmware/](firmware/) (ESP-IDF v6.0, baut, noch nicht auf Hardware getestet); Server-Code offen
 - Gehäuse/3D-Druck-Maße, inkl. Platz für Akku/Lautsprecher/LED in der Waffe –
   als Basis ausgewählt: [MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay)
   (STLs + Quellenangabe in [gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/)),
   muss für Elektronik-Einbau ausgehöhlt/angepasst werden
 - Akku-/Laufzeitbudget (WLAN + WS2812 + Sound + IR-Pulse) für Eventplanung
 - OTA-Update-Mechanismus für die Waffe bei mehreren Sets
-- ESP-IDF-Projektstruktur (Komponenten-Repo, CI-Build) statt Arduino-Sketches
+- CI-Build für die Firmware
 - Server (Python) folgt eigener Umsetzung, ohne externe Basis – ESP-IDF-Vorgabe gilt nur für die Firmware
 - Steckverbinder für das Sensorkabel festlegen (z. B. GX12/GX16, Polzahl nach TSOP-Anzahl)
 - Gewichtsverteilung der Waffe mit Gesamt-BOM früh real nachbauen/wiegen
