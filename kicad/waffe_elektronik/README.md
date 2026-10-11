@@ -35,27 +35,33 @@ zum Repo.
 
 [1]: https://github.com/mvnmgrx/kiutils
 
-## Platzhalter-Bauteile ("Module")
+## Bauteile
 
-Für Baugruppen ohne echtes KiCad-Symbol wurden einfache rechteckige
-Platzhalter-Symbole mit beschrifteten Pins erzeugt (Bibliothek `Module`):
-
-- `U1` – 5V-Boost-Converter (z. B. MT3608-Fertigmodul)
-- `U4` – ESP32-S3-DevKitC-1 (als Modul mit allen genutzten Pins, siehe
-  [pinbelegung.md](../../pinbelegung.md) für die genaue GPIO-Zuordnung)
-
-Alle anderen Bauteile sind echte Symbole aus den KiCad-Standardbibliotheken
-(u. a. `MCP73831-2-OT`, `AMS1117-3.3`, `TSOP348xx`, `MAX98357A`, `AO3400A`,
-`74AHCT125`, `SS14`).
+Einziges Platzhalter-Symbol ist `U1`, der 5-V-Boost-Converter (MT3608-
+Fertigmodul, Bibliothek `Module`). Alle anderen Bauteile sind echte Symbole
+aus den KiCad-Standardbibliotheken, u. a. `ESP32-S3-WROOM-1` (`U4`),
+`USB_C_Receptacle_USB2.0_16P` (`J3`), `USBLC6-2SC6`, `MCP73831-2-OT`,
+`AMS1117-3.3`, `TSOP348xx`, `MAX98357A`, `AO3400A`, `74AHCT125`, `SS14`.
 
 ## Design-Entscheidungen im Schaltplan
 
+- **ESP32-S3-WROOM-1 direkt auf der Platine** (kein DevKit):
+  - 3V3 mit 100 nF + 10 µF direkt am Modul
+  - EN mit 10 kΩ Pull-up und 1 µF (Power-on-Reset), dazu RESET-Taster
+  - BOOT-Taster an IO0
+- **USB-C (`J3`) am nativen USB des S3** (IO19/IO20 = USB_D−/USB_D+):
+  - Flashen und serielle Konsole über den eingebauten USB-Serial-JTAG –
+    esptool setzt das Modul automatisch in den Download-Modus, ohne
+    USB-UART-Chip
+  - Hängt die Firmware oder belegt sie die USB-Pins: BOOT halten und RESET
+    drücken, dann lässt sich trotzdem flashen
+  - CC1/CC2 je 5,1 kΩ nach GND, damit USB-C-Netzteile VBUS einschalten
+  - ESD-Schutz USBLC6-2SC6 in D−/D+ und VBUS
 - **Power-Tree:** Akku → 5V-Boost (`U1`) → `5V_PERIPH` (speist WS2812,
-  MAX98357A, 74AHCT125) → AMS1117-3.3 (`U2`) → `3V3_MCU` (speist nur das
-  3V3-Pin des DevKitC).
-- **Lader (`U3`, MCP73831):** hängt ausschließlich am `VBUS_NATIVE`-Pin des
-  DevKitC-Moduls (= dessen eigener Flash-/Debug-USB-C-Port), nicht am
-  Boost-Ausgang.
+  MAX98357A, 74AHCT125) → AMS1117-3.3 (`U2`) → `3V3_MCU` (ESP32-S3 und
+  Pull-ups).
+- **Lader (`U3`, MCP73831):** hängt ausschließlich an `VBUS_NATIVE` der
+  USB-C-Buchse, nicht am Boost-Ausgang.
 - **TSOPs:** je eigener 100 Ω/4,7 µF-Tiefpass direkt am Sensor (auf der
   Weste).
 - **WS2812:** läuft über einen 74AHCT125-Pegelwandler (3,3→5 V) plus

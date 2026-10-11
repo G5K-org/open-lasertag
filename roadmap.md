@@ -8,7 +8,8 @@ Phasenplan für das Lasertag-Projekt, aufbauend auf [readme.md](readme.md) Absch
 
 - [x] Pinbelegung für den einen ESP32-S3 (jetzt in der Waffe) festlegen → [pinbelegung.md](pinbelegung.md)
 - [x] Schaltplan Waffen-Elektronik (ERC-geprüft) → [kicad/waffe_elektronik/](kicad/waffe_elektronik/waffe_elektronik.kicad_sch)
-- Stückliste erstellen und bestellen: TSOP34838, IR-LEDs (TSAL6100 o. ä.), Linsen,
+- Stückliste erstellen und bestellen: ESP32-S3-WROOM-1-N16R8, USB-C-Buchse (USB 2.0,
+  16 Pin), USBLC6-2SC6, TSOP34838, IR-LEDs (TSAL6100 o. ä.), Linsen,
   MOSFETs (AO3400/IRLZ44N), WS2812(B)-Streifen (echte 5-V-Variante), MAX98357A,
   1S-LiPo/18650, Pegelwandler (74AHCT125), kleiner 5-V-Boost-Converter,
   Lade-IC (TP4056-Modul mit Schutzschaltung oder MCP73831),

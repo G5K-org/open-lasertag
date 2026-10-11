@@ -11,7 +11,8 @@ Elektronik mehr, nur TSOP-Sensoren am Sensorkabel.
 
 ## Waffe – ESP32-S3 (zentrale Elektronik)
 
-**Board: ESP32-S3-DevKitC-1.**
+**Modul: ESP32-S3-WROOM-1-N16R8** direkt auf der Platine, mit eigener USB-C-Buchse
+am nativen USB (Flashen, Debuggen, Laden).
 
 **Gesperrte Pins** (nicht verwenden): `GPIO0, 3, 19, 20, 43, 44, 45, 46`.
 `GPIO33–37` ebenfalls freilassen.
@@ -38,7 +39,10 @@ Elektronik mehr, nur TSOP-Sensoren am Sensorkabel.
 | I²S LRCLK/WS | GPIO38 | zu MAX98357A |
 | I²S DOUT | GPIO39 | zu MAX98357A |
 | Munitionszähler-LED-Zeile (falls kein OLED) | GPIO1/GPIO2 | |
-| — frei für Erweiterungen — | GPIO9, 10, 41, 42 | |
+| USB D− / D+ | GPIO19 / GPIO20 | nativer USB (USB-Serial-JTAG), über ESD-Schutz an die USB-C-Buchse |
+| BOOT-Taster | GPIO0 | Download-Modus, nur als Rückfallebene nötig |
+| RESET | EN | 10 kΩ Pull-up + 1 µF, RESET-Taster |
+| — frei für Erweiterungen — | GPIO9, 10, 41, 42, 47, 48 | |
 
 ---
 
@@ -54,5 +58,4 @@ Keine Elektronik, kein Chip. Nur die TSOPs mit ihrer lokalen Beschaltung
 - RMT-Kanäle: 4 TX + 4 RX – bei 6 TSOPs ggf. einen Sensor per Software-Timer
   statt RMT auswerten, oder bei 4 Sensoren bleiben
 - I²S-SD-Pin des MAX98357A fest auf 5V_PERIPH, GAIN_SLOT fest auf GND
-- Exakte GPIO-Zuordnung gegen das tatsächlich bestellte DevKitC-Board
-  verifizieren
+- TSOP 6 (Waffe vorne, GPIO40) ist noch nicht im Schaltplan

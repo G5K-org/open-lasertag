@@ -49,9 +49,11 @@ Stand: 08.10.2026
 - I²S-Verstärker (MAX98357A) + Lautsprecher, nutzt denselben 5-V-Boost wie der
   WS2812-Strip
 - 1S-LiPo oder geschützte 18650, Akkuspannung per ADC, im Waffengehäuse
-- Ladeelektronik USB-C: nutzt denselben USB-C-Port wie Flash/Debug am DevKitC –
-  VBUS/5V-Pin des Boards auf einen Lade-IC führen, z. B. TP4056-Modul mit
-  Schutzschaltung (DW01A + FS8205) oder MCP73831. Bei unprotected
+- ESP32-S3-WROOM-1 direkt auf der Platine, eigene USB-C-Buchse am nativen USB
+  (IO19/IO20) zum Flashen, Debuggen und Laden – Auto-Flash über den
+  eingebauten USB-Serial-JTAG, BOOT- und RESET-Taster als Rückfallebene
+- Ladeelektronik USB-C: VBUS derselben Buchse auf einen Lade-IC führen, z. B.
+  TP4056-Modul mit Schutzschaltung (DW01A + FS8205) oder MCP73831. Bei unprotected
   LiPo-Pouch-Zelle zusätzliche Schutzschaltung einplanen. CHRG/STAT-Ausgang des
   Lade-ICs auf den Lade-Status-GPIO (siehe [pinbelegung.md](pinbelegung.md))
   und/oder eine eigene LED.
