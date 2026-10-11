@@ -206,22 +206,7 @@ Akku und Metall), USB-Zugang einplanen.
 - Akku-/Laufzeitbudget (WLAN + WS2812 + Sound + IR-Pulse) für Eventplanung
 - OTA-Update-Mechanismus für die Waffe bei mehreren Sets
 - ESP-IDF-Projektstruktur (Komponenten-Repo, CI-Build) statt Arduino-Sketches
-- Server nutzt weiterhin Python/Node – ESP-IDF-Vorgabe gilt nur für die Firmware
+- Server (Python) folgt eigener Umsetzung, ohne externe Basis – ESP-IDF-Vorgabe gilt nur für die Firmware
 - Steckverbinder für das Sensorkabel festlegen (z. B. GX12/GX16, Polzahl nach TSOP-Anzahl)
 - Gewichtsverteilung der Waffe mit Gesamt-BOM früh real nachbauen/wiegen
 
----
-
-## 11. Android-App und Server (Basis: open-laser-tag)
-
-Als normale Verzeichnisse ins Projekt übernommen (nicht als Submodule),
-ursprünglich GPL-3.0 von [open-laser-tag](https://github.com/open-laser-tag):
-
-- [android-app/](android-app/) – BLE- und WebSocket-Client (Basis:
-  [open-laser-tag/android-app](https://github.com/open-laser-tag/android-app)),
-  wird zur geplanten Live-Anzeige/Steuerung weiterentwickelt
-- [server/](server/) – node.js-Server mit WebSocket (Basis:
-  [open-laser-tag/server](https://github.com/open-laser-tag/server)), wird zum
-  eigenen UDP/WebSocket-Server (Abschnitt 5) weiterentwickelt
-
-Eigene Veröffentlichung dieser beiden Teile bleibt GPL-3.0-pflichtig.

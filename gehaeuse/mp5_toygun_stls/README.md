@@ -7,6 +7,10 @@ Lizenz: MakerWorld Standard-Digitaldatei-Lizenz (kommerzielle Nutzung erfordert 
 - `obj_*.stl` – alle 12 Druckteile aus `MP5+Build_stls.zip`
 - `makerworld_*.png` – die 3 Galeriebilder von der Produktseite
 
+## Preview
+
+<img src="makerworld_8ae5b23b4f43f.png" width="300"> <img src="makerworld_d73d177815ffe.png" width="300"> <img src="makerworld_e1d26f102ee3a.png" width="300">
+
 ## Wichtiger Hinweis des Designers
 Das Modell ist eine **rein statische Deko-Requisite**: kein Schussmechanismus,
 keine beweglichen Funktionsteile, nicht als Waffe nutzbar. Für den Tagger
