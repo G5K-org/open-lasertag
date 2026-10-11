@@ -65,7 +65,8 @@ def SPK(x, y):
     return sh.place(DEV, "Speaker", "Device", "SP", "Lautsprecher", x, y)
 
 def PWRFLAG(x, y, net):
-    _, pf = sh.place(POWER, "PWR_FLAG", "power", "#FLG", "PWR_FLAG", x, y, angle=90)
+    _, pf = sh.place(POWER, "PWR_FLAG", "power", "#FLG", "PWR_FLAG", x, y, angle=90,
+                      hidden_value=True, hidden_ref=True)
     sh.net(pf["1"], net)
 
 
@@ -134,9 +135,9 @@ _, c_adc = C("100n", 30, 138)
 sh.net(c_adc["1"], "ADC_BATT")
 sh.net(c_adc["2"], "GND")
 
-PWRFLAG(60, 75, "GND")
-PWRFLAG(100, 75, "5V_PERIPH")
-PWRFLAG(15, 90, "VBUS_NATIVE")
+PWRFLAG(55, 175, "GND")
+PWRFLAG(80, 175, "5V_PERIPH")
+PWRFLAG(30, 175, "VBUS_NATIVE")
 
 sh.text("5V_PERIPH speist WS2812 + MAX98357A + 74AHCT125.", 20, 155, size=1.3)
 sh.text("3V3_MCU speist NUR das MCU-3V3-Pin (DevKitC-eigene", 20, 158, size=1.3)

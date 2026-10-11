@@ -15,6 +15,7 @@ from kiutils.items.syitems import SyRect, SyPolyLine, Fill
 
 GRID = 1.27
 SYMDIR = "/usr/share/kicad/symbols"
+POWER_LIB = f"{SYMDIR}/power.kicad_sym"
 POWER_RAILS = {"GND", "3V3_MCU", "5V_PERIPH", "BAT_P", "VBUS_NATIVE"}
 
 def snap(v):
@@ -22,12 +23,14 @@ def snap(v):
 
 def rotate_lib_pin(ox, oy, lib_x, lib_y, angle_deg):
     """World position of a library pin (lib_x,lib_y in library Y-up convention)
-    placed at (ox,oy) with the instance rotated by angle_deg (KiCad clockwise,
-    sheet Y-down convention)."""
-    y_screen = -lib_y  # library Y-up -> sheet Y-down
+    placed at (ox,oy) with the instance rotated by angle_deg. KiCad rotates
+    counter-clockwise as seen on screen (verified against a netlist export: an
+    LED at 90 deg ends up anode-on-top) - getting this backwards silently swaps
+    the pins of any polarized part placed at 90/270."""
+    sx, sy = lib_x, -lib_y  # library Y-up -> sheet Y-down
     th = math.radians(angle_deg or 0)
-    wx = lib_x * math.cos(th) - y_screen * math.sin(th)
-    wy = lib_x * math.sin(th) + y_screen * math.cos(th)
+    wx = sx * math.cos(th) + sy * math.sin(th)
+    wy = -sx * math.sin(th) + sy * math.cos(th)
     return (snap(ox + wx), snap(oy + wy))
 
 _filecache = {}
@@ -53,6 +56,12 @@ def resolve_units(sym, lib_path):
 class Sheet:
     def __init__(self):
         self.sch = Schematic.create_new()
+        # The layout is taller than it is wide (~280 x 405mm) - way past A4
+        # (297x210mm landscape), which let content spill past the page border
+        # and overlap the title block. A2 portrait (420 x 594mm) comfortably
+        # contains it with margin.
+        self.sch.paper.paperSize = "A2"
+        self.sch.paper.portrait = True
         self.registered_libs = set()  # (libraryNickname) already added as libSymbols
         self.ref_counts = {}
         self.netlist = {}  # net name -> list of (x, y) pin positions, for finalize_nets()
@@ -94,7 +103,7 @@ class Sheet:
                          effects=Effects(font=Font(height=size, width=size), hide=hide))
 
     def place(self, path, entry, nickname, ref_prefix, value, x, y, unit=1, angle=0,
-              footprint="", ref_override=None, hidden_value=False):
+              footprint="", ref_override=None, hidden_value=False, hidden_ref=False):
         """Places one symbol instance; registers its lib symbol once. Returns (instance, pins_fn)."""
         self.ensure_lib(path, entry, nickname)
         sym = get_symbol(path, entry)
@@ -112,8 +121,19 @@ class Sheet:
             libraryNickname=nickname, entryName=entry, position=Position(X=x, Y=y, angle=angle),
             unit=unit, inBom=True, onBoard=True, uuid=self.uid(),
         )
-        inst.properties.append(self.mkprop("Reference", ref, Position(X=x + 5.08, Y=y - 2.54, angle=0)))
-        inst.properties.append(self.mkprop("Value", value, Position(X=x + 5.08, Y=y, angle=0), hide=hidden_value))
+        # Offset the reference/value text perpendicular to the pin axis (and rotate
+        # that offset along with the symbol), so it lands above/beside the body
+        # clear of both the symbol's own pins and whatever net label ends up at a
+        # pin tip - instead of out along the pin axis, where it used to collide
+        # with exactly those pin-tip labels.
+        th = math.radians(angle or 0)
+        def _rot(dx, dy):
+            return (snap(x + dx * math.cos(th) - dy * math.sin(th)),
+                    snap(y + dx * math.sin(th) + dy * math.cos(th)))
+        rx, ry = _rot(0, -6.35)
+        vx, vy = _rot(0, -8.89)
+        inst.properties.append(self.mkprop("Reference", ref, Position(X=rx, Y=ry, angle=0), hide=hidden_ref))
+        inst.properties.append(self.mkprop("Value", value, Position(X=vx, Y=vy, angle=0), hide=hidden_value))
         inst.properties.append(self.mkprop("Footprint", footprint, Position(X=x, Y=y, angle=0), hide=True))
         inst.pins = {}
         pin_positions = {}
@@ -131,90 +151,232 @@ class Sheet:
         return ref, pin_positions
 
     def net(self, pos, name, ref=None, pin=None):
-        """Registers one pin on a net. Power/ground rails get an immediate label at
-        every pin (standard practice, see POWER_RAILS); everything else is wired for
-        real in finalize_nets() once every pin on the net is known."""
+        """Registers one pin on a net. Labels (power/ground rails at every pin,
+        everything else at a wiring hub) are placed later in finalize_nets(), once
+        every pin on every net is known and label placement can dodge pins/wires
+        that are registered after this particular call."""
         self.netlist.setdefault(name, []).append((snap(pos[0]), snap(pos[1])))
-        if name in POWER_RAILS:
-            self.sch.labels.append(LocalLabel(text=name, position=Position(X=pos[0], Y=pos[1], angle=0)))
 
-    def wire(self, p1, p2):
-        """Draws a real wire between two pin positions (orthogonal dogleg if needed)."""
-        x1, y1 = p1
-        x2, y2 = p2
-        if x1 == x2 or y1 == y2:
-            self.sch.graphicalItems.append(Connection(
-                type="wire", points=[Position(X=x1, Y=y1), Position(X=x2, Y=y2)], uuid=self.uid()))
-            return
-        mx, my = x2, y1
+    def _draw_segment(self, a, b):
         self.sch.graphicalItems.append(Connection(
-            type="wire", points=[Position(X=x1, Y=y1), Position(X=mx, Y=my)], uuid=self.uid()))
-        self.sch.graphicalItems.append(Connection(
-            type="wire", points=[Position(X=mx, Y=my), Position(X=x2, Y=y2)], uuid=self.uid()))
-        self.sch.junctions.append(Junction(position=Position(X=mx, Y=my), uuid=self.uid()))
+            type="wire", points=[Position(X=a[0], Y=a[1]), Position(X=b[0], Y=b[1])], uuid=self.uid()))
 
-    def finalize_nets(self, max_span=35.0):
+    def finalize_nets(self):
         """Converts every non-power net into real wires: picks the pin that minimizes
-        total wire length as a local hub, wires every other pin on the net to it
-        directly, and places one label at the hub (for net-name readability/netlist
-        export). Power rails were already labeled per-pin in net() and are skipped.
+        total wire length as a local hub, wires every other pin on the net to it,
+        and places one label at the hub (for net-name readability/netlist export).
+        Power rails were already labeled per-pin in net() and are skipped.
 
-        Two safety checks before a net is actually wired, falling back to the old
-        per-pin label behaviour otherwise:
-        - its pins must span no more than `max_span` mm (function blocks sit far
-          apart on this one-page sheet; a long wire crossing that distance is liable
-          to run right along another part's pin column, e.g. the MCU module's
-          stacked pins, and short onto it - labels are the standard way to bridge
-          that distance anyway)
-        - none of its proposed wire segments may pass through a pin that belongs to
-          a different net (dense multi-pin ICs like the MAX98357A or the dual-unit
-          74AHCT125 place pins close enough together that this does happen)
-        """
-        all_points = [(p[0], p[1], name) for name, pts in self.netlist.items() for p in pts]
+        For each hub->pin connection that isn't already axis-aligned, both possible
+        L-bend directions (horizontal-first vs. vertical-first) are tried, and
+        whichever one doesn't run through a pin/wire-point belonging to a different
+        net is used. This matters a lot for the long runs out to the MCU module:
+        its pins are stacked in one column, so a bend that happens to put its
+        straight leg right along that column's X (or any other part's pin row)
+        would silently short onto every other pin in between - that's exactly what
+        happened on the first attempt. If neither direction is clear for every pin
+        on the net, the whole net falls back to the old per-pin label behaviour
+        rather than wiring only part of it."""
+        occupied = [(p[0], p[1], name) for name, pts in self.netlist.items() for p in pts]
+        drawn_segments = []  # (((ax,ay),(bx,by)), net_name) for every wire placed so far
 
-        def blocked(a, b, own_name):
-            ax, ay = a
-            bx, by = b
-            for (px, py, nm) in all_points:
-                if nm == own_name:
-                    continue
-                if ax == bx and px == ax and min(ay, by) <= py <= max(ay, by):
-                    return True
-                if ay == by and py == ay and min(ax, bx) <= px <= max(ax, bx):
-                    return True
+        def point_on_seg(p, seg):
+            (ax, ay), (bx, by) = seg
+            px, py = p
+            if ax == bx:
+                return px == ax and min(ay, by) <= py <= max(ay, by)
+            if ay == by:
+                return py == ay and min(ax, bx) <= px <= max(ax, bx)
             return False
 
+        def blocked(a, b, own_name, ignore_own=True, exclude=None):
+            """A point/segment collision only matters away from `exclude` (normally
+            the segment's own starting pin, which legitimately has other wires
+            already touching it - that's just a junction, not a short)."""
+            for (px, py, nm) in occupied:
+                if ignore_own and nm == own_name:
+                    continue
+                if exclude is not None and (px, py) == exclude:
+                    continue
+                if point_on_seg((px, py), (a, b)):
+                    return True
+            for seg, nm in drawn_segments:
+                if ignore_own and nm == own_name:
+                    continue
+                for p in (a, b):
+                    if p != exclude and point_on_seg(p, seg):
+                        return True
+                for p in seg:
+                    if p != exclude and point_on_seg(p, (a, b)):
+                        return True
+            return False
+
+        def commit_segment(a, b, name):
+            self._draw_segment(a, b)
+            drawn_segments.append(((a, b), name))
+
+        def route(hub, p, name):
+            if hub[0] == p[0] or hub[1] == p[1]:
+                return [(hub, p)]
+            for mid in ((p[0], hub[1]), (hub[0], p[1])):
+                segs = [(hub, mid), (mid, p)]
+                if not any(blocked(a, b, name) for a, b in segs):
+                    return segs
+            return None
+
+        def place_label(p, name, stub=3.81):
+            """Labels placed exactly on a pin tend to land right on top of that pin's
+            own number text (this is what made the MCU module's pin column
+            unreadable). Nudge the label out along a short stub wire instead,
+            trying a few directions until one doesn't run through a foreign pin
+            or an already-placed wire belonging to a different net. Vertical
+            directions are tried first: most parts here are 2-pin passives laid
+            out horizontally, so their own pin-name text runs left/right from the
+            tip - moving the label up/down clears that text too, not just other
+            parts' pins, which a pure geometric check can't see."""
+            for dx, dy in ((0, -stub), (0, stub), (-stub, 0), (stub, 0)):
+                q = (p[0] + dx, p[1] + dy)
+                if not blocked(p, q, name, ignore_own=False, exclude=p):
+                    commit_segment(p, q, name)
+                    occupied.append((q[0], q[1], name))
+                    self.sch.labels.append(LocalLabel(text=name, position=Position(X=q[0], Y=q[1], angle=0)))
+                    return
+            self.sch.labels.append(LocalLabel(text=name, position=Position(X=p[0], Y=p[1], angle=0)))
+
+        def place_power(p, name, stub=3.81):
+            """Power/ground rails get a real power symbol (the little ground-tick
+            or arrow glyph) instead of a text label - that's the normal schematic
+            convention and reads a lot better than bare text at every pin. GND
+            symbols hang below their connection point, rail symbols (reusing the
+            generic VCC arrow, renamed via its Value) sit above - so that's the
+            preferred stub direction, with the same foreign-pin/wire collision
+            check as place_label() as a fallback."""
+            is_gnd = (name == "GND")
+            preferred = (0, stub) if is_gnd else (0, -stub)
+            for dx, dy in (preferred, (-preferred[0], -preferred[1]), (stub, 0), (-stub, 0)):
+                q = (p[0] + dx, p[1] + dy)
+                if not blocked(p, q, name, ignore_own=False, exclude=p):
+                    break
+            else:
+                q = p
+            if q != p:
+                commit_segment(p, q, name)
+                occupied.append((q[0], q[1], name))
+            self.place(POWER_LIB, "GND" if is_gnd else "VCC", "power", "#PWR", name,
+                       q[0], q[1], hidden_value=is_gnd, hidden_ref=True)
+
+        def cluster_points(pts, max_gap=15.0):
+            """Groups points into local clusters (union-find by proximity): any two
+            points within max_gap mm on both axes link up transitively. Used to
+            give each local group of power/ground pins one shared symbol instead
+            of one per pin - the "rail" look real schematics use, instead of a
+            ground arrow stapled to every single pin."""
+            n = len(pts)
+            parent = list(range(n))
+
+            def find(i):
+                while parent[i] != i:
+                    parent[i] = parent[parent[i]]
+                    i = parent[i]
+                return i
+
+            for i in range(n):
+                for j in range(i + 1, n):
+                    if abs(pts[i][0] - pts[j][0]) <= max_gap and abs(pts[i][1] - pts[j][1]) <= max_gap:
+                        ri, rj = find(i), find(j)
+                        if ri != rj:
+                            parent[ri] = rj
+            groups = {}
+            for i in range(n):
+                groups.setdefault(find(i), []).append(pts[i])
+            return list(groups.values())
+
+        def wire_cluster(cluster, name):
+            """Wires every point in a local cluster to one shared hub and gives
+            that hub a single power symbol. Returns False (caller should fall back
+            to one place_power() per point) if any connection within the cluster
+            can't be routed cleanly."""
+            if len(cluster) == 1:
+                place_power(cluster[0], name)
+                return True
+
+            def total_dist(i):
+                px, py = cluster[i]
+                return sum(abs(px - qx) + abs(py - qy) for j, (qx, qy) in enumerate(cluster) if j != i)
+
+            hub_idx = min(range(len(cluster)), key=total_dist)
+            hub = cluster[hub_idx]
+            others = [p for j, p in enumerate(cluster) if j != hub_idx]
+
+            routes = []
+            for p in others:
+                segs = route(hub, p, name)
+                if segs is None:
+                    return False
+                routes.append(segs)
+            for segs in routes:
+                for (a, b) in segs:
+                    commit_segment(a, b, name)
+                if len(segs) == 2:
+                    mid = segs[0][1]
+                    self.sch.junctions.append(Junction(position=Position(X=mid[0], Y=mid[1]), uuid=self.uid()))
+                    occupied.append((mid[0], mid[1], name))
+            if len(others) > 1:
+                self.sch.junctions.append(Junction(position=Position(X=hub[0], Y=hub[1]), uuid=self.uid()))
+            place_power(hub, name)
+            return True
+
+        # Pass 1: wire every net that can be wired. Labels are deferred to pass 2 -
+        # otherwise a net processed early (like HIT_VIB, reached via the MCU loop)
+        # could place its label before a later net (like HIT_VIB_FET, only reached
+        # once the vibration-motor section runs) has drawn its own wires, so the
+        # collision check below has nothing yet to avoid and the two merge.
+        wired = {}  # name -> hub, for nets that got real wires
+        for name, pts in self.netlist.items():
+            if name in POWER_RAILS or len(pts) < 2:
+                continue
+
+            def total_dist(i):
+                px, py = pts[i]
+                return sum(abs(px - qx) + abs(py - qy) for j, (qx, qy) in enumerate(pts) if j != i)
+
+            hub_idx = min(range(len(pts)), key=total_dist)
+            hub = pts[hub_idx]
+            others = [p for j, p in enumerate(pts) if j != hub_idx and p != hub]
+
+            routes = []
+            for p in others:
+                segs = route(hub, p, name)
+                if segs is None:
+                    routes = None
+                    break
+                routes.append(segs)
+
+            if routes is not None and others:
+                for segs in routes:
+                    for (a, b) in segs:
+                        commit_segment(a, b, name)
+                    if len(segs) == 2:
+                        mid = segs[0][1]
+                        self.sch.junctions.append(Junction(position=Position(X=mid[0], Y=mid[1]), uuid=self.uid()))
+                        occupied.append((mid[0], mid[1], name))
+                if len(others) > 1:
+                    self.sch.junctions.append(Junction(position=Position(X=hub[0], Y=hub[1]), uuid=self.uid()))
+                wired[name] = hub
+
+        # Pass 2: one label per wired net (at its hub), per-pin labels for every
+        # net that couldn't be wired - now with every net's wires already drawn.
         for name, pts in self.netlist.items():
             if name in POWER_RAILS:
-                continue
-            xs = [p[0] for p in pts]
-            ys = [p[1] for p in pts]
-            local = len(pts) >= 2 and (max(xs) - min(xs)) <= max_span and (max(ys) - min(ys)) <= max_span
-            wired = False
-            if local:
-                def total_dist(i):
-                    px, py = pts[i]
-                    return sum(abs(px - qx) + abs(py - qy) for j, (qx, qy) in enumerate(pts) if j != i)
-
-                hub_idx = min(range(len(pts)), key=total_dist)
-                hub = pts[hub_idx]
-                others = [p for j, p in enumerate(pts) if j != hub_idx and p != hub]
-                segments = []
-                for p in others:
-                    mid = p if (hub[0] == p[0] or hub[1] == p[1]) else (p[0], hub[1])
-                    segments.append((hub, mid))
-                    if mid != p:
-                        segments.append((mid, p))
-                if others and not any(blocked(a, b, name) for a, b in segments):
-                    for p in others:
-                        self.wire(hub, p)
-                    if len(others) > 1:
-                        self.sch.junctions.append(Junction(position=Position(X=hub[0], Y=hub[1]), uuid=self.uid()))
-                    self.sch.labels.append(LocalLabel(text=name, position=Position(X=hub[0], Y=hub[1], angle=0)))
-                    wired = True
-            if not wired:
+                for cluster in cluster_points(pts):
+                    if not wire_cluster(cluster, name):
+                        for p in cluster:
+                            place_power(p, name)
+            elif name in wired:
+                place_label(wired[name], name)
+            else:
                 for p in pts:
-                    self.sch.labels.append(LocalLabel(text=name, position=Position(X=p[0], Y=p[1], angle=0)))
+                    place_label(p, name)
 
     def text(self, s, x, y, size=2.0):
         self.sch.texts.append(Text(text=s, position=Position(X=snap(x), Y=snap(y), angle=0),
@@ -231,12 +393,18 @@ class Sheet:
 # Custom "black box" symbol builder (for modules without a real library part).
 # half_width and pin_len are always multiples of GRID so world pin coordinates
 # derived as instance_origin + local_offset stay on-grid without extra snapping.
+# PIN_PITCH is wider than the KiCad-standard 2.54mm: with ~18 pins on one side
+# and long net-name pin names, 2.54mm pitch puts each pin's number/name text
+# close enough to its neighbours to visually collide. 3.81mm (3 * GRID) gives
+# that text room to breathe while staying on-grid.
 PIN_LEN = 5.08  # 4 * GRID
+PIN_PITCH = 3.81  # 3 * GRID
+PIN_TEXT = Effects(font=Font(height=1.27, width=1.27))
 
 def _module_layout(left_pins, right_pins, half_width):
     def ys(count):
-        top = (count - 1) / 2 * 2.54
-        return [snap(top - i * 2.54) for i in range(count)]
+        top = (count - 1) / 2 * PIN_PITCH
+        return [snap(top - i * PIN_PITCH) for i in range(count)]
     layout = {}
     for (name, num), y in zip(left_pins, ys(len(left_pins))):
         layout[num] = (-half_width - PIN_LEN, y, 0)
@@ -253,7 +421,7 @@ def _module_half_width(left_pins, right_pins):
 def make_module_symbol(nickname, entry, left_pins, right_pins):
     half_width = _module_half_width(left_pins, right_pins)
     n = max(len(left_pins), len(right_pins))
-    half_h = snap((n - 1) / 2 * 2.54 + 2.54)
+    half_h = snap((n - 1) / 2 * PIN_PITCH + PIN_PITCH)
     body = SyRect(start=Position(X=-half_width, Y=half_h), end=Position(X=half_width, Y=-half_h),
                   fill=Fill(type="background"))
     layout = _module_layout(left_pins, right_pins, half_width)
@@ -262,7 +430,8 @@ def make_module_symbol(nickname, entry, left_pins, right_pins):
     for (name, num) in left_pins + right_pins:
         lx, ly, angle = layout[num]
         pins.append(SymbolPin(electricalType="passive", position=Position(X=lx, Y=ly, angle=angle),
-                               length=PIN_LEN, name=name, number=num))
+                               length=PIN_LEN, name=name, number=num,
+                               nameEffects=PIN_TEXT, numberEffects=PIN_TEXT))
 
     unit0 = Symbol(entryName=entry, unitId=0, styleId=1)
     unit1 = Symbol(entryName=entry, unitId=1, styleId=1, graphicItems=[body], pins=pins)
@@ -293,7 +462,7 @@ def place_module(sheet: Sheet, nickname, entry, left_pins, right_pins, ref_prefi
     ref = f"{ref_prefix}{n}"
     inst = SchematicSymbol(libraryNickname=nickname, entryName=entry, position=Position(X=x, Y=y, angle=0),
                             unit=1, inBom=True, onBoard=True, uuid=sheet.uid())
-    half_h = snap((max(len(left_pins), len(right_pins)) - 1) / 2 * 2.54 + 2.54)
+    half_h = snap((max(len(left_pins), len(right_pins)) - 1) / 2 * PIN_PITCH + PIN_PITCH)
     inst.properties.append(sheet.mkprop("Reference", ref, Position(X=x, Y=y - half_h - 2.54, angle=0)))
     inst.properties.append(sheet.mkprop("Value", entry, Position(X=x, Y=y - half_h - 5.08, angle=0)))
     inst.properties.append(sheet.mkprop("Footprint", "", Position(X=x, Y=y, angle=0), hide=True))

@@ -30,7 +30,7 @@ Abzug/Nachladen, WS2812, Weste (Sensoren) und Vibration.
   freien Gatter des 74AHCT125 mit Eingang und `/OE` auf GND.
 
 Schaltplan ([kiutils][1]) und Platine (pcbnew) werden per Python erzeugt und
-mit `kicad-cli` geprüft. Die Generator-Skripte gehören nicht zum Repo.
+mit `kicad-cli` geprüft; die Generator-Skripte liegen in [`scripts/`](scripts/).
 
 [1]: https://github.com/mvnmgrx/kiutils
 
