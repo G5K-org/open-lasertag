@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lasertag</title>
+<style>
+  :root {
+    --bg: #101317; --panel: #191d23; --line: #2a3039; --text: #e8eaed; --dim: #8b949e;
+    --ok: #3fb950; --warn: #d29922; --bad: #f85149;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.4 system-ui, sans-serif; }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;
+           padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  h1 { font-size: 18px; margin: 0; }
+  .clock { font: 600 28px/1 ui-monospace, monospace; }
+  .state { color: var(--dim); }
+  .conn { margin-left: auto; font-size: 13px; color: var(--dim); }
+  .conn.off { color: var(--bad); }
+  main { padding: 16px; display: grid; gap: 16px; }
+  .teams { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+           padding: 12px; overflow-x: auto; }
+  .team-head { display: flex; justify-content: space-between; align-items: baseline;
+               border-left: 6px solid; padding-left: 10px; margin-bottom: 8px; }
+  .team-head h2 { margin: 0; font-size: 20px; }
+  .team-score { font: 700 32px/1 ui-monospace, monospace; }
+  .winner { outline: 2px solid var(--warn); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; color: var(--dim); font-weight: 500; padding: 4px 6px;
+       border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 5px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.offline td { opacity: .45; }
+  tr.dead .name { text-decoration: line-through; color: var(--bad); }
+  .hp { width: 80px; height: 8px; background: #000; border-radius: 4px; overflow: hidden; }
+  .hp > div { height: 100%; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .feed { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+  .feed li { padding: 3px 0; border-bottom: 1px solid var(--line); }
+  .feed .t { color: var(--dim); font-family: ui-monospace, monospace; margin-right: 8px; }
+  .bottom { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  h3 { margin: 0 0 8px; font-size: 15px; color: var(--dim); font-weight: 600; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: end; }
+  .controls label { display: grid; gap: 2px; font-size: 12px; color: var(--dim); }
+  input, select, button { font: inherit; color: var(--text); background: #0d1014;
+                          border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+  input[type=number] { width: 80px; }
+  button { cursor: pointer; background: #21262d; }
+  button.primary { background: #238636; border-color: #2ea043; }
+  button.danger { background: #8e1519; border-color: #b62324; }
+  button.small { padding: 1px 6px; font-size: 12px; }
+  .admin-only { display: none; }
+  body.admin .admin-only { display: revert; }
+  body.admin .controls.admin-only { display: flex; }
+  @media (max-width: 600px) { .clock { font-size: 22px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Lasertag</h1>
+  <span class="clock" id="clock">--:--</span>
+  <span class="state" id="state">verbinde…</span>
+  <span class="conn off" id="conn">offline</span>
+</header>
+<main>
+  <section class="panel controls admin-only" id="controls">
+    <label>Dauer [min]<input type="number" id="r_duration" min="0" value="10"></label>
+    <label>HP<input type="number" id="r_max_hp" min="1" value="100"></label>
+    <label>Schaden<input type="number" id="r_damage" min="1" value="10"></label>
+    <label>Magazin<input type="number" id="r_magazine" min="1" max="255" value="30"></label>
+    <label>Magazine (0=∞)<input type="number" id="r_magazines" min="0" max="255" value="0"></label>
+    <label>Respawn [s]<input type="number" id="r_respawn_s" min="0" value="10"></label>
+    <label>Friendly Fire<select id="r_friendly_fire"><option value="0">aus</option><option value="1">an</option></select></label>
+    <button class="primary" id="btn_start">Runde starten</button>
+    <button class="danger" id="btn_stop">Stoppen</button>
+    <button id="btn_respawn">Alle respawnen</button>
+  </section>
+  <section class="teams" id="teams"></section>
+  <section class="bottom">
+    <div class="panel"><h3>Abschüsse</h3><ul class="feed" id="feed"></ul></div>
+    <div class="panel"><h3>Latenz pro Hallenzone (Access Point)</h3>
+      <table><thead><tr><th>BSSID</th><th class="num">Samples</th><th class="num">Ø ms</th>
+        <th class="num">p95 ms</th><th class="num">max ms</th><th class="num">Ø RSSI</th></tr></thead>
+        <tbody id="zones"></tbody></table></div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let ws, state = null, rulesLoaded = false;
+
+function connect() {
+  const token = new URLSearchParams(location.search).get("token");
+  ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws` +
+                     (token ? `?token=${encodeURIComponent(token)}` : ""));
+  ws.onopen = () => { $("conn").textContent = "verbunden"; $("conn").classList.remove("off"); };
+  ws.onclose = () => {
+    $("conn").textContent = "offline"; $("conn").classList.add("off");
+    setTimeout(connect, 1500);
+  };
+  ws.onmessage = e => {
+    const m = JSON.parse(e.data);
+    if (m.type === "hello") document.body.classList.toggle("admin", m.admin);
+    if (m.type === "state") { state = m; render(); }
+  };
+}
+const send = obj => ws && ws.readyState === 1 && ws.send(JSON.stringify(obj));
+
+const fmt = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const hpColor = f => f > .5 ? "var(--ok)" : f > .2 ? "var(--warn)" : "var(--bad)";
+
+function render() {
+  const s = state;
+  const left = s.duration ? Math.max(0, s.duration - s.elapsed) : s.elapsed;
+  $("clock").textContent = s.round ? fmt(left) : "--:--";
+  const winner = s.winner !== null && s.winner !== undefined ? s.teams[s.winner]?.name : null;
+  $("state").textContent = s.running ? `Runde ${s.round} läuft` :
+    s.round ? `Runde ${s.round} beendet${winner ? ` – Sieger: ${winner}` : " – unentschieden"}` : "Lobby";
+
+  if (!rulesLoaded) {
+    const r = s.rules;
+    $("r_duration").value = Math.round(r.duration_s / 60);
+    for (const k of ["max_hp", "damage", "magazine", "magazines", "respawn_s"]) $("r_" + k).value = r[k];
+    $("r_friendly_fire").value = r.friendly_fire ? "1" : "0";
+    rulesLoaded = true;
+  }
+
+  const teamIds = Object.keys(s.teams);
+  for (const p of s.players) if (!teamIds.includes(String(p.team))) teamIds.push(String(p.team));
+  $("teams").innerHTML = teamIds.map(t => {
+    const team = s.teams[t] || {name: `Team ${t}`, color: "#888", score: 0};
+    const players = s.players.filter(p => String(p.team) === t);
+    const teamOptions = sel => teamIds.map(o =>
+      `<option value="${o}" ${o === sel ? "selected" : ""}>${esc((s.teams[o] || {name: "Team " + o}).name)}</option>`).join("");
+    const rows = players.map(p => {
+      const st = p.status || {};
+      const frac = s.rules.max_hp ? (st.hp ?? 0) / s.rules.max_hp : 0;
+      const bat = st.battery_mv ? `${(st.battery_mv / 1000).toFixed(2)} V${st.charging ? " ⚡" : ""}` : "–";
+      const life = !p.alive ? (p.respawn_in !== null ? `tot (${p.respawn_in}s)` : "tot") :
+        `<div class="hp"><div style="width:${Math.round(frac * 100)}%;background:${hpColor(frac)}"></div></div>`;
+      return `<tr class="${p.online ? "" : "offline"} ${p.alive ? "" : "dead"}">
+        <td><span class="dot" style="background:${p.online ? "var(--ok)" : "var(--bad)"}"></span>${p.id}</td>
+        <td class="name">${esc(p.name)}</td>
+        <td>${life}</td>
+        <td class="num">${st.ammo ?? "–"}</td>
+        <td class="num">${p.kills}/${p.deaths}</td>
+        <td class="num">${p.hits_given}</td>
+        <td class="num"><b>${p.score}</b></td>
+        <td class="num">${bat}</td>
+        <td class="num">${st.rssi ?? "–"}</td>
+        <td class="num">${st.rtt_ms ?? "–"}</td>
+        <td class="admin-only"><select data-id="${p.id}" class="team-sel">${teamOptions(t)}</select>
+          <button class="small resp" data-id="${p.id}">↻</button>
+          <button class="small ren" data-id="${p.id}">✎</button></td>
+      </tr>`;
+    }).join("");
+    return `<div class="panel ${s.winner !== null && String(s.winner) === t && !s.running ? "winner" : ""}">
+      <div class="team-head" style="border-color:${esc(team.color)}">
+        <h2>${esc(team.name)}</h2><span class="team-score">${team.score}</span></div>
+      <table><thead><tr><th>ID</th><th>Name</th><th>HP</th><th class="num">Mun.</th>
+        <th class="num">K/D</th><th class="num">Treffer</th><th class="num">Punkte</th>
+        <th class="num">Akku</th><th class="num">RSSI</th><th class="num">RTT</th>
+        <th class="admin-only"></th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="11" class="state">keine Waffen</td></tr>`}</tbody></table></div>`;
+  }).join("");
+
+  $("feed").innerHTML = s.feed.map(f => {
+    const kc = (s.teams[f.killer_team] || {}).color || "#888", vc = (s.teams[f.victim_team] || {}).color || "#888";
+    return `<li><span class="t">${fmt(f.t)}</span><b style="color:${esc(kc)}">${esc(f.killer)}</b>
+      ${f.team_kill ? "⚠ Teamkill an" : "→"} <span style="color:${esc(vc)}">${esc(f.victim)}</span></li>`;
+  }).join("") || `<li class="state">noch nichts</li>`;
+
+  $("zones").innerHTML = Object.entries(s.zones).map(([b, z]) => `<tr><td>${esc(b)}</td>
+    <td class="num">${z.n}</td><td class="num">${z.avg_ms ?? "–"}</td><td class="num">${z.p95_ms ?? "–"}</td>
+    <td class="num">${z.max_ms}</td><td class="num">${z.rssi_avg ?? "–"}</td></tr>`).join("") ||
+    `<tr><td colspan="6" class="state">noch keine Messwerte</td></tr>`;
+}
+
+$("teams").addEventListener("change", e => {
+  if (e.target.classList.contains("team-sel"))
+    send({cmd: "identity", player: +e.target.dataset.id, team: +e.target.value});
+});
+$("teams").addEventListener("click", e => {
+  const id = +e.target.dataset.id;
+  if (e.target.classList.contains("resp")) send({cmd: "respawn", player: id});
+  if (e.target.classList.contains("ren")) {
+    const name = prompt("Name", state.players.find(p => p.id === id)?.name || "");
+    if (name) send({cmd: "name", player: id, name});
+  }
+});
+$("btn_start").onclick = () => send({cmd: "start", rules: {
+  duration_s: +$("r_duration").value * 60, max_hp: +$("r_max_hp").value, damage: +$("r_damage").value,
+  magazine: +$("r_magazine").value, magazines: +$("r_magazines").value,
+  respawn_s: +$("r_respawn_s").value, friendly_fire: $("r_friendly_fire").value === "1"}});
+$("btn_stop").onclick = () => send({cmd: "stop"});
+$("btn_respawn").onclick = () => send({cmd: "respawn"});
+connect();
+</script>
+</body>
+</html>

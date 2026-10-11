@@ -1,0 +1,20 @@
+{
+  "key": "change-me",
+  "teams": {
+    "0": {"name": "Rot", "color": "#e53935"},
+    "1": {"name": "Blau", "color": "#1e88e5"}
+  },
+  "players": {
+    "1": "Spieler 1",
+    "2": "Spieler 2"
+  },
+  "rules": {
+    "max_hp": 100,
+    "damage": 10,
+    "magazine": 30,
+    "magazines": 0,
+    "friendly_fire": false,
+    "respawn_s": 10,
+    "duration_s": 600
+  }
+}
