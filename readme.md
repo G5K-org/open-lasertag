@@ -1,9 +1,234 @@
-# Lasertag-System (Eigenbau) – Planung
+<div align="center">
 
-Infrarot-Lasertag mit ESP32.
-Stand: 08.10.2026
+# Open Lasertag
+
+**Infrarot-Lasertag zum Selberbauen – ESP32-S3 in der Waffe, passive Sensorweste, Spielserver in Python**
+
+![ESP32-S3](https://img.shields.io/badge/MCU-ESP32--S3-E7352C?logo=espressif&logoColor=white)
+![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v6.0-E7352C?logo=espressif&logoColor=white)
+![KiCad](https://img.shields.io/badge/KiCad-10-314CB0?logo=kicad&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Prototyp-orange)
+
+<img src="kicad/waffe_elektronik/renders/platine_3d.png" alt="3D-Ansicht der Waffen-Platine" width="640">
+
+</div>
+
+## Was ist das?
+
+Ein komplettes Lasertag-System im Eigenbau für Spiele in einer großen Halle:
+
+- **Waffe:** ein 3D-gedrucktes MP5-Gehäuse mit einer eigenen Platine. Darauf
+  sitzt ein ESP32-S3, der alles steuert: IR-Schuss, Trefferauswertung,
+  Lebens- und Munitionsanzeige, Mündungsfeuer, Vibration, Sound, Akku und WLAN.
+- **Weste:** nur passive IR-Empfänger (TSOP34838) an Stirnband, Brust, Rücken
+  und Schultern, per Kabel an der Waffe. Die Weste hat keine eigene Elektronik.
+- **Server:** ein Python-Programm mit Live-Anzeige im Browser. Es zählt
+  Punkte, führt Runden und gibt den Respawn frei.
+
+Geschossen wird mit einer 940-nm-IR-LED hinter einer Linse, nicht mit einem
+echten Laser. Die Spiellogik läuft lokal in der Waffe, damit Treffer sofort
+Licht, Ton und Vibration auslösen. Das Netz meldet nur nach.
+
+## Inhalt
+
+- [Funktionen](#funktionen)
+- [Systemüberblick](#systemüberblick)
+- [Hardware](#hardware)
+- [Gehäuse](#gehäuse)
+- [Firmware](#firmware)
+- [Server und Live-Anzeige](#server-und-live-anzeige)
+- [Schnellstart](#schnellstart)
+- [Projektstruktur](#projektstruktur)
+- [Stand](#stand)
+- [Planung im Detail](#planung-im-detail)
+  1. [Grundentscheidungen](#1-grundentscheidungen)
+  2. [Architektur](#2-architektur)
+  3. [Sensorkabel zwischen Weste und Waffe](#3-sensorkabel-zwischen-weste-und-waffe)
+  4. [IR-Protokoll und Trefferlogik](#4-ir-protokoll-und-trefferlogik)
+  5. [Netzwerk](#5-netzwerk)
+  6. [Anzeige und Feedback](#6-anzeige-und-feedback)
+  7. [Risiken und Gegenmaßnahmen](#7-risiken-und-gegenmaßnahmen)
+  8. [ESP32-Wahl](#8-esp32-wahl)
+  9. [Vorgehen](#9-vorgehen)
+  10. [Offene Punkte](#10-offene-punkte)
+
+## Funktionen
+
+| | |
+|---|---|
+| 🔫 **Schuss** | NEC-codiertes IR-Signal (Team + Spieler-ID), 38 kHz, jeder Schuss 2× gesendet; Ziel 30–50 m Reichweite |
+| 🎯 **Treffer** | bis zu 6 Sensoren; Treffer zählt erst bei 2 gültigen Frames in 100 ms, danach 500 ms unverwundbar; Kopftreffer geben Bonuspunkte |
+| 💡 **Anzeige** | WS2812-Kette an der Waffe: Lebensbalken grün → gelb → rot, Munition, Teamfarbe, Ringlicht als Mündungsfeuer |
+| 📳 **Feedback** | Rückstoß- und Treffervibration, Soundeffekte über I²S-Verstärker, weißer Blitz bei Treffer, rotes Pulsieren als tot |
+| 🔋 **Akku** | 1S-LiPo, Laden über USB-C, Spannungs- und Ladeanzeige |
+| 📡 **Netz** | WLAN mit eigenem Roaming zwischen Access Points, UDP mit HMAC-Signatur, Treffer werden bis zur Bestätigung wiederholt |
+| 🖥️ **Server** | Runden mit Zeitlimit, Teamwertung, Respawn-Freigabe, Live-Anzeige und Bedienung im Browser, Latenzmessung pro Hallenzone |
+
+## Systemüberblick
+
+```mermaid
+flowchart LR
+    subgraph Weste["Weste (nur Sensoren)"]
+        T1["TSOP 1<br>Stirn vorn"]
+        T2["TSOP 2<br>Stirn hinten"]
+        T3["TSOP 3<br>Brust"]
+        T4["TSOP 4<br>Rücken"]
+        T5["TSOP 5<br>Schultern"]
+    end
+    subgraph Waffe["Waffe (ESP32-S3)"]
+        RX["IR-Empfang<br>RMT + GPIO"]
+        GAME["Spiellogik<br>HP, Munition, Respawn"]
+        TX["IR-LED<br>38 kHz"]
+        FX["WS2812, Ringlicht,<br>Vibration, Sound"]
+        NET["WLAN / UDP"]
+    end
+    SRV["Server (Python)<br>Punkte, Runden"]
+    WEB["Browser<br>Live-Anzeige"]
+
+    Weste -->|"Sensorkabel<br>GX16, 7 Adern"| RX
+    RX --> GAME
+    GAME --> TX
+    GAME --> FX
+    GAME <--> NET
+    NET <-->|"UDP + HMAC"| SRV
+    SRV <-->|WebSocket| WEB
+    TX -.->|IR-Schuss| G(("Gegner"))
+```
+
+## Hardware
+
+Eine Platine für die ganze Waffe: 54 × 46 mm, 4 Lagen, nur SMD-Bauteile, von
+Hand geroutet und für die Bestückung bei JLCPCB vorbereitet. Alle Peripherie
+hängt an Steckern: Akku, IR-LEDs, Taster, Motoren, Lautsprecher, WS2812 und
+das Sensorkabel der Weste.
+
+| Oberseite | Unterseite |
+|---|---|
+| <img src="kicad/waffe_elektronik/renders/platine_oben.png" alt="Platine Oberseite" width="420"> | <img src="kicad/waffe_elektronik/renders/platine_unten.png" alt="Platine Unterseite" width="420"> |
+
+**Auf der Platine:** ESP32-S3-WROOM-1 (16 MB Flash, 8 MB PSRAM), USB-C mit
+ESD-Schutz zum Flashen und Laden, Lader MCP73831, 5-V-Boost MT3608,
+3,3-V-Regler, MOSFETs für IR-LED und Vibrationsmotoren, Pegelwandler für
+WS2812, I²S-Verstärker MAX98357A, GX16-Buchse für das Sensorkabel der Weste.
+
+<a href="kicad/waffe_elektronik/renders/schaltplan.png"><img src="kicad/waffe_elektronik/renders/schaltplan.png" alt="Schaltplan der Waffen-Elektronik"></a>
+
+Schaltplan, Layout, Fertigungsdaten und Design-Entscheidungen:
+[kicad/waffe_elektronik/](kicad/waffe_elektronik/) · Pinbelegung:
+[pinbelegung.md](pinbelegung.md)
+
+## Gehäuse
+
+Als Basis dient das Modell
+[MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay)
+von **WIZZY** (MakerWorld). Es ist eine rein statische Requisite und wird für
+Platine, Akku, Lautsprecher und Optik ausgehöhlt und angepasst. Vorne an der
+Mündung sitzt ein WS2812-Ring als Mündungsfeuer.
+
+| | | |
+|---|---|---|
+| <img src="gehaeuse/mp5_toygun_stls/makerworld_8ae5b23b4f43f.png" alt="MP5-Gehäuse, Ansicht 1" width="280"> | <img src="gehaeuse/mp5_toygun_stls/makerworld_d73d177815ffe.png" alt="MP5-Gehäuse, Ansicht 2" width="210"> | <img src="gehaeuse/mp5_toygun_stls/makerworld_e1d26f102ee3a.png" alt="MP5-Gehäuse, Ansicht 3" width="280"> |
+
+<sub>Bilder und STL-Dateien: WIZZY, MakerWorld, unter der MakerWorld
+Standard-Digitaldatei-Lizenz. Details in
+[gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/).</sub>
+
+## Firmware
+
+ESP-IDF v6.0, nur offizielle Espressif-Komponenten. WLAN und Netz laufen auf
+Core 0, IR-Empfang und Spiellogik auf Core 1.
+
+- **IR:** Senden über RMT mit 38-kHz-Träger. TSOP 1–4 laufen über die vier
+  RMT-Empfangskanäle, weitere Sensoren über GPIO-Interrupts. Beide Wege gehen
+  in denselben NEC-Decoder.
+- **Feedback:** WS2812 über `led_strip`, Vibration per PWM, Soundeffekte
+  werden synthetisch erzeugt (keine Sound-Dateien).
+- **Netz:** kein Stromsparmodus, eigenes Roaming unter −75 dBm, Treffer
+  werden gepuffert und wiederholt, bis der Server bestätigt.
+- **Einstellungen:** Team, Spieler-ID, WLAN, Server und Spielregeln unter
+  `idf.py menuconfig`. Team und ID kann auch der Server setzen.
+
+Details: [firmware/](firmware/)
+
+## Server und Live-Anzeige
+
+<img src="docs/bilder/server_weboberflaeche.png" alt="Live-Anzeige des Servers während einer Runde">
+
+Reines Python (Standardbibliothek, keine Installation). Der Server nimmt die
+UDP-Pakete der Waffen an, wertet Treffer und Abschüsse aus, führt Runden mit
+Zeitlimit und gibt den Respawn frei. Im Browser gibt es Teamwertung,
+Spielerwerte (HP, Munition, K/D, Akku, Signal, Latenz), Abschussliste und die
+Latenz pro Access Point. Ein Waffen-Simulator erlaubt Tests ohne Hardware.
+
+Details: [server/](server/)
+
+## Schnellstart
+
+**Firmware bauen und flashen** (Platine über USB-C anschließen):
+
+```sh
+. ~/esp/esp-idf-v6.0.3/export.sh
+cd firmware
+idf.py menuconfig          # "Lasertag Waffe": WLAN, Server-IP, Team, Spieler
+idf.py -p /dev/ttyACM0 flash monitor
+```
+
+**Server starten:**
+
+```sh
+cd server
+cp config.example.json config.json   # Schlüssel wie in der Firmware eintragen
+python3 -m lasertag_server --config config.json
+# Live-Anzeige: http://<server-ip>:8080/
+```
+
+**Ohne Hardware ausprobieren:**
+
+```sh
+cd server
+python3 -m lasertag_server &
+python3 sim_weapon.py --count 6
+```
+
+## Projektstruktur
+
+```
+├── firmware/              ESP-IDF-Projekt der Waffe
+│   ├── main/              Module: IR, Spiellogik, LEDs, Sound, Netz, …
+│   ├── test/              Host-Test des NEC-Decoders
+│   └── tools/             kleiner UDP-Testserver
+├── server/                Spielserver in Python
+│   ├── lasertag_server/   UDP, Spiellogik, Web/WebSocket, Oberfläche
+│   ├── sim_weapon.py      Waffen-Simulator
+│   └── tests/             Unit-Tests
+├── kicad/waffe_elektronik/
+│   ├── scripts/           Generatoren für Schaltplan und Platine
+│   ├── renders/           Bilder von Platine und Schaltplan
+│   └── fertigung/jlcpcb/  Gerber, BOM, CPL
+├── gehaeuse/              MP5-Gehäusebasis (STL)
+├── docs/bilder/           Screenshots
+├── pinbelegung.md         GPIO-Belegung des ESP32-S3
+└── roadmap.md             Phasenplan
+```
+
+## Stand
+
+| Teil | Stand |
+|---|---|
+| Schaltplan und Platine | fertig, ERC/DRC ohne Fehler, Bestellpaket für JLCPCB erstellt |
+| Firmware | erste Fassung, auf einem ESP32-S3 geflasht und gestartet; Peripherie noch nicht getestet |
+| Server | erste Fassung, mit simulierten Waffen getestet |
+| Gehäuse | Basismodell ausgewählt, Umbau für die Elektronik offen |
+| Weste | Sensoren und Kabel geplant |
+
+Nächste Schritte im [Phasenplan](roadmap.md).
 
 ---
+
+# Planung im Detail
+
+Stand der Planung: 08.10.2026
 
 ## 1. Grundentscheidungen
 
@@ -22,14 +247,7 @@ Stand: 08.10.2026
 
 ## 2. Architektur
 
-```
-[Weste: nur Sensoren]  --Sensorkabel (TSOP + 3,3V/GND)-->  [Waffe: ESP32-S3]  --WLAN/UDP-->  [Server]
- 4–5× TSOP34838                                             IR-LED, Abzug, Nachladen,          Punkte, Teams,
- (Stirnband, Brust,                                         Munition, Rückstoß-Vibration,       Runden, Anzeige
-  Rücken, Schultern)                                        TSOP-Auswertung, WS2812,
-                                                             Treffer-Vibration, I²S+Lautsprecher,
-                                                             Akku, WLAN, Spiellogik
-```
+Übersichtsdiagramm siehe [Systemüberblick](#systemüberblick).
 
 ### Waffe (ESP32-S3, zentrale Elektronik – einziger Chip)
 - IR-LED (TSAL6100 o. ä.) über N-MOSFET (AO3400 / IRLZ44N), Gate 100 Ω, Pulldown 100 kΩ
@@ -66,7 +284,7 @@ Stand: 08.10.2026
 
 ---
 
-## 3. Kabel Weste–Waffe (reines Sensorkabel, kein Protokoll)
+## 3. Sensorkabel zwischen Weste und Waffe
 
 Die Weste hat keinen eigenen Chip – nur TSOP-Sensoren, reine Signalleitungen,
 kein Protokoll.
@@ -112,7 +330,7 @@ kein Protokoll.
 
 ---
 
-## 5. Netzwerk (Mesh-WLAN/UDP)
+## 5. Netzwerk
 
 - Eigene SSID nur 2,4 GHz, eigenes VLAN, Band-Steering aus
 - Feste Kanäle (1/6/11), Auto-Optimize während des Spiels aus
@@ -175,7 +393,7 @@ Komplett an der Waffe montiert (WS2812-Streifen, Vibration, Lautsprecher).
 
 ---
 
-## 8. ESP32-Wahl (Kurzfassung)
+## 8. ESP32-Wahl
 
 | Chip | Status |
 |---|---|
@@ -190,7 +408,7 @@ Akku und Metall), USB-Zugang einplanen.
 
 ---
 
-## 9. Vorgehen (Reihenfolge)
+## 9. Vorgehen
 
 1. Waffe mit angeschlossenen TSOP-Sensoren auf dem Tisch, nur IR: Reichweite und Fehltreffer messen
 2. IR-Stresstest (1000 Schüsse bei laufendem WLAN und LED-Animation, Ziel ≥ 99 %)
@@ -200,9 +418,10 @@ Akku und Metall), USB-Zugang einplanen.
 6. Optik- und Schaltungsoptimierung nach Messwerten
 7. Danach weitere Westen, Sound, Extras
 
+---
+
 ## 10. Offene Punkte
 
-- Genaue Pinbelegung für den einen ESP32-S3 (jetzt in der Waffe)
 - Waffe-Code: erste Fassung in [firmware/](firmware/) (ESP-IDF v6.0, auf ESP32-S3 geflasht, Peripherie noch nicht getestet)
 - Server: erste Fassung in [server/](server/) (Python, nur Standardbibliothek, mit Waffen-Simulator getestet)
 - Gehäuse/3D-Druck-Maße, inkl. Platz für Akku/Lautsprecher/LED in der Waffe –

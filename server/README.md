@@ -3,6 +3,8 @@
 Spielserver für die Waffen-Firmware ([../firmware/](../firmware/)). Nur
 Python-Standardbibliothek (≥ 3.10), keine Installation nötig.
 
+![Live-Anzeige während einer Runde](../docs/bilder/server_weboberflaeche.png)
+
 - UDP-Listener als asyncio-`DatagramProtocol`, HMAC-geprüft, Deduplizierung
   über (Spieler-ID, Session, Laufnummer), `ACK` für jeden `HIT`/`DEATH`
 - Teams, Punkte, Runden mit Zeitlimit, Respawn-Freigabe durch den Server
