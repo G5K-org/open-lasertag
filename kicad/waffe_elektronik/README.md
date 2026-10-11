@@ -27,7 +27,7 @@ Abzug/Nachladen, WS2812, Weste (Sensoren) und Vibration.
 - Versorgungsnetze (`GND`, `3V3_MCU`, `5V_PERIPH`, `BAT_P`, `VBUS_NATIVE`)
   hängen an KiCad-Power-Symbolen.
 - Unbenutzte Pins sind markiert: GPIO1/GPIO2 mit No-Connect-Kreuz, die drei
-  freien Gatter des 74AHCT125 mit Eingang und `/OE` auf GND.
+  freien Gatter des 74HCT125 mit Eingang und `/OE` auf GND.
 
 Schaltplan ([kiutils][1]) und Platine (pcbnew) werden per Python erzeugt und
 mit `kicad-cli` geprüft; die Generator-Skripte liegen in [`scripts/`](scripts/).
@@ -58,13 +58,13 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   - CC1/CC2 je 5,1 kΩ nach GND, damit USB-C-Netzteile VBUS einschalten
   - ESD-Schutz USBLC6-2SC6 in D−/D+ und VBUS
 - **Power-Tree:** Akku → 5V-Boost (`U1`) → `5V_PERIPH` (speist WS2812,
-  MAX98357A, 74AHCT125) → AMS1117-3.3 (`U2`) → `3V3_MCU` (ESP32-S3 und
+  MAX98357A, 74HCT125) → AMS1117-3.3 (`U2`) → `3V3_MCU` (ESP32-S3 und
   Pull-ups).
 - **Lader (`U3`, MCP73831):** hängt ausschließlich an `VBUS_NATIVE` der
   USB-C-Buchse, nicht am Boost-Ausgang.
 - **TSOPs:** je eigener 100 Ω/4,7 µF-Tiefpass direkt am Sensor (auf der
   Weste).
-- **WS2812:** läuft über einen 74AHCT125-Pegelwandler (3,3→5 V) plus
+- **WS2812:** läuft über einen 74HCT125-Pegelwandler (3,3→5 V) plus
   330 Ω-Vorwiderstand; die Munitionsanzeige hängt als weitere WS2812-Pixel am
   physischen DOUT-Pin des HP-Streifens (Daisy-Chain).
 - **PWR_FLAG-Symbole** (`#FLG*`) markieren Netze, die ERC sonst als "nicht
@@ -99,6 +99,17 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   USB-Paar 45° geführt, D+/D− an der Buchse über eine Via-Kreuzung
 - Fertigungsdaten: JLCPCB-4-Lagen-Standardstackup (USB-Impedanz beim
   Fertiger prüfen)
+
+## Fertigung (JLCPCB)
+
+[`fertigung/jlcpcb/`](fertigung/jlcpcb/): `waffe_elektronik_gerber.zip` (Gerber + Bohrdaten),
+`waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. Alle Bauteile mit LCSC-Nummer (Feld `LCSC`),
+geprüft auf Lagerbestand bei JLCPCB.
+
+- Leiterplatte: 4 Lagen, 1,6 mm, Impedanz-Stackup JLC04161H-7628, ENIG
+- Bestückung: Top Side, BOM + CPL hochladen, Platzierungsvorschau prüfen
+- Ersatzteile: `U5` 74HCT125PW, `D1`/`D2` SS14 (SOD-123FL), `L1` 10 µH MWSA0503S,
+  `BT1`/`SP1` CJT A2001WR-S-2P (JST-PH-kompatibel)
 
 ## Bekannte offene Punkte
 

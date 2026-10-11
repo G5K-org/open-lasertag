@@ -9,6 +9,7 @@ the previous auto-generated version look like spaghetti).
 
 Connectivity is checked against a reference netlist by scripts/netcmp.py.
 """
+import copy
 import os
 import re
 import sys
@@ -288,7 +289,7 @@ def block_power(ox, oy):
     sh.w((ox + 22.86, rail), (ox + 22.86, u1["5"][1]), u1["5"]); sh.j((ox + 22.86, rail))
     sh.w((ox + 22.86, u1["5"][1]), (ox + 22.86, u1["4"][1]), u1["4"]); sh.j((ox + 22.86, u1["5"][1]))
     sh.w(u1["2"], (ux, gy)); sh.gnd((ux, gy))
-    l1 = sh.part("Device", "L", "L1", "22u", ox + 30.48, rail, angle=90,
+    l1 = sh.part("Device", "L", "L1", "10u", ox + 30.48, rail, angle=90,
                  ref_at=(ox + 30.48, rail - 4.445), val_at=(ox + 30.48, rail - 2.54))
     sh.w((ox + 10.16, rail), l1["1"])
     sw = ox + 43.18
@@ -522,7 +523,7 @@ def block_buttons(ox, oy):
 
 def block_ws2812(ox, oy):
     ux, uy = ox + 20.32, oy + 12.7
-    ua = sh.part("74xx", "74AHCT125", "U5", "74AHCT125", ux, uy, unit=1,
+    ua = sh.part("74xx", "74AHCT125", "U5", "74HCT125", ux, uy, unit=1,
                  ref_at=(ux, uy - 6.35), val_at=(ux - 7.62, uy - 3.81), just="center", hide_val=True)
     sh.w(ua["2"], (ux - 10.16, uy)); sh.lbl((ux - 10.16, uy), "WS2812_DIN_3V3", "L")
     sh.w(ua["1"], (ux, uy + 10.16)); sh.gnd((ux, uy + 10.16))
@@ -537,7 +538,7 @@ def block_ws2812(ox, oy):
     sh.j((ox + 45.72, j1["2"][1])); sh.w(c10["2"], (ox + 45.72, oy + 38.1)); sh.gnd((ox + 45.72, oy + 38.1))
     sh.w(j1["3"], (ox + 49.53, j1["3"][1]), (ox + 49.53, oy + 38.1)); sh.gnd((ox + 49.53, oy + 38.1))
     py = oy + 50.8
-    ue = sh.part("74xx", "74AHCT125", "U5", "74AHCT125", ux, py, unit=5,
+    ue = sh.part("74xx", "74AHCT125", "U5", "74HCT125", ux, py, unit=5,
                  ref_at=(ux + 6.35, py), val_at=None, hide_val=True)
     sh.w(ue["14"], (ux, py - 15.24)); sh.vcc((ux, py - 15.24), "5V_PERIPH")
     sh.w((ux, py - 15.24), (ux - 7.62, py - 15.24)); sh.j((ux, py - 15.24))
@@ -546,7 +547,7 @@ def block_ws2812(ox, oy):
     sh.w(ue["7"], (ux, py + 15.24)); sh.gnd((ux, py + 15.24))
     for k, (unit, a, y, oe) in enumerate(((2, "5", "6", "4"), (3, "9", "8", "10"), (4, "12", "11", "13"))):
         gx = ox + 45.72 + k * 20.32
-        u = sh.part("74xx", "74AHCT125", "U5", "74AHCT125", gx, py, unit=unit,
+        u = sh.part("74xx", "74AHCT125", "U5", "74HCT125", gx, py, unit=unit,
                     ref_at=(gx, py - 6.35), val_at=None, just="center", hide_val=True)
         sh.w(u[a], (gx - 10.16, py), (gx - 10.16, py + 10.16)); sh.gnd((gx - 10.16, py + 10.16))
         sh.w(u[oe], (gx, py + 10.16)); sh.gnd((gx, py + 10.16))
@@ -640,6 +641,21 @@ FOOTPRINTS = {
     "M1": SH2, "M2": SH2, "LED1": SH2, "LED2": SH2, "SW1": SH2, "SW2": SH2,
     "SW3": "Button_Switch_SMD:SW_SPST_B3U-1000P", "SW4": "Button_Switch_SMD:SW_SPST_B3U-1000P",
 }
+# JLCPCB/LCSC part numbers (checked for stock 2026-10-11); by reference, fallback by value for 0603 R/C
+LCSC = {
+    "U1": "C84817", "U2": "C6186", "U3": "C424093", "U4": "C2913202", "U5": "C131316", "U6": "C910544",
+    "U12": "C7519", "Q1": "C20917", "Q2": "C20917", "Q3": "C20917",
+    "D1": "C2909920", "D2": "C2909920", "D3": "C8678", "L1": "C408412",
+    "R7": "C17903", "R8": "C17903",
+    "C1": "C723734", "C10": "C723734", "C7": "C49066", "C3": "C7193",
+    "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783",
+    "J1": "C265101", "J2": "C160406", "J3": "C5184243", "BT1": "C225233", "SP1": "C225233",
+    "M1": "C160402", "M2": "C160402", "LED1": "C160402", "LED2": "C160402", "SW1": "C160402", "SW2": "C160402",
+    "SW3": "C231329", "SW4": "C231329",
+}
+LCSC_0603 = {("R", "10k"): "C25804", ("R", "100k"): "C25803", ("R", "5.1k"): "C23186", ("R", "2k"): "C22975",
+             ("R", "330"): "C23138", ("R", "100"): "C22775", ("R", "75k"): "C23242",
+             ("C", "100n"): "C14663", ("C", "1u"): "C15849"}
 VEST = {f"U{i}" for i in range(7, 12)} | {f"R{i}" for i in range(16, 21)} | {f"C{i}" for i in range(11, 16)}
 
 
@@ -657,7 +673,15 @@ def assign_footprints():
         if fp is None and inst.entryName == "C":
             fp = "Capacitor_SMD:C_0603_1608Metric"
         assert fp, f"no footprint for {ref}"
-        next(p for p in inst.properties if p.key == "Footprint").value = fp
+        fprop = next(p for p in inst.properties if p.key == "Footprint")
+        fprop.value = fp
+        val = next(p.value for p in inst.properties if p.key == "Value")
+        part = LCSC.get(ref) or LCSC_0603.get((inst.entryName, val))
+        assert part, f"no LCSC part for {ref} ({val})"
+        if not any(p.key == "LCSC" for p in inst.properties):
+            lp = copy.deepcopy(fprop)
+            lp.key, lp.value = "LCSC", part
+            inst.properties.append(lp)
 
 
 # three rows, 27.94mm between blocks, ~38mm between rows

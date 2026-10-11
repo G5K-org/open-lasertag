@@ -36,7 +36,7 @@ der Platine (kreuzungsfreies Routing).
 | TSOP 4 – Rücken | GPIO13 | RMT-Eingang |
 | TSOP 5 – Schultern (optional) | GPIO14 | RMT-Eingang |
 | TSOP 6 – Waffe vorne | GPIO21 | RMT-Eingang, direkt an der Waffe (nicht über Sensorkabel) |
-| WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, 74AHCT125) + 330 Ω; VDD über kleinen 5-V-Boost-Converter vom 1S-LiPo |
+| WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, 74HCT125) + 330 Ω; VDD über kleinen 5-V-Boost-Converter vom 1S-LiPo |
 | USB-C Lade-Status | GPIO18 | Eingang vom CHRG/STAT-Pin des Lade-ICs (TP4056/MCP73831), interner Pullup |
 | I²S DOUT | GPIO38 | zu MAX98357A |
 | I²S BCLK | GPIO39 | zu MAX98357A |

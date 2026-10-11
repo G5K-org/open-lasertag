@@ -43,7 +43,7 @@ Stand: 08.10.2026
 - WS2812(B)-Streifen, echte 5-V-Variante (HP/Treffer/Team-Farbe), an der Waffe
   montiert. Spannungsumsetzung: kleiner Boost-Converter vom 1S-LiPo (3,7–4,2 V)
   auf 5 V für die VDD-Versorgung des Strips, plus Pegelwandler (z. B.
-  74AHCT125) zwischen 3,3-V-GPIO und Datenleitung.
+  74HCT125) zwischen 3,3-V-GPIO und Datenleitung.
 - Zusätzlicher Vibrationsmotor für Treffer-Feedback (getrennt von der
   Rückstoß-Vibration oder gemeinsam genutzt, noch zu entscheiden)
 - I²S-Verstärker (MAX98357A) + Lautsprecher, nutzt denselben 5-V-Boost wie der
@@ -164,7 +164,7 @@ Komplett an der Waffe montiert (WS2812-Streifen, Vibration, Lautsprecher).
 | TSOP-Signale über längeres Kabel anfälliger für Störungen | kurz halten, geschirmt/verdrillt, RC-Filter direkt am Sensor |
 | Team-/HP-Anzeige an der Waffe schlechter sichtbar als am Körper | im Praxistest prüfen, ggf. Sensorkabel später um WS2812-Datenader erweitern |
 | Gewicht/Balance der Waffe (Akku, Lautsprecher, LED jetzt alle dort) | früh mit Gesamtgewicht prototypisch testen, ggf. Akku in den Griff/Schaft verlegen |
-| WS2812-Datensignal bei 3,3 V unzuverlässig | Pegelwandler (74AHCT125) einplanen |
+| WS2812-Datensignal bei 3,3 V unzuverlässig | Pegelwandler (74HCT125) einplanen |
 | Augen | IR-LED-Datenblatt und IEC 62471 prüfen, nicht aus der Nähe in die Optik schauen |
 | LiPo in der Halle | Schutzschaltung, geschütztes Laden (LiPo-Beutel), nie unbeaufsichtigt |
 | Unfallgefahr | nur gehen, Schutzschuhe, Staplerbereiche sperren |

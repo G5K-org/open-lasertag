@@ -80,8 +80,9 @@ def parse_netlist(path):
         val = re.search(r'\(value "([^"]*)"\)', block).group(1)
         fp = re.search(r'\(footprint "([^"]*)"\)', block)
         ts = re.findall(r'\(tstamps "([^"]*)"\)', block)[-1]  # symbol UUID -> footprint path
+        lcsc = re.search(r'\(name "LCSC"\) "([^"]*)"', block)
         if fp and fp.group(1):
-            comps[ref] = (val, fp.group(1), ts)
+            comps[ref] = (val, fp.group(1), ts, lcsc.group(1) if lcsc else "")
     nets = {}
     for m in re.finditer(r'\(net\s+\(code "\d+"\)\s+\(name "([^"]*)"\)(.*?)\n\t\t\)', t, re.S):
         nodes = re.findall(r'\(ref "([^"]+)"\)\s+\(pin "([^"]+)"\)', m.group(2))
@@ -665,7 +666,7 @@ def build():
 
     fps = {}
     stage_x = W + 10
-    for ref, (val, fpid, ts) in sorted(comps.items()):
+    for ref, (val, fpid, ts, lcsc) in sorted(comps.items()):
         lib, name = fpid.split(":")
         m = pcbnew.FootprintLoad(f"{FPLIB}/{lib}.pretty", name)
         assert m is not None, fpid
@@ -673,6 +674,9 @@ def build():
         m.SetPath(pcbnew.KIID_PATH("/" + ts))
         m.SetReference(ref)
         m.SetValue(val)
+        if lcsc:  # JLCPCB part number travels with the footprint (BOM/CPL, schematic parity)
+            m.SetField("LCSC", lcsc)
+            m.GetField("LCSC").SetVisible(False); m.GetField("LCSC").SetLayer(pcbnew.F_Fab)
         # dense board: designators go to the assembly drawing (F.Fab), silk only gets connector labels
         m.Reference().SetLayer(pcbnew.F_Fab)
         m.Reference().SetTextSize(pcbnew.VECTOR2I(MM(0.5), MM(0.5))); m.Reference().SetTextThickness(MM(0.08))
