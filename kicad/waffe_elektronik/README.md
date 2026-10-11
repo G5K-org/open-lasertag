@@ -91,6 +91,9 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **Regeln (`.kicad_pro`):** min. 0,15 mm Leiterbahn/Abstand, Vias 0,5/0,3 mm
   (USB-Kreuzung 0,4/0,2 mm), Netzklassen Default 0,2 mm, Power 0,5 mm,
   3V3 0,6 mm, USB 0,2/0,2 mm (Paar)
+- **Leiterbahnen nur in 0°/45°/90°**, jeder Knick max. 45°, Abzweige laufen
+  unter 45° ein; Teardrops an allen Pads und Vias (außer GND-Stichen in der
+  GND-Fläche)
 - **Routing von Hand**, kein Autorouter: MT3608-Schaltknoten kurz und breit,
   3V3 von der LDO-Kühlfläche über 10 µF + 100 nF direkt an Modul-Pin 2,
   USB-Paar 45° geführt, D+/D− an der Buchse über eine Via-Kreuzung
