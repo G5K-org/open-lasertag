@@ -37,7 +37,7 @@ Modulen mit Octal-PSRAM intern belegt).
 | TSOP 3 – Brust | GPIO14 | RMT-Eingang |
 | TSOP 4 – Rücken | GPIO15 | RMT-Eingang |
 | TSOP 5 – Schultern (optional) | GPIO16 | RMT-Eingang |
-| WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, z. B. 74AHCT125) + 330 Ω in der Datenleitung; VDD über kleinen 5-V-Boost-Converter vom 1S-LiPo, siehe readme.md Abschnitt 2 |
+| WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, z. B. 74AHCT125) + 330 Ω in der Datenleitung; VDD über kleinen 5-V-Boost-Converter vom 1S-LiPo, siehe [readme.md Abschnitt 2](readme.md#2-architektur) |
 | USB-C Lade-Status | GPIO18 | Eingang vom CHRG/STAT-Pin des Lade-ICs (z. B. TP4056-Modul oder MCP73831); Lade-IC hängt am VBUS desselben nativen USB-Ports, der auch zum Flashen dient – kein zweiter Stecker; Status-Pin meist Open-Drain/aktiv-Low, interner Pullup aktivieren |
 | I²S BCLK | GPIO21 | zu MAX98357A |
 | I²S LRCLK/WS | GPIO38 | zu MAX98357A |
@@ -50,8 +50,8 @@ Modulen mit Octal-PSRAM intern belegt).
 ## Weste – nur Sensoren
 
 Keine Elektronik, kein Chip. Nur die TSOPs mit ihrer lokalen Beschaltung
-(100 Ω + 4,7 µF je Sensor) und das Sensorkabel zur Waffe (siehe readme.md
-Abschnitt 3).
+(100 Ω + 4,7 µF je Sensor) und das Sensorkabel zur Waffe (siehe
+[readme.md Abschnitt 3](readme.md#3-kabel-westewaffe-reines-sensorkabel-kein-protokoll)).
 
 ---
 

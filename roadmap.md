@@ -45,7 +45,7 @@ Phasenplan für das Lasertag-Projekt, aufbauend auf [readme.md](readme.md) Absch
 - Kein Protokoll nötig (kein zweiter Chip mehr) – nur GPIO/RMT-Einbindung in
   dieselbe Firmware, die auch sendet
 - RMT-Kanalaufteilung bei mehr TSOPs als freien RX-Kanälen klären (siehe
-  pinbelegung.md, offene Fragen)
+  [pinbelegung.md, Offene Fragen für den Praxistest](pinbelegung.md#offene-fragen-für-den-praxistest))
 - ESD-Schutz an den Sensorleitungen verifizieren
 
 ---

@@ -42,7 +42,7 @@ Stand: 08.10.2026
 - 4–5× TSOP34838-Signale von der Weste, lokale RMT-Auswertung
 - WS2812(B)-Streifen, **echte 5-V-Variante** (HP/Treffer/Team-Farbe), jetzt
   **an der Waffe montiert**, nicht mehr am Körper sichtbar – bewusste
-  Entscheidung, siehe Abschnitt 6.
+  Entscheidung, siehe [Abschnitt 6](#6-anzeige-und-feedback).
   **Spannungsumsetzung nötig:** kleiner **Boost-Converter** vom 1S-LiPo
   (3,7–4,2 V) auf 5 V für die VDD-Versorgung des Strips, plus **Pegelwandler**
   (z. B. 74AHCT125) zwischen 3,3-V-GPIO und Datenleitung, da WS2812(B) ~5-V-
@@ -60,7 +60,7 @@ Stand: 08.10.2026
   Spannung liefern (beim gewählten Board kurz verifizieren). Bei unprotected
   LiPo-Pouch-Zelle zusätzliche Schutzschaltung einplanen (bei geschützter
   18650 entfällt das). CHRG/STAT-Ausgang des Lade-ICs auf den
-  Lade-Status-GPIO (siehe pinbelegung.md) und/oder eine eigene LED.
+  Lade-Status-GPIO (siehe [pinbelegung.md](pinbelegung.md)) und/oder eine eigene LED.
   Laden während des Spielens (Last + Ladestrom gleichzeitig über denselben
   Port) ist mit einfachen Linearladern grundsätzlich möglich, aber nicht der
   Regelfall – für den Spielbetrieb eher Akku vorher laden.
@@ -157,7 +157,7 @@ dadurch für andere Spieler schlechter sichtbar als eine Anzeige am Körper. Das
 ist eine bewusste Folge davon, dass die Weste keinen Chip mehr trägt; falls
 sich das im Praxistest als Problem zeigt, wäre eine spätere Erweiterung des
 Sensorkabels um eine WS2812-Datenader für eine zusätzliche Rückenleuchte
-möglich (siehe offene Punkte).
+möglich (siehe [Offene Punkte](#10-offene-punkte)).
 
 - **Lebensanzeige:** WS2812-Streifen an der Waffe über das offizielle
   ESP-IDF-`led_strip`-Component (RMT-basiert, kein FastLED/Adafruit_NeoPixel),
@@ -217,10 +217,32 @@ Befestigung: Platine mit Buchsenleisten und M3-Abstandshaltern oder gedruckte PE
 
 - Genaue Pinbelegung für den einen ESP32-S3 (jetzt in der Waffe)
 - Waffe-Code (IR-Task Core 1, TSOP-Auswertung, UDP, Puffer, Reconnect) und Server-Code
-- Gehäuse/3D-Druck-Maße, inkl. Platz für Akku/Lautsprecher/LED in der Waffe
+- Gehäuse/3D-Druck-Maße, inkl. Platz für Akku/Lautsprecher/LED in der Waffe –
+  als Basis ausgewählt: [MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay)
+  (STLs + Quellenangabe in [gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/)).
+  Reine Deko-Requisite ohne Funktionsteile – muss für Elektronik-Einbau
+  ausgehöhlt/angepasst werden.
 - Akku-/Laufzeitbudget (WLAN + WS2812 + Sound + IR-Pulse) für Eventplanung
 - OTA-Update-Mechanismus für die Waffe bei mehreren Sets
 - ESP-IDF-Projektstruktur (Komponenten-Repo, CI-Build) statt Arduino-Sketches
 - Server bleibt bewusst außerhalb der "nur Espressif"-Vorgabe – betrifft nur die ESP32-Firmware, nicht den Python/Node-RED-Server
 - Steckverbinder für das Sensorkabel festlegen (z. B. GX12/GX16, Polzahl nach TSOP-Anzahl)
 - Gewichtsverteilung der Waffe mit Gesamt-BOM früh real nachbauen/wiegen
+
+---
+
+## 11. Android-App und Server (Basis: open-laser-tag)
+
+Als normale Verzeichnisse ins Projekt übernommen (nicht als Submodule) –
+Ausgangspunkt für die Weiterentwicklung der eigenen App und des eigenen
+Servers, ursprünglich GPL-3.0 von [open-laser-tag](https://github.com/open-laser-tag):
+
+- [android-app/](android-app/) – BLE- und WebSocket-Client (Basis:
+  [open-laser-tag/android-app](https://github.com/open-laser-tag/android-app)),
+  wird zur geplanten Live-Anzeige/Steuerung weiterentwickelt
+- [server/](server/) – node.js-Server mit WebSocket (Basis:
+  [open-laser-tag/server](https://github.com/open-laser-tag/server)), wird zum
+  eigenen UDP/WebSocket-Server (Abschnitt 5) weiterentwickelt
+
+Da GPL-3.0-Code übernommen wurde, bleibt eine eigene Veröffentlichung dieser
+beiden Teile ebenfalls GPL-3.0-pflichtig.
