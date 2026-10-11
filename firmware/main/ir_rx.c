@@ -33,6 +33,8 @@ typedef struct {
 
 static const gpio_num_t s_rmt_pins[RMT_SENSORS] = {PIN_TSOP1, PIN_TSOP2, PIN_TSOP3, PIN_TSOP4};
 static rmt_channel_handle_t s_rmt[RMT_SENSORS];
+// callback context must live in internal RAM (RMT_ISR_IRAM_SAFE)
+static uint8_t s_rmt_sensor[RMT_SENSORS] = {0, 1, 2, 3};
 static rmt_symbol_word_t s_rmt_buf[RMT_SENSORS][MAX_PAIRS];
 static QueueHandle_t s_done_q;
 static TaskHandle_t s_starter;
@@ -105,7 +107,7 @@ static bool IRAM_ATTR on_rmt_recv(rmt_channel_handle_t chan, const rmt_rx_done_e
 {
     BaseType_t woken = pdFALSE;
     rx_done_t done = {
-        .sensor = (uint8_t)(uintptr_t)ctx,
+        .sensor = *(const uint8_t *)ctx,
         .count = ev->num_symbols,
         .end_us = esp_timer_get_time(),
     };
@@ -124,7 +126,7 @@ static esp_err_t rmt_rx_add(int idx)
     };
     ESP_RETURN_ON_ERROR(rmt_new_rx_channel(&cfg, &s_rmt[idx]), TAG, "rx channel %d", idx);
     rmt_rx_event_callbacks_t cbs = {.on_recv_done = on_rmt_recv};
-    ESP_RETURN_ON_ERROR(rmt_rx_register_event_callbacks(s_rmt[idx], &cbs, (void *)(uintptr_t)idx),
+    ESP_RETURN_ON_ERROR(rmt_rx_register_event_callbacks(s_rmt[idx], &cbs, &s_rmt_sensor[idx]),
                         TAG, "cb");
     ESP_RETURN_ON_ERROR(rmt_enable(s_rmt[idx]), TAG, "enable");
     // TSOP open collector output: the vest has pull-ups, the internal one
