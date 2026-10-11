@@ -4,6 +4,8 @@ Schaltplan für die zentrale Elektronik der Waffe (einziger ESP32-S3-Chip),
 passend zu [../../pinbelegung.md](../../pinbelegung.md) und
 [../../readme.md](../../readme.md). KiCad 10, ERC-geprüft (0 Fehler).
 
+![Schaltplan](renders/schaltplan.png)
+
 ## Öffnen
 
 `waffe_elektronik.kicad_pro` in KiCad öffnen, dann den Schaltplan-Editor
@@ -11,21 +13,25 @@ starten. Die Bibliotheken sind über die mitgelieferte projekteigene
 `sym-lib-table` eingebunden (nur Standard-KiCad-Bibliotheken, z. B. `Device`,
 `Diode`, `Transistor_FET`, `74xx`, `power`).
 
-## Was hier generiert statt gezeichnet wurde
+## Aufbau
 
-Der Schaltplan wurde programmatisch erzeugt (Python + [kiutils][1],
-[scripts/build_sch.py](scripts/build_sch.py) +
-[scripts/build_full.py](scripts/build_full.py)), per `kicad-cli sch erc` auf
-0 Fehler geprüft. Alle Signalnetze sind mit echten, automatisch geroutetem
-Leitungen verbunden (inkl. der langen Läufe zum MCU-Modul, mit
-Kollisionsprüfung gegen fremde Pins/Leitungen); nur die globalen
-Versorgungsnetze (`GND`, `3V3_MCU`, `5V_PERIPH`, `BAT_P`, `VBUS_NATIVE`)
-laufen weiterhin über Netz-Label – alles andere über die ganze Seite zu
-verdrahten wäre nur Kabelsalat, das ist auch in handgezeichneten Schaltplänen
-so üblich. Bekannte Einschränkung: an einigen dicht bepinnten Bauteilen
-(Regler, Pegelwandler, Verstärker) überlappt Beschriftungstext optisch – das
-ist rein kosmetisch (ERC/Konnektivität korrekt) und lässt sich bei Bedarf in
-KiCad per Hand nachjustieren.
+Ein A3-Blatt, in gestrichelt umrahmte Funktionsblöcke gegliedert:
+Stromversorgung, Laden, Akku-Messung, Sound, ESP32-S3, IR-Sender,
+Abzug/Nachladen, WS2812, Weste (Sensoren) und Vibration.
+
+- Innerhalb eines Blocks ist alles mit echten Leitungen verdrahtet; Bauteile
+  liegen auf dem Raster, Versorgung zeigt nach oben, Masse nach unten.
+- Zwischen den Blöcken laufen Signale über Netz-Labels an kurzen
+  Stichleitungen (z. B. `IR_GATE`, `TSOP1_OUT`) statt über lange Leitungen
+  quer über das Blatt.
+- Versorgungsnetze (`GND`, `3V3_MCU`, `5V_PERIPH`, `BAT_P`, `VBUS_NATIVE`)
+  hängen an KiCad-Power-Symbolen.
+- Unbenutzte Pins sind markiert: GPIO1/GPIO2 mit No-Connect-Kreuz, die drei
+  freien Gatter des 74AHCT125 mit Eingang und `/OE` auf GND.
+
+Der Schaltplan wird per Python ([kiutils][1]) erzeugt und mit
+`kicad-cli sch erc` geprüft: 0 Fehler. Die Generator-Skripte gehören nicht
+zum Repo.
 
 [1]: https://github.com/mvnmgrx/kiutils
 
