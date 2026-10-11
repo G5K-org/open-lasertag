@@ -1,21 +1,21 @@
-# waffe_elektronik – KiCad-Schaltplan
+# waffe_elektronik – KiCad-Projekt
 
-Schaltplan für die zentrale Elektronik der Waffe (einziger ESP32-S3-Chip),
-passend zu [../../pinbelegung.md](../../pinbelegung.md) und
-[../../readme.md](../../readme.md). KiCad 10, ERC-geprüft (0 Fehler).
+Schaltplan und Platine für die zentrale Elektronik der Waffe (einziger
+ESP32-S3-Chip), passend zu [../../pinbelegung.md](../../pinbelegung.md) und
+[../../readme.md](../../readme.md). KiCad 10, ERC 0 Fehler, DRC 0 Fehler.
 
 ![Schaltplan](renders/schaltplan.png)
 
 ## Öffnen
 
-`waffe_elektronik.kicad_pro` in KiCad öffnen, dann den Schaltplan-Editor
-starten. Die Bibliotheken sind über die mitgelieferte projekteigene
+`waffe_elektronik.kicad_pro` in KiCad öffnen, dann Schaltplan- bzw.
+Platinen-Editor starten. Die Bibliotheken sind über die mitgelieferte projekteigene
 `sym-lib-table` eingebunden (nur Standard-KiCad-Bibliotheken, z. B. `Device`,
 `Diode`, `Transistor_FET`, `74xx`, `power`).
 
 ## Aufbau
 
-Ein A3-Blatt, in gestrichelt umrahmte Funktionsblöcke gegliedert:
+Ein A2-Blatt, in gestrichelt umrahmte Funktionsblöcke gegliedert:
 Stromversorgung, Laden, Akku-Messung, Sound, ESP32-S3, IR-Sender,
 Abzug/Nachladen, WS2812, Weste (Sensoren) und Vibration.
 
@@ -29,19 +29,19 @@ Abzug/Nachladen, WS2812, Weste (Sensoren) und Vibration.
 - Unbenutzte Pins sind markiert: GPIO1/GPIO2 mit No-Connect-Kreuz, die drei
   freien Gatter des 74AHCT125 mit Eingang und `/OE` auf GND.
 
-Der Schaltplan wird per Python ([kiutils][1]) erzeugt und mit
-`kicad-cli sch erc` geprüft: 0 Fehler. Die Generator-Skripte gehören nicht
-zum Repo.
+Schaltplan ([kiutils][1]) und Platine (pcbnew) werden per Python erzeugt und
+mit `kicad-cli` geprüft. Die Generator-Skripte gehören nicht zum Repo.
 
 [1]: https://github.com/mvnmgrx/kiutils
 
 ## Bauteile
 
-Einziges Platzhalter-Symbol ist `U1`, der 5-V-Boost-Converter (MT3608-
-Fertigmodul, Bibliothek `Module`). Alle anderen Bauteile sind echte Symbole
-aus den KiCad-Standardbibliotheken, u. a. `ESP32-S3-WROOM-1` (`U4`),
-`USB_C_Receptacle_USB2.0_16P` (`J3`), `USBLC6-2SC6`, `MCP73831-2-OT`,
-`AMS1117-3.3`, `TSOP348xx`, `MAX98357A`, `AO3400A`, `74AHCT125`, `SS14`.
+Alle Bauteile sind Symbole aus den KiCad-Standardbibliotheken, u. a.
+`ESP32-S3-WROOM-1` (`U4`), `USB_C_Receptacle_USB2.0_16P` (`J3`),
+`USBLC6-2SC6`, `MT3608`, `MCP73831-2-OT`, `AMS1117-3.3`, `TSOP348xx`,
+`MAX98357A`, `AO3400A`, `74AHCT125`, `SS14`, `SS34`. Alle Footprints sind
+SMD; Bauteile außerhalb der Platine (Akku, IR-LEDs, Taster, Motoren,
+Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 
 ## Design-Entscheidungen im Schaltplan
 
@@ -72,8 +72,30 @@ aus den KiCad-Standardbibliotheken, u. a. `ESP32-S3-WROOM-1` (`U4`),
 
 ## Platine
 
-Noch keine `.kicad_pcb`-Datei im Repo – Footprints, Platzierung und Routing
-werden manuell in KiCad erstellt.
+![Platine oben](renders/platine_3d.png)
+
+| Oben | Unten |
+|---|---|
+| ![oben](renders/platine_oben.png) | ![unten](renders/platine_unten.png) |
+
+- **54 × 46 mm**, 1,6 mm, 4 Lagen, nur SMD, Bestückung nur oben
+- **Lagen:**
+  - F.Cu: Bauteile, kurze Signale, GND-Fläche
+  - In1.Cu: durchgehende GND-Fläche ohne Leiterbahnen
+  - In2.Cu: Versorgung (`5V_PERIPH`, `3V3_MCU`, `BAT_P`) als Leiterbahnen + GND-Fläche
+  - B.Cu: lange Signale (EN, Abzug, Nachladen, IR, WS2812, IO0, TSOP, RECOIL) + GND-Fläche, Beschriftung
+- **ESP32-S3-Modul:** Antenne ragt über die Oberkante hinaus; jedes GND-Pad
+  mit eigenem Via nach In1, GND-Stitching-Vias im Raster
+- **Stecker:** links LED1/LED2/Abzug/Nachladen, unten WS2812/USB-C/Sensor/
+  Lautsprecher, rechts Vibrationsmotoren, oben links Akku
+- **Regeln (`.kicad_pro`):** min. 0,15 mm Leiterbahn/Abstand, Vias 0,5/0,3 mm
+  (USB-Kreuzung 0,4/0,2 mm), Netzklassen Default 0,2 mm, Power 0,5 mm,
+  3V3 0,6 mm, USB 0,2/0,2 mm (Paar)
+- **Routing von Hand**, kein Autorouter: MT3608-Schaltknoten kurz und breit,
+  3V3 von der LDO-Kühlfläche über 10 µF + 100 nF direkt an Modul-Pin 2,
+  USB-Paar 45° geführt, D+/D− an der Buchse über eine Via-Kreuzung
+- Fertigungsdaten: JLCPCB-4-Lagen-Standardstackup (USB-Impedanz beim
+  Fertiger prüfen)
 
 ## Bekannte offene Punkte
 
