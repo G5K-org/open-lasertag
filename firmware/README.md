@@ -84,7 +84,7 @@ gcc -I main test/test_nec.c main/nec.c -o /tmp/test_nec && /tmp/test_nec
 ## Offen / auf Hardware zu prüfen
 
 - Alles nur gebaut, noch nicht auf der Platine getestet.
-- TSOP 6 (GPIO21) ist im Schaltplan noch nicht verdrahtet, standardmäßig aus.
+- TSOP 6 (an der Waffe, GPIO16, Stecker J6) wird wie TSOP 5 per GPIO-Interrupt ausgewertet.
 - Pixelzahlen der WS2812-Kette (`LT_LEDS_*`) an die realen Streifen und den Ring anpassen.
 - Stromspitze im Schuss (Ring + Rückstoß-Motor + Sound auf `5V_PERIPH`) am MT3608 messen,
   ggf. `LT_MUZZLE_BRIGHTNESS` senken.

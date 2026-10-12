@@ -26,7 +26,7 @@ Abzug/Nachladen, WS2812, Weste (Sensoren) und Vibration.
   quer über das Blatt.
 - Versorgungsnetze (`GND`, `3V3_MCU`, `5V_PERIPH`, `BAT_P`, `VBUS_NATIVE`)
   hängen an KiCad-Power-Symbolen.
-- Unbenutzte Pins sind markiert: GPIO1/GPIO2 mit No-Connect-Kreuz, die drei
+- Unbenutzte Pins sind markiert: freie GPIOs mit No-Connect-Kreuz, die drei
   freien Gatter des 74HCT125 mit Eingang und `/OE` auf GND.
 
 Schaltplan ([kiutils][1]) und Platine (pcbnew) werden per Python erzeugt und
@@ -42,7 +42,7 @@ Alle Bauteile sind Symbole aus den KiCad-Standardbibliotheken, u. a.
 `ESP32-S3-WROOM-1` (`U4`), `USB_C_Receptacle_USB2.0_16P` (`J3`),
 `USBLC6-2SC6`, `MT3608`, `MCP73831-2-OT`, `AMS1117-3.3`, `TSOP348xx`,
 `MAX98357A`, `AO3400A`, `74AHCT125`, `SS14`, `SS34`. Alle Footprints sind
-SMD; Bauteile außerhalb der Platine (Akku, IR-LEDs, Taster, Motoren,
+SMD; Bauteile außerhalb der Platine (Akku, IR-LED, TSOP 6, Taster, Motoren,
 Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 
 ## Design-Entscheidungen im Schaltplan
@@ -81,16 +81,22 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 |---|---|
 | ![oben](renders/platine_oben.png) | ![unten](renders/platine_unten.png) |
 
-- **54 × 46 mm**, 1,6 mm, 4 Lagen, nur SMD, Bestückung nur oben
+- **59,6 × 46 mm, L-förmig** (54 mm breit, oben rechts bis y = 18,5 mm ein 5,6 mm breiter Streifen
+  für OLED- und Drehgeber-Stecker), 1,6 mm, 4 Lagen, nur SMD, Bestückung nur oben
 - **Lagen:**
   - F.Cu: Bauteile, kurze Signale, GND-Fläche
   - In1.Cu: durchgehende GND-Fläche ohne Leiterbahnen
   - In2.Cu: Versorgung (`5V_PERIPH`, `3V3_MCU`, `BAT_P`) als Leiterbahnen + GND-Fläche
-  - B.Cu: lange Signale (EN, Abzug, Nachladen, IR, WS2812, IO0, TSOP, RECOIL) + GND-Fläche, Projekt-URL
+  - B.Cu: lange Signale (EN, Abzug, Nachladen, IR, WS2812, IO0, TSOP, Bedienteil) + GND-Fläche, Projekt-URL
 - **ESP32-S3-Modul:** Antenne ragt über die Oberkante hinaus; jedes GND-Pad
   mit eigenem Via nach In1, GND-Stitching-Vias im Raster
-- **Stecker:** links LED1/LED2/Abzug/Nachladen, unten WS2812/USB-C/Sensor/
-  Lautsprecher, rechts Vibrationsmotoren, oben links Akku
+- **Befestigung:** 2 × M2-Loch (2,2 mm, nicht durchkontaktiert) für Linsenkopfschrauben
+  ISO 7380 (Kopf ≤ 3,5 mm), diagonal: neben dem Spannungsregler und zwischen Sensor- und
+  Lautsprecherstecker; Ø 3,7 mm kupferfrei auf allen Lagen
+- **Bedienung:** J4 OLED (JST-SH 4, Qwiic: GND/3V3/SDA/SCL) und J5 Drehgeber (JST-SH 4:
+  GND/Taster/B/A) übereinander im rechten Streifen; I²C-Pull-ups auf dem OLED-Modul
+- **Stecker:** links IR-LED (LED1)/TSOP 6 (J6)/Abzug/Nachladen, unten WS2812/USB-C/Sensor/
+  Lautsprecher, rechts Vibrationsmotor, rechts oben OLED/Drehgeber, oben links Akku
 - **Regeln (`.kicad_pro`):** min. 0,15 mm Leiterbahn/Abstand, Vias 0,5/0,3 mm
   (USB-Kreuzung 0,4/0,2 mm), Netzklassen Default 0,2 mm, Power 0,5 mm,
   3V3 0,6 mm, USB 0,2/0,2 mm (Paar)

@@ -13,8 +13,16 @@
 #define PIN_I2S_DOUT    GPIO_NUM_38
 #define PIN_I2S_BCLK    GPIO_NUM_39
 #define PIN_I2S_LRCLK   GPIO_NUM_40
-#define PIN_HIT_VIB     GPIO_NUM_47  // AO3400 gate
-#define PIN_RECOIL_VIB  GPIO_NUM_48  // AO3400 gate
+#define PIN_VIB         GPIO_NUM_47  // AO3400 gate, one motor for recoil and hit
+
+// Operator panel: OLED on I2C (J4, Qwiic pinout, pull-ups on the display
+// module) and rotary encoder with push button (J5, contacts to GND, use the
+// internal pull-ups). Not used by the firmware yet.
+#define PIN_I2C_SCL     GPIO_NUM_1
+#define PIN_I2C_SDA     GPIO_NUM_2
+#define PIN_ENC_A       GPIO_NUM_42
+#define PIN_ENC_B       GPIO_NUM_41
+#define PIN_ENC_SW      GPIO_NUM_9
 
 // TSOP34838 outputs, idle high, low while a 38 kHz burst is received.
 // Index = sensor number - 1.
@@ -23,7 +31,7 @@
 #define PIN_TSOP3       GPIO_NUM_12  // chest
 #define PIN_TSOP4       GPIO_NUM_13  // back
 #define PIN_TSOP5       GPIO_NUM_14  // shoulders (optional)
-#define PIN_TSOP6       GPIO_NUM_21  // weapon front, not wired yet
+#define PIN_TSOP6       GPIO_NUM_16  // on the weapon itself, connector J6
 
 #define BAT_DIVIDER     2            // BAT_P = 2 * ADC voltage
 #define BAT_ADC_UNIT    ADC_UNIT_1

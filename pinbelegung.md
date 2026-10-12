@@ -25,27 +25,28 @@ der Platine (kreuzungsfreies Routing).
 | Abzug (Trigger) | GPIO4 | Eingang, RC-Entprellung 10 kΩ + 100 nF |
 | Nachladen (Reload) | GPIO5 | Eingang, RC-Entprellung |
 | IR-LED MOSFET-Gate | GPIO6 | RMT-Ausgang |
-| Rückstoß-Vibration | GPIO48 | PWM/LEDC, eigener MOSFET + Freilaufdiode |
 | Akkuspannung | GPIO8 | ADC1_CH7 |
-| I²C SDA (nur falls OLED statt LED-Zeile) | GPIO1 | |
-| I²C SCL (nur falls OLED statt LED-Zeile) | GPIO2 | |
-| Treffer-Vibration | GPIO47 | PWM/LEDC |
+| I²C SCL – OLED | GPIO1 | J4 Pin 4 (Qwiic: GND, 3V3, SDA, SCL), Pull-ups auf dem OLED-Modul |
+| I²C SDA – OLED | GPIO2 | J4 Pin 3 |
+| Drehgeber A | GPIO42 | J5 Pin 4 (GND, Taster, B, A), interner Pull-up |
+| Drehgeber B | GPIO41 | J5 Pin 3, interner Pull-up |
+| Drehgeber Taster | GPIO9 | J5 Pin 2, interner Pull-up |
+| Vibrationsmotor (Rückstoß + Treffer) | GPIO47 | PWM/LEDC, MOSFET + Freilaufdiode, Stecker M1 |
 | TSOP 1 – Stirnband vorn | GPIO10 | RMT-Eingang, über Sensorkabel |
 | TSOP 2 – Stirnband hinten | GPIO11 | RMT-Eingang |
 | TSOP 3 – Brust | GPIO12 | RMT-Eingang |
 | TSOP 4 – Rücken | GPIO13 | RMT-Eingang |
 | TSOP 5 – Schultern (optional) | GPIO14 | RMT-Eingang |
-| TSOP 6 – Waffe vorne | GPIO21 | RMT-Eingang, direkt an der Waffe (nicht über Sensorkabel) |
+| TSOP 6 – an der Waffe | GPIO16 | J6 (1 VS, 2 GND, 3 OUT), Filter 100 Ω + 4,7 µF am Sensor; GPIO-Interrupt |
 | WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, 74HCT125) + 330 Ω; VDD über kleinen 5-V-Boost-Converter vom 1S-LiPo |
 | USB-C Lade-Status | GPIO18 | Eingang vom CHRG/STAT-Pin des Lade-ICs (TP4056/MCP73831), interner Pullup |
 | I²S DOUT | GPIO38 | zu MAX98357A |
 | I²S BCLK | GPIO39 | zu MAX98357A |
 | I²S LRCLK/WS | GPIO40 | zu MAX98357A |
-| Munitionszähler-LED-Zeile (falls kein OLED) | GPIO1/GPIO2 | |
 | USB D− / D+ | GPIO19 / GPIO20 | nativer USB (USB-Serial-JTAG), über ESD-Schutz an die USB-C-Buchse |
 | BOOT-Taster | GPIO0 | Download-Modus, nur als Rückfallebene nötig |
 | RESET | EN | 10 kΩ Pull-up + 1 µF, RESET-Taster |
-| — frei für Erweiterungen — | GPIO7, 9, 15, 16, 41, 42 | |
+| — frei für Erweiterungen — | GPIO7, 15, 21, 48 | |
 
 ---
 
@@ -61,4 +62,3 @@ Keine Elektronik, kein Chip. Nur die TSOPs mit ihrer lokalen Beschaltung
 - RMT-Kanäle: 4 TX + 4 RX – bei 6 TSOPs ggf. einen Sensor per Software-Timer
   statt RMT auswerten, oder bei 4 Sensoren bleiben
 - I²S-SD-Pin des MAX98357A fest auf 5V_PERIPH, GAIN_SLOT fest auf GND
-- TSOP 6 (Waffe vorne, GPIO21) ist noch nicht im Schaltplan

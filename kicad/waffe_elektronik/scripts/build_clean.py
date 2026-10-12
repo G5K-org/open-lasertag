@@ -398,12 +398,13 @@ MCU_SIGNALS = {
     "10": "WS2812_DIN_3V3", "11": "CHRG_STAT", "13": "USB_D-", "14": "USB_D+",
     # layout-driven: pad order matches the order of the targets on the board (no crossings)
     "18": "TSOP1_OUT", "19": "TSOP2_OUT", "20": "TSOP3_OUT", "21": "TSOP4_OUT", "22": "TSOP5_OUT",
-    "24": "HIT_VIB", "25": "RECOIL_VIB", "31": "I2S_DOUT", "32": "I2S_BCLK", "33": "I2S_LRCLK",
+    "24": "VIB", "31": "I2S_DOUT", "32": "I2S_BCLK", "33": "I2S_LRCLK",
+    # OLED (I2C) and rotary encoder: connectors J4/J5 at the right edge next to these pads
+    "39": "I2C_SCL", "38": "I2C_SDA", "35": "ENC_A", "34": "ENC_B", "17": "ENC_SW",
+    "9": "TSOP6_OUT",  # TSOP 6 on the weapon itself, connector J6 (former second IR LED)
 }
-# unused: IO1/IO2 (spare, ammo LEDs/I2C), IO7, IO9, IO15/16, IO3/IO45/IO46 (strapping),
-# TXD0/RXD0, IO35-37 (octal PSRAM on N16R8), IO21 (reserved TSOP 6), IO41/42
-MCU_UNUSED = ["39", "38", "15", "7", "8", "9", "17", "37", "36", "28", "29", "30", "23", "34", "35",
-              "26", "16"]
+# unused: IO7, IO15, IO21, IO48, IO3/IO45/IO46 (strapping), TXD0/RXD0, IO35-37 (octal PSRAM on N16R8)
+MCU_UNUSED = ["15", "7", "8", "37", "36", "28", "29", "30", "23", "26", "16", "25"]
 
 
 def block_mcu(ox, oy):
@@ -441,8 +442,7 @@ def block_mcu(ox, oy):
             sh.w(p, (p[0] + 2.54, p[1])); sh.lbl((p[0] + 2.54, p[1]), net, "R")
     for num in MCU_UNUSED:
         sh.nc(u4[num])
-    sh.note((mx - 50.8, my + 35.56), "frei: IO1/IO2 (Munitions-LED / I²C), IO7, IO9, IO15/16, IO41/42")
-    sh.note((mx - 50.8, my + 38.1), "IO21 reserviert: TSOP 6 (Waffe vorne)")
+    sh.note((mx - 50.8, my + 35.56), "frei: IO7, IO15, IO21, IO48")
     sh.frame(mx - 53.34, oy - 5.08, mx + 40.64, my + 43.18, "ESP32-S3-WROOM-1")
 
 
@@ -484,7 +484,7 @@ def block_ir(ox, oy):
     gy = oy + 60.96
     sh.w((xa - 7.62, rail), (xc, rail), (xc, oy + 22.86))
     sh.vcc((xa - 7.62, rail), "BAT_P")
-    for x, rr, led in ((xa, "R7", "LED1"), (xb, "R8", "LED2")):
+    for x, rr, led in ((xa, "R7", "LED1"),):
         r = R(rr, "10", x, oy + 20.32)
         d = sh.part("Device", "LED", led, "TSAL6100", x, oy + 31.75, angle=90,
                     ref_at=(x + 7.62, oy + 30.48), val_at=(x + 7.62, oy + 33.02))
@@ -492,7 +492,7 @@ def block_ir(ox, oy):
         sh.w(r["2"], d["2"])
         sh.w(d["1"], (x, kline))
     c7 = C("C7", "100u", xc, oy + 26.67)
-    sh.w(c7["2"], (xc, kline), (xa, kline)); sh.j((xb, kline)); sh.j((xa, kline))
+    sh.w(c7["2"], (xc, kline), (xa, kline)); sh.j((xa, kline))
     q = sh.part("Transistor_FET", "AO3400A", "Q1", "AO3400A", xa - 2.54, oy + 50.8,
                 ref_at=(xa + 2.54, oy + 49.53), val_at=(xa + 2.54, oy + 52.07))
     sh.w((xa, kline), q["3"])
@@ -502,7 +502,7 @@ def block_ir(ox, oy):
     r6 = R("R6", "100k", xa - 10.16, oy + 54.61, fields="left")
     sh.j((xa - 10.16, oy + 50.8)); sh.w(r6["2"], (xa - 10.16, gy)); sh.gnd((xa - 10.16, gy))
     sh.w(r5["1"], (xa - 24.13, oy + 50.8)); sh.lbl((xa - 24.13, oy + 50.8), "IR_GATE", "L")
-    sh.frame(ox + 2.54, oy - 5.08, ox + 86.36, oy + 68.58, "IR-Sender (2× TSAL6100 parallel)")
+    sh.frame(ox + 2.54, oy - 5.08, ox + 86.36, oy + 68.58, "IR-Sender (TSAL6100)")
 
 
 def block_buttons(ox, oy):
@@ -558,8 +558,7 @@ def block_ws2812(ox, oy):
 
 def block_vibration(ox, oy):
     for i, (net, q, rg, rp, m, d, mval) in enumerate((
-            ("RECOIL_VIB", "Q2", "R11", "R12", "M1", "D1", "Vibromotor Rückstoss"),
-            ("HIT_VIB", "Q3", "R13", "R14", "M2", "D2", "Vibromotor Treffer"))):
+            ("VIB", "Q2", "R11", "R12", "M1", "D1", "Vibromotor"),)):
         dx, dy = ox + 12.7 + i * 52.07, oy + 22.86
         mm = sh.part("Motor", "Motor_DC", m, mval, dx + 25.4, dy,
                      ref_at=(dx + 21.59, dy - 1.27), val_at=(dx + 21.59, dy + 1.27), just="right")
@@ -578,7 +577,56 @@ def block_vibration(ox, oy):
         r2 = R(rp, "100k", dx + 13.97, dy + 26.67, fields="left")
         sh.j((dx + 13.97, dy + 22.86)); sh.w(r2["2"], (dx + 13.97, dy + 33.02)); sh.gnd((dx + 13.97, dy + 33.02))
         sh.w(r1["1"], (dx + 1.27, dy + 22.86)); sh.lbl((dx + 1.27, dy + 22.86), net, "L")
-    sh.frame(ox - 2.54, oy - 5.08, ox + 111.76, oy + 63.5, "Rückstoss- / Treffer-Vibration")
+    sh.frame(ox - 2.54, oy - 5.08, ox + 59.69, oy + 63.5, "Vibration (Rückstoss + Treffer)")
+
+
+def block_ui(ox, oy):
+    """OLED display on I2C (Qwiic pinout) and rotary encoder with push button,
+    one JST-SH connector each. Pull-ups: on the OLED module / ESP32 internal."""
+    for k, (ref, val, pins) in enumerate((
+            ("J4", "OLED I²C (Qwiic)", ("GND", "3V3_MCU", "I2C_SDA", "I2C_SCL")),
+            ("J5", "Drehgeber", ("GND", "ENC_SW", "ENC_B", "ENC_A")))):
+        jx, jy = ox + 33.02 + k * 50.8, oy + 17.78
+        j = sh.part("Connector_Generic", "Conn_01x04", ref, val, jx, jy,
+                    ref_at=(jx + 2.54, jy - 6.35), val_at=(jx + 2.54, jy - 3.81))
+        for n, net in enumerate(pins, 1):
+            p = j[str(n)]
+            if net == "GND":
+                sh.w(p, (p[0] - 5.08, p[1])); sh.gnd((p[0] - 5.08, p[1]), side="left")
+            elif net == "3V3_MCU":
+                sh.w(p, (p[0] - 12.7, p[1]), (p[0] - 12.7, p[1] - 10.16)); sh.vcc((p[0] - 12.7, p[1] - 10.16), net)
+            else:
+                sh.w(p, (p[0] - 15.24, p[1])); sh.lbl((p[0] - 15.24, p[1]), net, "L")
+    sh.note((ox + 2.54, oy + 38.1), "Pull-ups für I²C auf dem OLED-Modul, Drehgeber über interne Pull-ups")
+    sh.frame(ox - 2.54, oy - 5.08, ox + 99.06, oy + 43.18, "Bedienung: OLED + Drehgeber")
+
+
+def block_tsop6(ox, oy):
+    """TSOP34838 mounted on the weapon (front), cable to J6 like the vest sensors:
+    J6 = 1 VS (3V3), 2 GND, 3 OUT; supply filter 100R + 4.7u at the sensor."""
+    jx, jy = ox + 20.32, oy + 25.4
+    j6 = sh.part("Connector_Generic", "Conn_01x03", "J6", "TSOP 6 (Waffe)", jx, jy,
+                 ref_at=(jx + 2.54, jy - 5.08), val_at=(jx + 2.54, jy - 2.54))
+    sh.w(j6["1"], (ox + 10.16, j6["1"][1]), (ox + 10.16, oy + 12.7)); sh.vcc((ox + 10.16, oy + 12.7), "3V3_MCU")
+    sh.w(j6["2"], (ox + 12.7, j6["2"][1])); sh.gnd((ox + 12.7, j6["2"][1]), side="left")
+    sh.w(j6["3"], (ox + 10.16, j6["3"][1])); sh.lbl((ox + 10.16, j6["3"][1]), "TSOP6_OUT", "L")
+    sh.note((ox + 2.54, oy + 40.64), "Kabel zum Sensor an der Waffe")
+    cx, cy = ox + 40.64, oy + 30.48
+    u = sh.part("Interface_Optical", "TSOP348xx", "U13", "TSOP34838", cx + 12.7, cy,
+                ref_at=(cx + 11.43, cy + 8.89), val_at=(cx + 11.43, cy + 11.43), just="center")
+    n = (cx + 25.4, cy - 12.7)
+    sh.w(u["3"], (cx + 25.4, cy - 5.08), n)
+    r = R("R26", "100", cx + 25.4, cy - 16.51)
+    sh.w(r["1"], (cx + 25.4, cy - 22.86)); sh.vcc((cx + 25.4, cy - 22.86), "3V3_MCU")
+    sh.j(n)
+    c = C("C24", "4.7u", cx + 40.64, cy - 8.89, pol=True, fields="left")
+    sh.w(n, c["1"])
+    sh.j((cx + 35.56, cy - 12.7)); sh.flag("#FLG9", (cx + 35.56, cy - 12.7))
+    sh.w(c["2"], (cx + 40.64, cy + 10.16)); sh.gnd((cx + 40.64, cy + 10.16))
+    sh.w(u["1"], (cx + 27.94, cy)); sh.lbl((cx + 27.94, cy), "TSOP6_OUT", "R")
+    sh.w(u["2"], (cx + 25.4, cy + 5.08), (cx + 25.4, cy + 10.16)); sh.gnd((cx + 25.4, cy + 10.16))
+    sh.note((cx + 12.7, cy + 15.24), "Waffe vorne", just="center")
+    sh.frame(ox - 10.16, oy - 5.08, ox + 88.9, oy + 50.8, "TSOP 6 (an der Waffe, jenseits des Steckers)")
 
 
 def block_weste(ox, oy):
@@ -620,16 +668,17 @@ def block_weste(ox, oy):
 # the footprint of the board-side connector their cable plugs into.
 SH2 = "Connector_JST:JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal"
 PH2 = "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal"
+SH4 = "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
 FOOTPRINTS = {
     "U1": "Package_TO_SOT_SMD:SOT-23-6", "U2": "Package_TO_SOT_SMD:SOT-223-3_TabPin2",
     "U3": "Package_TO_SOT_SMD:SOT-23-5", "U4": "RF_Module:ESP32-S3-WROOM-1",
     "U5": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
     "U6": "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",
     "U12": "Package_TO_SOT_SMD:SOT-23-6",
-    "Q1": "Package_TO_SOT_SMD:SOT-23", "Q2": "Package_TO_SOT_SMD:SOT-23", "Q3": "Package_TO_SOT_SMD:SOT-23",
-    "D1": "Diode_SMD:D_SOD-123F", "D2": "Diode_SMD:D_SOD-123F", "D3": "Diode_SMD:D_SMA",
+    "Q1": "Package_TO_SOT_SMD:SOT-23", "Q2": "Package_TO_SOT_SMD:SOT-23",
+    "D1": "Diode_SMD:D_SOD-123F", "D3": "Diode_SMD:D_SMA",
     "L1": "Inductor_SMD:L_Sunlord_MWSA0503S",
-    "R7": "Resistor_SMD:R_1206_3216Metric", "R8": "Resistor_SMD:R_1206_3216Metric",
+    "R7": "Resistor_SMD:R_1206_3216Metric",
     "C1": "Capacitor_SMD:C_1210_3225Metric", "C7": "Capacitor_SMD:C_1210_3225Metric",
     "C10": "Capacitor_SMD:C_1210_3225Metric", "C3": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
     "C2": "Capacitor_SMD:C_0805_2012Metric", "C18": "Capacitor_SMD:C_0805_2012Metric",
@@ -638,25 +687,28 @@ FOOTPRINTS = {
     "J2": "Connector_JST:JST_SH_SM07B-SRSS-TB_1x07-1MP_P1.00mm_Horizontal",
     "J3": "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal",
     "BT1": PH2, "SP1": PH2,
-    "M1": SH2, "M2": SH2, "LED1": SH2, "LED2": SH2, "SW1": SH2, "SW2": SH2,
+    "M1": SH2, "LED1": SH2, "SW1": SH2, "SW2": SH2,
     "SW3": "Button_Switch_SMD:SW_SPST_B3U-1000P", "SW4": "Button_Switch_SMD:SW_SPST_B3U-1000P",
+    "J4": SH4, "J5": SH4, "J6": "Connector_JST:JST_SH_SM03B-SRSS-TB_1x03-1MP_P1.00mm_Horizontal",
 }
 # JLCPCB/LCSC part numbers (checked for stock 2026-10-11); by reference, fallback by value for 0603 R/C
 LCSC = {
     "U1": "C84817", "U2": "C6186", "U3": "C424093", "U4": "C2913202", "U5": "C131316", "U6": "C910544",
-    "U12": "C7519", "Q1": "C20917", "Q2": "C20917", "Q3": "C20917",
-    "D1": "C2909920", "D2": "C2909920", "D3": "C8678", "L1": "C408412",
-    "R7": "C17903", "R8": "C17903",
+    "U12": "C7519", "Q1": "C20917", "Q2": "C20917",
+    "D1": "C2909920", "D3": "C8678", "L1": "C408412",
+    "R7": "C17903",
     "C1": "C723734", "C10": "C723734", "C7": "C49066", "C3": "C7193",
     "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783",
     "J1": "C265101", "J2": "C160406", "J3": "C5184243", "BT1": "C225233", "SP1": "C225233",
-    "M1": "C160402", "M2": "C160402", "LED1": "C160402", "LED2": "C160402", "SW1": "C160402", "SW2": "C160402",
-    "SW3": "C231329", "SW4": "C231329",
+    "M1": "C160402", "LED1": "C160402", "SW1": "C160402", "SW2": "C160402",
+    "SW3": "C231329", "SW4": "C231329", "J4": "C160404", "J5": "C160404",
+    "J6": "C7430445",  # ZX-SH1.0-3PWT, JST SM03B-compatible (C160403 out of stock)
 }
 LCSC_0603 = {("R", "10k"): "C25804", ("R", "100k"): "C25803", ("R", "5.1k"): "C23186", ("R", "2k"): "C22975",
              ("R", "330"): "C23138", ("R", "100"): "C22775", ("R", "75k"): "C23242",
              ("C", "100n"): "C14663", ("C", "1u"): "C15849"}
 VEST = {f"U{i}" for i in range(7, 12)} | {f"R{i}" for i in range(16, 21)} | {f"C{i}" for i in range(11, 16)}
+VEST |= {"U13", "R26", "C24"}  # TSOP 6 sits on the weapon, filter at the sensor
 
 
 def assign_footprints():
@@ -696,6 +748,8 @@ block_buttons(248.92, 147.32)
 block_ws2812(335.28, 147.32)
 block_vibration(462.28, 147.32)
 block_weste(22.86, 281.94)
+block_ui(309.88, 281.94)
+block_tsop6(431.8, 281.94)
 
 assign_footprints()
 out = os.environ.get("OUT_SCH", "waffe_clean.kicad_sch")

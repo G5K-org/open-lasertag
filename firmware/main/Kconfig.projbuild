@@ -94,10 +94,8 @@ menu "Lasertag Waffe"
             default y
 
         config LT_TSOP6_ENABLE
-            bool "TSOP 6 (Waffe vorne, GPIO21) auswerten"
-            default n
-            help
-                GPIO21 ist im aktuellen Schaltplan noch nicht verdrahtet.
+            bool "TSOP 6 (an der Waffe, GPIO16, Stecker J6) auswerten"
+            default y
     endmenu
 
     menu "ESP-NOW"

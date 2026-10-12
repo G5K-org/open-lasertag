@@ -61,7 +61,7 @@ Licht, Ton und Vibration auslösen. Das Netz meldet nur nach.
 |---|---|
 | 🔫 **Schuss** | NEC-codiertes IR-Signal (Team + Spieler-ID), 38 kHz, jeder Schuss 2× gesendet; Ziel 30–50 m Reichweite |
 | 🎯 **Treffer** | bis zu 6 Sensoren; Treffer zählt erst bei 2 gültigen Frames in 100 ms, danach 500 ms unverwundbar; Kopftreffer geben Bonuspunkte |
-| 💡 **Anzeige** | WS2812-Kette an der Waffe: Lebensbalken grün → gelb → rot, Munition, Teamfarbe, Ringlicht als Mündungsfeuer |
+| 💡 **Anzeige** | WS2812-Kette an der Waffe: Lebensbalken grün → gelb → rot, Munition, Teamfarbe, Ringlicht als Mündungsfeuer; Anschlüsse für OLED (I²C) und Drehdrück-Geber |
 | 📳 **Feedback** | Rückstoß- und Treffervibration, Soundeffekte über I²S-Verstärker, weißer Blitz bei Treffer, rotes Pulsieren als tot |
 | 🔋 **Akku** | 1S-LiPo, Laden über USB-C, Spannungs- und Ladeanzeige |
 | 📡 **Netz** | WLAN mit eigenem Roaming zwischen Access Points, UDP mit HMAC-Signatur, Treffer werden bis zur Bestätigung wiederholt |
@@ -106,9 +106,9 @@ flowchart LR
 
 ## Hardware
 
-Eine Platine für die ganze Waffe: 54 × 46 mm, 4 Lagen, nur SMD-Bauteile, von
+Eine Platine für die ganze Waffe: 59,6 × 46 mm (L-förmig), 4 Lagen, nur SMD-Bauteile, von
 Hand geroutet und für die Bestückung bei JLCPCB vorbereitet. Alle Peripherie
-hängt an Steckern: Akku, IR-LEDs, Taster, Motoren, Lautsprecher, WS2812 und
+hängt an Steckern: Akku, IR-LED, Taster, Motoren, Lautsprecher, WS2812, ein Sensor an der Waffe und
 das Sensorkabel der Weste.
 
 | Oberseite | Unterseite |
@@ -117,7 +117,7 @@ das Sensorkabel der Weste.
 
 **Auf der Platine:** ESP32-S3-WROOM-1 (16 MB Flash, 8 MB PSRAM), USB-C mit
 ESD-Schutz zum Flashen und Laden, Lader MCP73831, 5-V-Boost MT3608,
-3,3-V-Regler, MOSFETs für IR-LED und Vibrationsmotoren, Pegelwandler für
+3,3-V-Regler, MOSFETs für IR-LED und Vibrationsmotor, Pegelwandler für
 WS2812, I²S-Verstärker MAX98357A, GX16-Buchse für das Sensorkabel der Weste.
 
 <a href="kicad/waffe_elektronik/renders/schaltplan.png"><img src="kicad/waffe_elektronik/renders/schaltplan.png" alt="Schaltplan der Waffen-Elektronik"></a>
@@ -265,17 +265,15 @@ Stand der Planung: 08.10.2026
 - IR-LED (TSAL6100 o. ä.) über N-MOSFET (AO3400 / IRLZ44N), Gate 100 Ω, Pulldown 100 kΩ
 - 100–220 µF Elko direkt am MOSFET
 - Abzug und Nachladen (Mikrotaster, RC-Entprellung 10 kΩ + 100 nF)
-- Munitionszähler, LED-Zeile oder kleines OLED
-- Rückstoß-Vibration (Motor über eigenen MOSFET, Freilaufdiode, PWM)
+- Munitionszähler: WS2812-Kette, dazu kleines OLED (I²C) und Drehdrück-Geber, je an eigenem Stecker
+- Ein Vibrationsmotor für Rückstoß und Treffer (MOSFET, Freilaufdiode, PWM)
 - 4–5× TSOP34838-Signale von der Weste, lokale RMT-Auswertung
-- Zusätzlicher TSOP34838 direkt an der Waffe vorne (eigene Beschaltung,
-  nicht über das Sensorkabel)
+- Zusätzlicher TSOP34838 an der Waffe (eigener Stecker J6, GPIO16, Filter
+  100 Ω + 4,7 µF am Sensor, nicht über das Sensorkabel)
 - WS2812(B)-Streifen, echte 5-V-Variante (HP/Treffer/Team-Farbe), an der Waffe
   montiert. Spannungsumsetzung: kleiner Boost-Converter vom 1S-LiPo (3,7–4,2 V)
   auf 5 V für die VDD-Versorgung des Strips, plus Pegelwandler (z. B.
   74HCT125) zwischen 3,3-V-GPIO und Datenleitung.
-- Zusätzlicher Vibrationsmotor für Treffer-Feedback (getrennt von der
-  Rückstoß-Vibration oder gemeinsam genutzt, noch zu entscheiden)
 - I²S-Verstärker (MAX98357A) + Lautsprecher, nutzt denselben 5-V-Boost wie der
   WS2812-Strip
 - 1S-LiPo oder geschützte 18650, Akkuspannung per ADC, im Waffengehäuse
@@ -336,7 +334,7 @@ kein Protokoll.
 ### Reichweite (IR)
 - Linse Ø 25 mm, f ≈ 40–50 mm, LED knapp hinter dem Brennpunkt
 - Spitzenstrom 150–300 mA gepulst, Tastgrad 25–33 %
-- Zwei LEDs parallel mit eigenen Vorwiderständen (nicht in Reihe an 1S-LiPo)
+- Eine IR-LED (TSAL6100) mit Vorwiderstand 10 Ω
 - Schuss 2× kurz hintereinander senden
 - Ziel: 30–50 m frei
 

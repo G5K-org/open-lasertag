@@ -44,7 +44,7 @@ Rotationskorrekturen (`ROTATIONS` in `jlc_fab.py`) stammen aus der Datenbank von
 ## 3. Bestellung auf jlcpcb.com
 
 1. „Order now“ → `*_gerber.zip` hochladen.
-2. Leiterplatte: **4 Lagen**, 1,6 mm, Maße werden aus Edge.Cuts gelesen (54 × 46 mm),
+2. Leiterplatte: **4 Lagen**, 1,6 mm, Maße werden aus Edge.Cuts gelesen (59,6 × 46 mm, L-förmig),
    **Impedanzkontrolle mit Stackup JLC04161H-7628** (USB-Paar), Oberfläche ENIG (TQFN/0,5-mm-Raster),
    Via Covering: tented.
 3. „PCB Assembly“ an → Economic/Standard, **Top Side**, Menge wählen.

@@ -1,4 +1,6 @@
-// Recoil and hit vibration motors on LEDC PWM, patterns stepped by esp_timer.
+// One vibration motor for recoil and hit feedback, LEDC PWM, patterns stepped
+// by esp_timer. A pattern only replaces a running one of equal or lower
+// priority, so a shot's short kick never cuts off hit or death feedback.
 #include "haptics.h"
 
 #include "board.h"
@@ -17,72 +19,56 @@ typedef struct {
 } step_t;
 
 typedef struct {
-    ledc_channel_t channel;
-    esp_timer_handle_t timer;
     const step_t *steps;
     int count;
-    int pos;
-} motor_t;
+    int prio;
+} pattern_t;
 
 static const step_t RECOIL[] = {{100, 60}};
 static const step_t HIT[] = {{100, 250}};
 static const step_t DEATH[] = {{100, 400}, {0, 150}, {100, 400}, {0, 150}, {100, 900}};
 static const step_t RESPAWN[] = {{80, 80}, {0, 80}, {80, 80}};
 
-static motor_t s_recoil = {.channel = LEDC_CHANNEL_0};
-static motor_t s_hit = {.channel = LEDC_CHANNEL_1};
+#define PAT(p, prio) {p, sizeof(p) / sizeof(p[0]), prio}
+static const pattern_t PATTERNS[] = {
+    [HAPTIC_RECOIL] = PAT(RECOIL, 0),
+    [HAPTIC_HIT] = PAT(HIT, 1),
+    [HAPTIC_RESPAWN] = PAT(RESPAWN, 1),
+    [HAPTIC_DEATH] = PAT(DEATH, 2),
+};
 
-static void set_duty(motor_t *m, uint8_t percent)
+static esp_timer_handle_t s_timer;
+static const pattern_t *s_pat;  // running pattern, NULL when idle
+static int s_pos;
+
+static void set_duty(uint8_t percent)
 {
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, m->channel, DUTY_MAX * percent / 100);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, m->channel);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, DUTY_MAX * percent / 100);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
 static void step(void *arg)
 {
-    motor_t *m = arg;
-    if (m->pos >= m->count) {
-        set_duty(m, 0);
+    if (!s_pat || s_pos >= s_pat->count) {
+        set_duty(0);
+        s_pat = NULL;
         return;
     }
-    const step_t *s = &m->steps[m->pos++];
-    set_duty(m, s->duty_percent);
-    esp_timer_start_once(m->timer, s->ms * 1000);
-}
-
-static void start(motor_t *m, const step_t *steps, int count)
-{
-    esp_timer_stop(m->timer);
-    m->steps = steps;
-    m->count = count;
-    m->pos = 0;
-    step(m);
+    const step_t *st = &s_pat->steps[s_pos++];
+    set_duty(st->duty_percent);
+    esp_timer_start_once(s_timer, st->ms * 1000);
 }
 
 void haptics_play(haptic_pattern_t pattern)
 {
-#define START(m, p) start(m, p, sizeof(p) / sizeof(p[0]))
-    switch (pattern) {
-    case HAPTIC_RECOIL: START(&s_recoil, RECOIL); break;
-    case HAPTIC_HIT: START(&s_hit, HIT); break;
-    case HAPTIC_DEATH: START(&s_hit, DEATH); break;
-    case HAPTIC_RESPAWN: START(&s_hit, RESPAWN); break;
+    const pattern_t *p = &PATTERNS[pattern];
+    if (s_pat && s_pat->prio > p->prio) {
+        return;
     }
-#undef START
-}
-
-static esp_err_t motor_init(motor_t *m, gpio_num_t pin, const char *name)
-{
-    ledc_channel_config_t ch = {
-        .gpio_num = pin,
-        .speed_mode = LEDC_LOW_SPEED_MODE,
-        .channel = m->channel,
-        .timer_sel = LEDC_TIMER_0,
-        .duty = 0,
-    };
-    ESP_RETURN_ON_ERROR(ledc_channel_config(&ch), TAG, "channel");
-    esp_timer_create_args_t args = {.callback = step, .arg = m, .name = name};
-    return esp_timer_create(&args, &m->timer);
+    esp_timer_stop(s_timer);
+    s_pat = p;
+    s_pos = 0;
+    step(NULL);
 }
 
 esp_err_t haptics_init(void)
@@ -95,6 +81,14 @@ esp_err_t haptics_init(void)
         .clk_cfg = LEDC_AUTO_CLK,
     };
     ESP_RETURN_ON_ERROR(ledc_timer_config(&t), TAG, "timer");
-    ESP_RETURN_ON_ERROR(motor_init(&s_recoil, PIN_RECOIL_VIB, "recoil"), TAG, "recoil");
-    return motor_init(&s_hit, PIN_HIT_VIB, "hit");
+    ledc_channel_config_t ch = {
+        .gpio_num = PIN_VIB,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_0,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = 0,
+    };
+    ESP_RETURN_ON_ERROR(ledc_channel_config(&ch), TAG, "channel");
+    esp_timer_create_args_t args = {.callback = step, .name = "vib"};
+    return esp_timer_create(&args, &s_timer);
 }

@@ -38,7 +38,7 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   (oben/unten/neben) als ein senkrechtes Label. Pin 1 von Steckern mit „1“ markieren, wenn die
   Footprint-Silk es nicht schon tut.
   **Mehrere Stecker in einer Reihe/Spalte:** ihre Labels gemeinsam ausrichten – in einer Spalte (links
-  LED1/LED2/ABZUG/NACHL., rechts VIB HIT/VIB RCK) gleiche Mittelpunkt-x (horizontal zentriert
+  LED1/TSOP/ABZUG/NACHL., rechts VIB) gleiche Mittelpunkt-x (horizontal zentriert
   untereinander), jedes Label direkt am eigenen Stecker (nie zwei Labels zwischen zwei Steckern so, dass
   beide zum selben zu gehören scheinen). Reihe (unten J1/J3/J2/SP1): gemeinsame y geht wegen
   unterschiedlicher Steckerhöhen nicht → jedes Label mittig (gleiche x) über seinem Stecker.
@@ -62,8 +62,32 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
 - Jedes GND-Pad bekommt ein eigenes Via nach In1 (`r.gnd`), Stromversorgungs-Pads ein Via nach In2 (`r.drop`).
 - Netzklassen/Regeln stehen in `RULES`/`NETCLASSES` und werden von `write_project()` in die `.kicad_pro` geschrieben:
   min. 0,15 mm Bahn/Abstand, Vias 0,5/0,3 (USB-Kreuzung 0,4/0,2), Default 0,2, Power 0,5, 3V3 0,6, USB-Paar 0,2/0,2.
+- **Befestigung:** 2 × M2 nach ISO 7380 (Linsenkopf 3,5 mm), `HOLES` in build_board.py, Footprint
+  `MountingHole_2.2mm_M2_ISO7380`, nicht durchkontaktiert, board-only (nicht in Schaltplan/BOM/CPL).
+  Courtyard = Kopfradius `HOLE_HEAD` 1,75 mm, Kupfer-Sperrfläche `HOLE_KEEPOUT` 1,85 mm auf allen Lagen
+  (keine Bahnen, Vias, Füllung). Lage diagonal: H1 (20,5/14,9) neben U2, H2 (42,2/42,5) mittig zwischen
+  J2 und SP1 (dort nur 3,51 mm zwischen den Courtyards → größere Köpfe/M2,5/M3 passen nicht).
+  Freie Stellen suchen: größte freie Kreise gegen Pads, Körper, Bahnen, Vias mit Bahn und Texte.
+  Mehr Löcher oder größere Schrauben nur mit größerer Platine.
 - ESP32-S3-WROOM-1: Antenne ragt über die Oberkante (`MX, MY`), 100 nF + 10 µF und EN-RC direkt an den Pins.
 - Randstecker: Body bündig, aber Befestigungspads ≥ 0,3 mm vom Rand (`SH_IN = 3.1`, `PH_IN = 4.9`).
+- **Kontur L-förmig:** `W0` = 54 (Hauptplatine; Modul `MX = W0 − 11,5`, M1 an `W0`), `W` = 59,6 nur für
+  y < `Y1` = 18,5 (Streifen für J4 OLED oben, J5 Drehgeber darunter, Öffnung nach rechts). Masseflächen und
+  Stitching folgen der L-Kontur. Neue Teile an der Kante: `W` bzw. `W0` je nach Höhe verwenden, nie
+  Modul/Bestand an `W` koppeln.
+- **TSOP 6 (J6, links unter LED1, JST-SH 3 = ZX-SH1.0-3PWT):** 1 VS (3V3 über Via + In2-Abzweig der
+  3V3-Diagonale), 2 GND (Via rechts), 3 OUT von IO16: B.Cu-Kanal Diagonale x + y = 38,0 (zwischen
+  H1-Sperrfläche und R2-3V3-Via, H1 dafür auf 20,4/14,8, U2-GND-Via auf (−1,2/0,3)), letztes Stück
+  F.Cu von unten rechts. Filter 100 Ω + 4,7 µF sitzt am Sensor (U13/R26/C24 nicht auf der Platine).
+  Linker Rand ist auf B.Cu durch das EN/Abzug/Nachladen/IR-Bündel abgetrennt → Signale zu linken
+  Steckern immer zuletzt auf F.Cu.
+- **Vibration:** ein Motor M1 (Rückstoß + Treffer) an IO47 über Q2/R11/R12/D1; IO48 frei. I²S läuft
+  neben dem Modul nach unten und dann mit einer 45°-Diagonale (x + y = 76,55 / 79,45 / 80,45) direkt
+  zu U6 durch die frei gewordene Fläche.
+- **Bedienteil-Routing:** SCL/SDA (IO1/IO2) auf F.Cu direkt in J4; 3V3 für J4 über In2 von einem Via an
+  Modul-Pin 2 (35,0/2,76) waagerecht nach rechts; ENC_A (IO42) auf F.Cu von oben in J5.4; ENC_B (IO41)
+  und ENC_SW (IO9, unten am Modul) über B.Cu zu Vias hinter den J5-Pads (unter dem Steckerkörper). Die
+  I²S-Leitungen laufen links neben den J5-Pads (0,175 mm Abstand) – J5 nicht weiter nach links.
 
 ## Routing-API in build_board.py
 
@@ -112,8 +136,9 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
    (Gitter in mm, Netznamen auf Pads, Teardrops deckend) und Bild mit Read anschauen.
    `python3 tools/padmap.py w.kicad_pcb GND 3V3_MCU ...` listet Pad-Koordinaten je Netz.
 6. Erst wenn alles sauber ist ins Projekt schreiben (`OUT_PCB=../waffe_elektronik.kicad_pcb`) und dort
-   `kicad-cli pcb drc --schematic-parity` laufen lassen (Parität 0). Erwartet ist nur die Warnung
-   `lib_footprint_mismatch` für U4 (Modul-Silk jenseits der Kante entfernt).
+   `kicad-cli pcb drc --schematic-parity` laufen lassen (Parität 0). Erwartet sind nur die Warnungen
+   `lib_footprint_mismatch` für U4 (Modul-Silk jenseits der Kante entfernt) und H1/H2 (Courtyard auf
+   Schraubenkopf verkleinert). DRC-Testschleifen deshalb auf 3 × `lib_footprint_mismatch` prüfen.
 7. Renders: `kicad-cli pcb render --side top|bottom ...` nach `renders/platine_oben.png`, `platine_unten.png`,
    `platine_3d.png` (`--perspective --rotate "-35,0,20"`).
 
@@ -140,10 +165,11 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
 - Labels: Courtyards sind für die Platzsuche zu groß (Sicherheitsrand) → `silk.py` nutzt den F.Fab-Umriss.
   Für Texte zählt die Strichkontur (`GetEffectiveTextShape().BBox()`, bei 0,8 mm ≈ 0,92 mm hoch), nicht
   `GetBoundingBox()` (≈ 1,36 mm mit Zeilenabstand) – sonst findet die Suche viele echte Lücken nicht.
-- Label-Stand: linke Spalte x = 4,2 (LED1 unter LED1, LED2/ABZUG/NACHL. über ihrem Stecker), rechte
-  Spalte x = 49,85 (VIB HIT über M2, VIB RCK unter M1), USB/SENSOR/LAUTSPR. mittig über J3/J2/SP1,
+- Label-Stand: linke Spalte x = 4,2 (LED1 unter LED1, TSOP/ABZUG/NACHL. über ihrem Stecker), rechte
+  „VIB“ über M1 (x = 49,85), USB/SENSOR/LAUTSPR. mittig über J3/J2/SP1,
   AKKU rechts neben BT1, RESET über SW3, WS2812 links neben J1 (über J1 kein Platz), „1“ an J2-Pin 1,
-  BOOT links neben SW4 auf Mittelhöhe, Titel „open-lasertag v1“ frei in der Mitte (19,5/17,9).
+  BOOT links neben SW4 auf Mittelhöhe, Titel „open-lasertag v1“ frei in der Mitte (19,5/17,9),
+  „OLED“/„GEBER“ unter J4/J5 auf gemeinsamer Achse x = 56,95 („DREHGEBER“ zu lang für den Streifen).
 - Wegpunkte, die auf einem Via enden sollen, exakt auf die Via-Koordinate legen (z. B. 31,39 statt 31,4);
   sonst hängt die Verbindung nur über Kupfer-Überlappung und `detour.py` erkennt das Via nicht als Halt.
 - Verzweigungen: der Abzweig darf nicht am Knickpunkt des Stamms beginnen (sonst 90° zum weiterlaufenden
