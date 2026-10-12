@@ -159,6 +159,12 @@ Platine zusammengesetzt: [gehaeuse/baugruppe/](gehaeuse/baugruppe/) (GLB/3MF).
 |---|---|
 | <img src="gehaeuse/baugruppe/baugruppe_vorn.png" alt="3D-Ansicht vorn: Frontkappe mit 12 Fenstern und Linsenhülse" width="420"> | <img src="gehaeuse/baugruppe/baugruppe_hinten.png" alt="3D-Ansicht hinten: OLED-Sockel mit Rahmen am Schaft" width="300"> |
 
+**Explosionszeichnung:** alle Druckteile und die Platine, entlang ihrer Montagerichtung auseinandergezogen.
+
+| Von links vorn | Von rechts |
+|---|---|
+| <img src="gehaeuse/baugruppe/explosion_links.png" alt="Explosionszeichnung von links vorn mit Teilenamen" width="440"> | <img src="gehaeuse/baugruppe/explosion_rechts.png" alt="Explosionszeichnung von rechts mit Teilenamen" width="440"> |
+
 **Schnitt durch den Schalldämpfer:** Linsenhülse (gold) mit Linse Ø 20 im Innengewinde M24 × 1,5,
 von vorn verstellbar; dahinter die IR-LED im Sitz (21 mm hinter der Linse), Kabel nach hinten;
 vorn die Frontkappe mit Ringlicht, unten der Kabelkanal für das Ringlicht.

@@ -16,6 +16,13 @@ Alle Teile der Waffe an ihrem Platz in einer Datei, erzeugt mit
 |---|---|---|
 | <img src="baugruppe_rechts.png" width="280"> | <img src="baugruppe_vorn.png" width="280"> | <img src="baugruppe_hinten.png" width="200"> |
 
+Explosionszeichnung (alle Druckteile und die Platine, Namen wie in [`../mp5_umbau/`](../mp5_umbau/README.md#dateien);
+Kaufteile wie Schrauben, Akku und Lautsprecher sind nicht dargestellt):
+
+<img src="explosion_links.png" width="900">
+
+<img src="explosion_rechts.png" width="900">
+
 Schnitt durch den Schalldämpfer (Linse, IR-LED, Ringlicht als Platzhalter):
 
 <img src="schnitt_schalldaempfer.png" width="640">
@@ -57,7 +64,9 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 ## Erzeugen
 
 ```sh
-.venv/bin/pip install numpy trimesh manifold3d lxml networkx scipy shapely
+.venv/bin/pip install numpy trimesh manifold3d lxml networkx scipy shapely matplotlib
 .venv/bin/python gehaeuse/scripts/umbau.py       # Druckteile nach mp5_umbau/
 .venv/bin/python gehaeuse/scripts/baugruppe.py   # GLB/3MF
+.venv/bin/python gehaeuse/scripts/explosion.py gehaeuse/baugruppe/explosion_links.png -30 -22
+.venv/bin/python gehaeuse/scripts/explosion.py gehaeuse/baugruppe/explosion_rechts.png 150 -22
 ```
