@@ -142,6 +142,21 @@ Mündung sitzt ein WS2812-Ring als Mündungsfeuer.
 Standard-Digitaldatei-Lizenz. Details in
 [gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/).</sub>
 
+Die Platine sitzt im Unterteil zwischen Magazinschacht und Griff; die senkrechte
+USB-C-Buchse ist durch die linke Seitenwand erreichbar. Im Schalldämpfer sitzen IR-LED und
+verstellbare Linse, vorn das Ringlicht; der 18650-Akku steckt im Magazin, das OLED sitzt
+angewinkelt vorn oben am Schaft, der Drehgeber unten im Griff, der Abzug löst einen Mikroschalter aus.
+Umgebaute und neue Druckteile: [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/). Alle Teile samt
+Platine zusammengesetzt: [gehaeuse/baugruppe/](gehaeuse/baugruppe/) (GLB/3MF).
+
+| Umgebaute Waffe | Innen (linke Hälfte, Schaft und Magazin ausgeblendet) |
+|---|---|
+| <img src="gehaeuse/baugruppe/baugruppe_schraeg.png" alt="3D-Ansicht der umgebauten Waffe, schräg von vorn" width="420"> | <img src="gehaeuse/baugruppe/baugruppe_offen.png" alt="3D-Schnittansicht: Platine, Abzug, Kabelschächte, Motor, Drehgeber" width="420"> |
+
+| Schalldämpfer mit Ringlicht und Linsenhülse | OLED am Schaft |
+|---|---|
+| <img src="gehaeuse/baugruppe/baugruppe_vorn.png" alt="3D-Ansicht vorn: Frontkappe mit 12 Fenstern und Linsenhülse" width="420"> | <img src="gehaeuse/baugruppe/baugruppe_hinten.png" alt="3D-Ansicht hinten: OLED-Sockel mit Rahmen am Schaft" width="300"> |
+
 ## Firmware
 
 ESP-IDF v6.0, nur offizielle Espressif-Komponenten. WLAN und Netz laufen auf
@@ -441,7 +456,8 @@ Akku und Metall), USB-Zugang einplanen.
 - Gehäuse/3D-Druck-Maße, inkl. Platz für Akku/Lautsprecher/LED in der Waffe –
   als Basis ausgewählt: [MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay)
   (STLs + Quellenangabe in [gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/)),
-  muss für Elektronik-Einbau ausgehöhlt/angepasst werden
+  Umbau in [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/); offen: Lautsprecher, Nachlade-Taster,
+  TSOP 6 an der Waffe, WS2812-Lebensbalken/Munitionsanzeige, Verschraubung der Hälften
 - Akku-/Laufzeitbudget (WLAN + WS2812 + Sound + IR-Pulse) für Eventplanung
 - OTA-Update-Mechanismus für die Waffe bei mehreren Sets
 - CI-Build für die Firmware
