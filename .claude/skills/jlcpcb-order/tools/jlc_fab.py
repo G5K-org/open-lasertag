@@ -102,7 +102,7 @@ def main():
         w = csv.writer(f)
         w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
         for (fpname, lcsc), g in sorted(groups.items(), key=lambda kv: natkey(sorted(kv[1]["refs"], key=natkey)[0])):
-            w.writerow([" / ".join(g["vals"]), ",".join(sorted(g["refs"], key=natkey)), fpname, lcsc])
+            w.writerow([" / ".join(sorted(g["vals"])), ",".join(sorted(g["refs"], key=natkey)), fpname, lcsc])
     with open(os.path.join(out, f"{name}_cpl.csv"), "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
@@ -119,7 +119,7 @@ def main():
         ext, total, ok = 0, 0.0, True
         print(f"\nJLCPCB stock check for {boards} boards:")
         for (fpname, lcsc), g in sorted(groups.items(), key=lambda kv: kv[0][1]):
-            refs, val = g["refs"], " / ".join(g["vals"])
+            refs, val = g["refs"], " / ".join(sorted(g["vals"]))
             need = len(refs) * boards
             it = jlc_part(lcsc)
             if not it:

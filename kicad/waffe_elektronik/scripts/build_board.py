@@ -323,13 +323,15 @@ def zone(board, netinfo, layer, net, pts, prio=0, clearance=0.2, minw=0.2, therm
     return z
 
 
-LABELS = [  # bottom silk: (x, y, text, height, angle)
-    (3.4, 5.2, "AKKU", 1.0, 90), (3.0, 12.8, "LED1", 0.9, 90), (3.0, 21.0, "LED2", 0.9, 90),
-    (3.0, 27.0, "ABZUG", 0.8, 90), (3.0, 33.0, "NACHL.", 0.8, 90), (4.8, 39.9, "RESET", 0.8, 0),
-    (13.0, 44.4, "WS2812", 1.0, 0), (24.1, 44.9, "USB", 1.0, 0), (35.0, 45.0, "SENSOR", 1.0, 0),
-    (48.6, 44.4, "LAUTSPR.", 1.0, 0), (51.6, 24.8, "VIB HIT", 0.8, 90), (51.6, 30.8, "VIB RCK", 0.8, 90),
-    (35.0, 24.6, "BOOT", 0.8, 0), (36.0, 37.4, "1 3V3  2 GND  3-7 TSOP1-5", 0.8, 0),
-    (42.5, 14.4, "open-lasertag  Waffe v1", 1.0, 0), (42.5, 16.0, "github.com/G5K-org/open-lasertag", 0.8, 0),
+LABELS = [  # front silk, next to the connector, clear of pads and bodies (tools/silk.py): (x, y, text, height, angle)
+    (9.2, 8.58, "AKKU", 0.8, 90), (5.85, 15.38, "LED1", 0.8, 90), (3.05, 17.07, "LED2", 0.8, 90),
+    (7.2, 28.7, "ABZUG", 0.8, 0), (5.85, 36.2, "NACHL.", 0.8, 90), (2.23, 40.15, "RESET", 0.8, 0),
+    (5.28, 45.05, "WS2812", 0.8, 0), (24.5, 35.4, "USB", 0.8, 0), (34.9, 39.2, "SENSOR", 0.8, 0),
+    (41.6, 41.6, "LAUTSPR.", 0.8, 90), (52.9, 19.97, "VIB HIT", 0.8, 90), (50.0, 34.1, "VIB RCK", 0.8, 0),
+    (31.45, 23.85, "BOOT", 0.8, 0), (30.55, 40.1, "1", 0.8, 0), (14.45, 19.25, "open-lasertag Waffe v1", 0.8, 90),
+]
+BACK_LABELS = [  # no room on the front
+    (41.5, 16.0, "github.com/G5K-org/open-lasertag", 0.8, 0),
 ]
 
 
@@ -440,11 +442,11 @@ def teardrops(board, len_ratio=0.5, width_ratio=0.9, max_len=1.0, max_w=2.0):
 
 
 def labels(board):
-    for x, y, txt, h, ang in LABELS:
+    for (x, y, txt, h, ang), back in [(l, False) for l in LABELS] + [(l, True) for l in BACK_LABELS]:
         t = pcbnew.PCB_TEXT(board)
-        t.SetText(txt); t.SetLayer(pcbnew.B_SilkS); t.SetMirrored(True)
+        t.SetText(txt); t.SetLayer(pcbnew.B_SilkS if back else pcbnew.F_SilkS); t.SetMirrored(back)
         t.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y))); t.SetTextAngleDegrees(ang)
-        t.SetTextSize(pcbnew.VECTOR2I(MM(h), MM(h))); t.SetTextThickness(MM(0.15))
+        t.SetTextSize(pcbnew.VECTOR2I(MM(h), MM(h))); t.SetTextThickness(MM(0.15 if h >= 1 else 0.12))
         board.Add(t)
 
 
@@ -490,18 +492,18 @@ def route(r):
     # ================= left-pin signals: vias next to the module, long runs on B.Cu =================
     # order top->bottom (EN, TRIGGER, RELOAD, IR_GATE, WS2812) = order of the targets, so no crossings
     r.v((29.4, 4.73), net="Net-(U4-EN)")
-    r.t(B, 0.25, (29.4, 4.73), (29.4, 4.0), (7.0, 4.0), (7.0, 40.9), net="Net-(U4-EN)")
+    r.t(B, 0.25, (29.4, 4.73), (29.4, 4.0), (25.35, 4.0), (7.0, 22.35), (7.0, 40.9), net="Net-(U4-EN)")
     r.v((7.0, 40.9), net="Net-(U4-EN)"); r.t(F, 0.25, (7.0, 40.9), ("SW3.2", 0, -0.5), "SW3.2")
     for pin, yy, xd, end in (("U4.4", 5.30, 7.8, (7.8, 25.65)), ("U4.5", 6.57, 8.6, None), ("U4.6", 7.84, 13.0, None)):
         r.t(F, 0.25, pin, (32.25, yy)); r.v((32.25, yy))
-    r.t(B, 0.25, (32.25, 5.30), (7.8, 5.30), (7.8, 25.65), net="TRIGGER"); r.v((7.8, 25.65), net="TRIGGER")
+    r.t(B, 0.25, (32.25, 5.30), (24.95, 5.30), (7.8, 22.45), (7.8, 25.65), net="TRIGGER"); r.v((7.8, 25.65), net="TRIGGER")
     r.t(F, 0.25, "C8.1", (7.8, 25.65), "R9.2", "SW1.1")
-    r.t(B, 0.25, (32.25, 6.57), (8.6, 6.57), (8.6, 30.85), (7.8, 31.65), net="RELOAD"); r.v((7.8, 31.65), net="RELOAD")
+    r.t(B, 0.25, (32.25, 6.57), (24.58, 6.57), (8.6, 22.55), (8.6, 30.85), (7.8, 31.65), net="RELOAD"); r.v((7.8, 31.65), net="RELOAD")
     r.t(F, 0.25, "C9.1", (7.8, 31.65), "R10.2", "SW2.1")
-    r.t(B, 0.25, (32.25, 7.84), (13.0, 7.84), (13.0, 18.4), (13.1, 18.95), net="IR_GATE"); r.v((13.1, 18.95), net="IR_GATE")
+    r.t(B, 0.25, (32.25, 7.84), (24.21, 7.84), (13.1, 18.95), net="IR_GATE"); r.v((13.1, 18.95), net="IR_GATE")
     r.t(F, 0.25, (13.1, 18.95), "R5.1")
     r.t(F, 0.25, "U4.10", (32.4, 12.92)); r.v((32.4, 12.92))
-    r.t(B, 0.25, (32.4, 12.92), (15.5, 12.92), (15.5, 26.0), (11.6, 26.0), (11.6, 28.2), net="WS2812_DIN_3V3")
+    r.t(B, 0.25, (32.4, 12.92), (26.88, 12.92), (11.6, 28.2), net="WS2812_DIN_3V3")
     r.v((11.6, 28.2), net="WS2812_DIN_3V3"); r.t(F, 0.25, (11.6, 28.2), "U5.2")
 
     # ================= IR driver =================
@@ -569,8 +571,8 @@ def route(r):
     V = "VBUS_NATIVE"
     for pp, x in (("J3.A4", 21.55), ("J3.A9", 26.65)):
         r.t(F, 0.4, pp, (x, 37.45)); r.v((x, 37.45), net=V)
-    r.t(B, 0.4, (21.55, 37.45), (21.55, 34.5), (26.65, 34.5), (26.65, 37.45), net=V)
-    r.t(B, 0.4, (26.1, 34.5), (25.6, 34.0), (25.6, 25.5), (25.4, 25.3), net=V); r.v((25.4, 25.3), net=V)
+    r.t(B, 0.4, (21.55, 37.45), (21.55, 35.3), (22.35, 34.5), (25.85, 34.5), (26.65, 35.3), (26.65, 37.45), net=V)
+    r.t(B, 0.4, (25.1, 34.5), (25.6, 34.0), (25.6, 25.5), (25.4, 25.3), net=V); r.v((25.4, 25.3), net=V)
     r.t(F, 0.4, (25.4, 25.3), "C4.1")
     r.t(B, 0.4, (25.6, 30.1), (24.85, 29.35), (24.1, 29.35), net=V); r.v((24.1, 29.35), net=V)
     r.t(F, 0.3, (24.1, 29.35), "U12.5")
@@ -579,7 +581,7 @@ def route(r):
 
     # ================= BOOT button: IO0 runs under the module on B.Cu =================
     r.t(F, 0.25, "U4.27", (49.85, 17.6)); r.v((49.85, 17.6))
-    r.t(B, 0.25, (49.85, 17.6), (36.7, 17.6), (36.7, 20.75)); r.v((36.7, 20.75))
+    r.t(B, 0.25, (49.85, 17.6), (39.85, 17.6), (36.7, 20.75)); r.v((36.7, 20.75))
     r.t(F, 0.25, (36.7, 20.75), "SW4.2")
     r.gnd("SW4.1", 0, 1.4)
 
@@ -592,7 +594,7 @@ def route(r):
         r.t(F, 0.2, (X, 39.4), f"J2.{k + 3}")
     r.t(F, 0.4, "J2.2", (33.0, 39.4)); r.v((33.0, 39.4), net="GND")
     # sensor 3V3: B.Cu from the LDO's lower pin straight down to J2 pin 1
-    r.t(B, 0.4, (26.3, 15.0), (29.5, 18.2), (29.5, 38.6), (30.3, 39.4), (32.0, 39.4), net="3V3_MCU")
+    r.t(B, 0.4, (26.3, 15.0), (29.5, 18.2), (29.5, 36.9), (32.0, 39.4), net="3V3_MCU")
     r.v((32.0, 39.4), net="3V3_MCU", d=0.6); r.t(F, 0.4, (32.0, 39.4), "J2.1")
 
     # ================= vibration drivers =================
@@ -604,7 +606,7 @@ def route(r):
     r.drop("D2.1", 0, 1.05); r.drop("M2.1", -1.3, 0.3)
     # RECOIL: via under pad 25, B.Cu down and across to R11
     r.t(F, 0.25, "U4.25", (48.22, 20.75)); r.v((48.22, 20.75))
-    r.t(B, 0.25, (48.22, 20.75), (48.22, 27.3), (42.75, 27.3), (42.75, 27.95)); r.v((42.75, 27.95))
+    r.t(B, 0.25, (48.22, 20.75), (48.22, 22.48), (42.75, 27.95)); r.v((42.75, 27.95))
     r.t(F, 0.25, (42.75, 27.95), "R11.1")
     r.t(F, 0.25, "R12.1", "R11.2", (43.7, 29.6), "Q2.1")
     r.t(F, 0.5, "Q2.3", "M1.2"); r.t(F, 0.5, "D1.2", (46.7, 30.2))

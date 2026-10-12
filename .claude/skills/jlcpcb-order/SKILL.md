@@ -60,4 +60,5 @@ Rotationskorrekturen (`ROTATIONS` in `jlc_fab.py`) stammen aus der Datenbank von
 - Teile ohne `LCSC`-Feld werden nicht bestückt und vom Skript gemeldet.
 - `fertigung/jlcpcb/` wird bei jedem Lauf überschrieben; nach jeder Platinenänderung neu erzeugen.
 - Lagerbestände ändern sich täglich: vor jeder Bestellung `--check` erneut laufen lassen.
-- Gerber-Vorschau bei JLC (Gerber Viewer) kurz prüfen: 4 Kupferlagen, Umriss, Bohrungen, Beschriftung unten.
+- Gerber-Vorschau bei JLC (Gerber Viewer) kurz prüfen: 4 Kupferlagen, Umriss, Bohrungen, Beschriftung oben
+  (unten nur die Projekt-URL).

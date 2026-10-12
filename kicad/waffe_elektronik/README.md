@@ -84,7 +84,7 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   - F.Cu: Bauteile, kurze Signale, GND-Fläche
   - In1.Cu: durchgehende GND-Fläche ohne Leiterbahnen
   - In2.Cu: Versorgung (`5V_PERIPH`, `3V3_MCU`, `BAT_P`) als Leiterbahnen + GND-Fläche
-  - B.Cu: lange Signale (EN, Abzug, Nachladen, IR, WS2812, IO0, TSOP, RECOIL) + GND-Fläche, Beschriftung
+  - B.Cu: lange Signale (EN, Abzug, Nachladen, IR, WS2812, IO0, TSOP, RECOIL) + GND-Fläche, Projekt-URL
 - **ESP32-S3-Modul:** Antenne ragt über die Oberkante hinaus; jedes GND-Pad
   mit eigenem Via nach In1, GND-Stitching-Vias im Raster
 - **Stecker:** links LED1/LED2/Abzug/Nachladen, unten WS2812/USB-C/Sensor/
@@ -92,6 +92,11 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **Regeln (`.kicad_pro`):** min. 0,15 mm Leiterbahn/Abstand, Vias 0,5/0,3 mm
   (USB-Kreuzung 0,4/0,2 mm), Netzklassen Default 0,2 mm, Power 0,5 mm,
   3V3 0,6 mm, USB 0,2/0,2 mm (Paar)
+- **Leiterbahnen so kurz wie möglich:** lange Wege als ein 45°-Abschnitt statt
+  L-Form; parallele Bündel bleiben parallel und kreuzungsfrei
+- **Beschriftung oben** (F.SilkS, 0,8 mm) direkt neben dem jeweiligen Stecker,
+  frei von Pads und Bauteilkörpern; Pin 1 von J2 mit „1“ markiert; Bauteilbezeichner
+  nur auf F.Fab
 - **Leiterbahnen nur in 0°/45°/90°**, jeder Knick max. 45°, Abzweige laufen
   unter 45° ein; Teardrops an allen Pads und Vias (außer GND-Stichen in der
   GND-Fläche)
