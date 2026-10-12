@@ -15,15 +15,37 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
 - **Nur SMD**, THT nur wenn es kein SMD gibt. Bestückung nur oben.
 - **Leiterbahnen nur 0°/45°/90°**, jeder Knick **max. 45°**, keine Zwischenwinkel.
   Abzweige laufen **unter 45°** in die Hauptleitung oder enden in einem Pad/Via, nie im 90°-T-Stoß.
-- **So kurz wie möglich, so lang wie nötig.** Keine L-Form, wo ein 45°-Abschnitt passt: langer Weg =
+- **Jede Leiterbahn auf allen Lagen so kurz wie möglich, so lang wie nötig** (gilt allgemein, nicht nur B.Cu).
+  Keine L-Form, wo ein 45°-Abschnitt passt: langer Weg =
   kurzes Gerades + **ein** langer 45°-Lauf + kurzes Gerades. Parallele Bündel als Ganzes schräg führen
   (gleiche Reihenfolge, Diagonalen parallel, Abstand der Diagonalen über `x+y` bzw. `x−y` planen).
   Umwege nur um echte Hindernisse (Pads, Vias anderer Netze, Bauteile auf der eigenen Lage) und für
-  Längenausgleich (USB-Paar). Prüfen mit `tools/detour.py`.
+  Längenausgleich (USB-Paar). Prüfen mit `tools/detour.py --layers=F,2,B --min=0.2 --ratio=1.02`; jeder
+  verbleibende Fund braucht ein konkretes Hindernis als Grund.
+- **Differenzpaare gleich lang** (USB D+/D−, gesamte Länge Pad→Pad über alle Lagen inkl. Via-Höhe):
+  beide Leitungen erst einzeln so kurz wie möglich, dann die kürzere mit einem **Mäander** (0/45/90°,
+  Abstand ≥ 3 × Bahnbreite) auf die längere ausgleichen. Rest-Differenz ≤ 0,1 mm. Mäander mit
+  `meander_v(x, y0, extra, n, c, t, gap, side)` in build_board.py (senkrechter Lauf, n Ausbuchtungen,
+  Zusatzlänge pro Ausbuchtung 2h − 4c(2 − √2)); Zielwert `USB_TUNE`. Prüfen mit
+  `tools/pairlen.py w.kicad_pcb U4.14-U12.4 U4.13-U12.6 U12.3-J3.B6 U12.1-J3.B7 U12.3-J3.A6 U12.1-J3.A7 --via=0`
+  (je Paar-Abschnitt zwischen denselben Bauteilen; Stand: alle 0,000 mm). Die D−-Brücke A7 über B.Cu hat
+  zwei Vias mehr als A6 – mit `--via=1.6` sichtbar; Via-Paar bei USB-C-Kreuzung ist nicht vermeidbar.
 - **Beschriftung auf der Vorderseite** (`F.SilkS`, nicht gespiegelt), **lesbar mit bestückten Bauteilen**:
   kein Text auf Pads, Bauteilkörpern (F.Fab-Umriss), Footprint-Silk, anderen Texten, ≥ 0,3 mm vom Rand.
-  Jedes Steckerlabel direkt an **seinem** Stecker, näher an ihm als an jedem Nachbarn. Höhe 0,8 mm
-  (Minimum), Strich 0,12. Was vorne keinen Platz hat (Projekt-URL), geht in `BACK_LABELS` auf `B.SilkS`.
+  Jedes Steckerlabel direkt an **seinem** Stecker, näher an ihm als an jedem Nachbarn.
+  **Alle Labels an Steckern, Klemmen und Tastern waagerecht (0°) und einheitlich: gleiche Höhe 0,8 mm
+  (Minimum), Strich 0,12, nie gedreht** – auch der Projekttitel. Lieber eine Lücke weiter am Stecker
+  (oben/unten/neben) als ein senkrechtes Label. Pin 1 von Steckern mit „1“ markieren, wenn die
+  Footprint-Silk es nicht schon tut.
+  **Mehrere Stecker in einer Reihe/Spalte:** ihre Labels gemeinsam ausrichten – in einer Spalte (links
+  LED1/LED2/ABZUG/NACHL., rechts VIB HIT/VIB RCK) gleiche Mittelpunkt-x (horizontal zentriert
+  untereinander), jedes Label direkt am eigenen Stecker (nie zwei Labels zwischen zwei Steckern so, dass
+  beide zum selben zu gehören scheinen). Reihe (unten J1/J3/J2/SP1): gemeinsame y geht wegen
+  unterschiedlicher Steckerhöhen nicht → jedes Label mittig (gleiche x) über seinem Stecker.
+  Suche: `silk.py --column "A=REF" ...` bzw. `--row`; Mindestabstand Label ↔ Pad/Via/Körper/Silk 0,12 mm.
+  Die gefundenen Werte sind Mittelpunkte der Strichkontur; KiCad-Textanker liegt bis 0,1 mm daneben
+  (y ≈ +0,036) → nach dem Setzen immer `silk.py --gap=0.12` laufen lassen.
+  Unter Labels keine Vias: `stitch()` hält Textflächen frei, `silk.py` prüft Vias mit Leiterbahn. Was vorne keinen Platz hat (Projekt-URL), geht in `BACK_LABELS` auf `B.SilkS`.
   Bauteilbezeichner bleiben auf `F.Fab`. Prüfen/platzieren mit `tools/silk.py`.
 - **Teardrops** an allen Pads und Vias (Ausnahme: GND-Stiche auf F.Cu, die in der GND-Fläche liegen).
 - Platine **so klein wie möglich**, Bauteilplatzierung mit 3D-Daten prüfen (Render).
@@ -36,7 +58,7 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   - F.Cu: Bauteile, kurze Signale, GND-Fläche
   - In1.Cu: durchgehende GND-Fläche, **keine Leiterbahnen**
   - In2.Cu: Versorgung (`5V_PERIPH`, `3V3_MCU`, `BAT_P`) als Leiterbahnen + GND-Fläche
-  - B.Cu: lange Signale + GND-Fläche + Beschriftung (gespiegelt)
+  - B.Cu: lange Signale + GND-Fläche, nur die Projekt-URL als Beschriftung (gespiegelt)
 - Jedes GND-Pad bekommt ein eigenes Via nach In1 (`r.gnd`), Stromversorgungs-Pads ein Via nach In2 (`r.drop`).
 - Netzklassen/Regeln stehen in `RULES`/`NETCLASSES` und werden von `write_project()` in die `.kicad_pro` geschrieben:
   min. 0,15 mm Bahn/Abstand, Vias 0,5/0,3 (USB-Kreuzung 0,4/0,2), Default 0,2, Power 0,5, 3V3 0,6, USB-Paar 0,2/0,2.
@@ -75,12 +97,17 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
    - `python3 tools/angles.py w.kicad_pcb [-v]` → 0 non-octilinear, 0 bends>45, 0 T-joins>45
    - `python3 tools/detour.py w.kicad_pcb [--layers=F,2,B] [--min=0.5]` → Umwege: jeder Lauf zwischen
      Vias/Pads/Abzweigen gegen den kürzesten 0/45/90°-Weg. Jeder Fund ist entweder behoben oder hat einen
-     Grund (Hindernis, Bündelreihenfolge, Paar-Längenausgleich). Stand: B.Cu nur noch EN/RELOAD (Bündel)
-     und VBUS-Ring (um die USB-Pads), F.Cu I²S (um Modul-Padreihe und Motortreiber)
+     Grund (Hindernis, Bündelreihenfolge, Paar-Längenausgleich). Stand (begründet): F.Cu CHRG_STAT (U2-Pins
+     + BAT_P-Via an R3), I²S (Modul-Padreihe, Motortreiber; Rückseite bräuchte 6 Vias), USB D+ (Mäander),
+     USB D− (außen um U12.4/VBUS-Via), 5V an U6 (um unbelegte IC-Pins), OUTP/OUTN (verschachtelt),
+     J1→C10 (GND-Via J1.3), R15 (U5-Padreihe), GND-Stiche an U5, BAT_P-Ende (Abzweig); In2 5V am
+     U6-Abzweig (+0,2); B.Cu EN/TRIGGER/RELOAD (Bündel), VBUS-Ring (um die USB-Pads)
    - `python3 tools/silk.py w.kicad_pcb --gap=0.15 [--suggest]` → 0 silk problems (Hinweis für
-     `BACK_LABELS` ist ok); `--place "TEXT=REF" ...` sucht für Labels die freie Stelle (0°/90°) am
-     nächsten an ihrem Stecker, eindeutig näher an ihm als an den anderen genannten REFs;
-     Ergebnis danach im 3D-Render (`kicad-cli pcb render --side top`) auf Zuordnung prüfen
+     `BACK_LABELS` ist ok); `--place --angle=0 --gap=0.15 "TEXT=REF" ...` sucht für Labels die freie
+     waagerechte Stelle am nächsten an ihrem Stecker, eindeutig näher an ihm als an den anderen
+     genannten REFs (immer alle Stecker-REFs mitgeben). Vorschläge > ~1 mm vom Stecker von Hand
+     verbessern (Lücken über/unter/neben dem Stecker), dann mit `silk.py` prüfen und im 3D-Render
+     (`kicad-cli pcb render --side top`) auf Zuordnung und Lesbarkeit ansehen
 5. Ansehen: `python3 tools/view.py w.kicad_pcb out.png x0 y0 x1 y1 --layers=F,B --scale=0.9`
    (Gitter in mm, Netznamen auf Pads, Teardrops deckend) und Bild mit Read anschauen.
    `python3 tools/padmap.py w.kicad_pcb GND 3V3_MCU ...` listet Pad-Koordinaten je Netz.
@@ -98,10 +125,28 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
 - Schaltplan-Parität braucht `SetFPID(LIB_ID(lib, name))`, `SetPath(KIID_PATH("/" + uuid))` und volle Netznamen
   (`/TRIGGER`); der Routing-Code nutzt die Kurznamen ohne `/`.
 - `PCB_VIA.GetWidth()` braucht einen Layer (`GetWidth(pcbnew.F_Cu)`).
-- Keine STEP-Modelle für JST-PH-SM4 (BT1, J1, SP1); TQFN-16 EP1.23 wird beim Speichern auf das EP1.6-Modell umgebogen.
+- **3D-Modelle:** jedes Bauteil braucht eins (Render, Gehäuse-STEP). KiCad liefert für JST-PH-SM4 (BT1, SP1, J1)
+  keine → eigene Modelle in `3dmodels/`, erzeugt mit `freecadcmd scripts/gen_3d_jst_ph_sm4.py` (STEP + farbige
+  WRL, Maße aus Footprint-F.Fab, Höhe 4,85 wie S*B-PH-K). `OWN_MODELS` in build_board.py setzt den Pfad
+  `${KIPRJMOD}/3dmodels/<name>.wrl`; KiCad nimmt beim STEP-Export die `.step` daneben. Prüfen: Skript-Check
+  „missing models: []“ (alle Modellpfade auflösen) und `kicad-cli pcb export step --subst-models` ohne Warnung.
+  Fehlt künftig ein Modell: erst KiCad-Bibliothek/`kicad-packages3D`, sonst eigenes Modell nach diesem Muster.
+- pcbnew-Python: `for m in fp.Models()` liefert Kopien → Änderungen nur per Index (`models[i].m_Filename = ...`).
+- `kicad-cli` schreibt beim Export KiCads Standard-ERC-Abschnitt in die `.kicad_pro` → vor dem Commit
+  `git checkout` der `.kicad_pro`, wenn sonst nichts geändert wurde.
+- TQFN-16 EP1.23 wird beim Speichern auf das EP1.6-Modell umgebogen.
 - Läuft KiCad/Eeschema mit dem Projekt, nach dem Schreiben auf Neuladen hinweisen; KiCad kann die `.kicad_pro`
   beim Schließen überschreiben.
 - Labels: Courtyards sind für die Platzsuche zu groß (Sicherheitsrand) → `silk.py` nutzt den F.Fab-Umriss.
-  JST-PH-Stecker (BT1, J1, SP1) haben kein 3D-Modell, im Render fehlt ihr Körper; F.Fab gilt trotzdem.
+  Für Texte zählt die Strichkontur (`GetEffectiveTextShape().BBox()`, bei 0,8 mm ≈ 0,92 mm hoch), nicht
+  `GetBoundingBox()` (≈ 1,36 mm mit Zeilenabstand) – sonst findet die Suche viele echte Lücken nicht.
+- Label-Stand: linke Spalte x = 4,2 (LED1 unter LED1, LED2/ABZUG/NACHL. über ihrem Stecker), rechte
+  Spalte x = 49,85 (VIB HIT über M2, VIB RCK unter M1), USB/SENSOR/LAUTSPR. mittig über J3/J2/SP1,
+  AKKU rechts neben BT1, RESET über SW3, WS2812 links neben J1 (über J1 kein Platz), „1“ an J2-Pin 1,
+  BOOT links neben SW4 auf Mittelhöhe, Titel „open-lasertag v1“ frei in der Mitte (19,5/17,9).
+- Wegpunkte, die auf einem Via enden sollen, exakt auf die Via-Koordinate legen (z. B. 31,39 statt 31,4);
+  sonst hängt die Verbindung nur über Kupfer-Überlappung und `detour.py` erkennt das Via nicht als Halt.
+- Verzweigungen: der Abzweig darf nicht am Knickpunkt des Stamms beginnen (sonst 90° zum weiterlaufenden
+  Stamm) → Abzweigpunkt auf das gerade Stück davor legen.
 - `pkill -f <muster>` trifft die eigene Shell, wenn das Muster im Befehl steht → `pgrep -f "name[s]"`.
 - Offener Schaltplanpunkt: C7 hängt zwischen BAT und LED-Kathode statt an GND (User informiert, unverändert).

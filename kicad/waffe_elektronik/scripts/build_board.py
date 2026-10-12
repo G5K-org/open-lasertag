@@ -323,12 +323,17 @@ def zone(board, netinfo, layer, net, pts, prio=0, clearance=0.2, minw=0.2, therm
     return z
 
 
-LABELS = [  # front silk, next to the connector, clear of pads and bodies (tools/silk.py): (x, y, text, height, angle)
-    (9.2, 8.58, "AKKU", 0.8, 90), (5.85, 15.38, "LED1", 0.8, 90), (3.05, 17.07, "LED2", 0.8, 90),
-    (7.2, 28.7, "ABZUG", 0.8, 0), (5.85, 36.2, "NACHL.", 0.8, 90), (2.23, 40.15, "RESET", 0.8, 0),
-    (5.28, 45.05, "WS2812", 0.8, 0), (24.5, 35.4, "USB", 0.8, 0), (34.9, 39.2, "SENSOR", 0.8, 0),
-    (41.6, 41.6, "LAUTSPR.", 0.8, 90), (52.9, 19.97, "VIB HIT", 0.8, 90), (50.0, 34.1, "VIB RCK", 0.8, 0),
-    (31.45, 23.85, "BOOT", 0.8, 0), (30.55, 40.1, "1", 0.8, 0), (14.45, 19.25, "open-lasertag Waffe v1", 0.8, 90),
+USB_TUNE = 3.434  # mm added to D+ between module and U12 (D- runs around the outside)
+
+OWN_MODELS = {"JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
+              "JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal"}
+
+LABELS = [  # front silk, horizontal, next to the connector, clear of pads and bodies (tools/silk.py): (x, y, text, height, angle)
+    (11.2, 5.35, "AKKU", 0.8, 0), (4.2, 15.59, "LED1", 0.8, 0), (4.2, 18.24, "LED2", 0.8, 0),
+    (4.2, 24.24, "ABZUG", 0.8, 0), (4.2, 30.04, "NACHL.", 0.8, 0), (2.23, 40.15, "RESET", 0.8, 0),
+    (5.28, 45.05, "WS2812", 0.8, 0), (24.1, 35.55, "USB", 0.8, 0), (35.0, 38.5, "SENSOR", 0.8, 0),
+    (48.6, 35.8, "LAUTSPR.", 0.8, 0), (49.85, 21.78, "VIB HIT", 0.8, 0), (49.85, 33.88, "VIB RCK", 0.8, 0),
+    (31.1, 22.1, "BOOT", 0.8, 0), (30.55, 40.1, "1", 0.8, 0), (19.5, 17.9, "open-lasertag v1", 0.8, 0),
 ]
 BACK_LABELS = [  # no room on the front
     (41.5, 16.0, "github.com/G5K-org/open-lasertag", 0.8, 0),
@@ -353,6 +358,10 @@ def stitch(board, netinfo, pitch=2.0, d=0.5, cl=0.25):
         if f.GetReference() != "U4":
             cy = f.GetCourtyard(pcbnew.F_CrtYd).BBox()
             boxes.append((cy.GetLeft() / 1e6 + 0.3, cy.GetTop() / 1e6 + 0.3, cy.GetRight() / 1e6 - 0.3, cy.GetBottom() / 1e6 - 0.3))
+    for t in board.GetDrawings():  # keep labels readable: no stitching via under silk text
+        if isinstance(t, pcbnew.PCB_TEXT):
+            bb = t.GetEffectiveTextShape().BBox()
+            boxes.append((bb.GetLeft() / 1e6, bb.GetTop() / 1e6, bb.GetRight() / 1e6, bb.GetBottom() / 1e6))
     r0 = d / 2 + cl
     def segd(px, py, x1, y1, x2, y2):
         dx, dy = x2 - x1, y2 - y1
@@ -450,6 +459,22 @@ def labels(board):
         board.Add(t)
 
 
+def meander_v(x, y0, extra, n=3, c=0.2, t=0.2, gap=0.6, side=1):
+    """Points of a length-tuning meander on a vertical run going down (+y) at x.
+    n bumps to the side (+1 right, -1 left), only 45 deg bends: each bump is
+    diagonal - straight out - diagonal - down - diagonal - straight back - diagonal.
+    Bump height h gives the extra length 2h - 4c(2 - sqrt2) per bump."""
+    import math
+    h = (extra / n + 4 * c * (2 - math.sqrt(2))) / 2
+    pts, y = [], y0
+    for _ in range(n):
+        pts += [(x, y), (x + side * c, y + c), (x + side * (h - c), y + c), (x + side * h, y + 2 * c),
+                (x + side * h, y + 2 * c + t), (x + side * (h - c), y + 3 * c + t),
+                (x + side * c, y + 3 * c + t), (x, y + 4 * c + t)]
+        y += 4 * c + t + gap
+    return pts
+
+
 def route(r):
     """Hand routing. Coordinates in mm, board origin top-left."""
     F, B, I2 = "F", "B", "2"
@@ -476,7 +501,7 @@ def route(r):
     r.t(F, 0.8, (29.9, 12.0), (30.65, 12.75), "C2.1", net="5V_PERIPH")
     r.gnd("C2.2", 0, -0.95); r.gnd("U2.1", -1.1, 0.9)
     # 3V3: LDO tab -> C3 -> R21 -> C18 (10u) -> C17 (100n) -> module pin 2
-    r.t(F, 0.8, ("U2.2", 0, -0.8), (26.3, 3.1), (28.25, 3.1), "C18.1")
+    r.t(F, 0.8, ("U2.2", 0, -0.8), (26.3, 4.84), (28.09, 3.05), "C18.1")
     r.t(F, 0.6, "C18.1", "C17.1", "U4.2")
     r.t(F, 0.6, "C3.1", (26.3, 4.84))
     r.gnd("C3.2", -1.0, -0.8)
@@ -510,17 +535,17 @@ def route(r):
     K = "Net-(LED1-K)"
     r.t(F, 0.6, "R7.2", "LED1.2"); r.t(F, 0.6, "R8.2", "LED2.2")
     # LED1 cathode hops under its own anode trace on B.Cu
-    r.t(F, 0.6, "LED1.1", (6.0, 12.3), (6.0, 11.6)); r.v((6.0, 11.6), net=K, d=0.6)
+    r.t(F, 0.6, "LED1.1", (5.3, 12.3), (6.0, 11.6)); r.v((6.0, 11.6), net=K, d=0.6)
     r.t(B, 0.6, (6.0, 11.6), (6.0, 15.65), net=K); r.v((6.0, 15.65), net=K, d=0.6)
     r.t(F, 0.8, (6.0, 15.65), "C7.2")
-    r.t(F, 0.8, (6.0, 15.65), (6.0, 20.5), "LED2.1")
+    r.t(F, 0.8, (6.0, 15.65), (6.0, 19.7), (5.2, 20.5), "LED2.1")
     r.t(F, 0.8, "Q1.3", (6.6, 19.1), (6.0, 19.7))
     r.t(F, 0.3, "Q1.1", "R5.2"); r.t(F, 0.3, "R6.1", (11.95, 20.05))
     r.gnd("Q1.2", 0.65, -0.55); r.gnd("R6.2", 0, -0.85)
     # BAT: L1 -> R7 -> C7, bus on the right down to R8 and on to the charger
     r.t(F, 0.8, ("L1.1", 0, 1.0), "R7.1", (10.28, 14.4), "C7.1")
-    r.t(F, 1.0, "R7.1", (14.3, 12.85), (14.3, 21.0), (11.8, 22.1), "R8.1")
-    r.t(F, 0.8, (14.3, 21.0), (17.6, 24.98), "C5.1", (20.4, 24.98), ("U3.3", -0.3, 0.05), "U3.3")
+    r.t(F, 1.0, "R7.1", (14.3, 16.187), (14.3, 21.0), (11.8, 22.1), "R8.1")
+    r.t(F, 0.8, (14.3, 20.6), (18.68, 24.98), "C5.1", (20.4, 24.98), ("U3.3", -0.3, 0.05), "U3.3")
 
     # ================= trigger / reload / reset =================
     r.gnd("C8.2", 0.85, 0); r.gnd("C9.2", 0.85, 0)
@@ -528,7 +553,7 @@ def route(r):
     r.drop("R9.1", 0, 0.95); r.drop("R10.1", 0, 0.95)
 
     # ================= WS2812 level shifter =================
-    r.t(F, 0.25, "U5.3", (11.9, 28.85), (11.9, 32.9), ("R15.1", 0, -0.3), "R15.1")
+    r.t(F, 0.25, "U5.3", (12.2, 28.85), (11.0, 30.05), "R15.1")
     r.t(F, 0.4, "R15.2", (11.0, 35.6), "J1.1")
     for pins, via in ((("U5.1",), (14.7, 27.55)), (("U5.4", "U5.5"), (14.7, 30.15)), (("U5.7",), (14.7, 31.45)),
                       (("U5.12", "U5.13"), (17.3, 28.2)), (("U5.9", "U5.10"), (17.3, 30.15))):
@@ -536,19 +561,19 @@ def route(r):
         r.v(via, net="GND")
     r.t(F, 0.5, "U5.14", (20.1, 27.55), "C21.1"); r.gnd("C21.2", 0.9, 0)
     r.drop("C21.1", 0.95, 0.5)
-    r.t(F, 0.8, "J1.2", (13.0, 35.6), (14.0, 34.6), "C10.1")
+    r.t(F, 0.8, "J1.2", (13.0, 36.6), (15.6, 34.0), "C10.1")
     r.gnd("J1.3", 0, -2.3); r.gnd("C10.2", 0, 2.0)
     r.drop("C10.1", 0, -1.9)
 
     # ================= charger (MCP73831) + battery divider =================
-    r.t(F, 0.25, "U4.11", (31.7, 14.19), (30.2, 15.69), (21.36, 15.69), "U3.1")
+    r.t(F, 0.25, "U4.11", (31.7, 14.19), (30.2, 15.69), (25.6, 15.69), (21.363, 19.927), "U3.1")
     r.t(F, 0.25, "R2.2", ("R2.2", 0.32, 0), ("R2.2", 0.645, 0.325), "U3.1")
     r.drop("R2.1", 0, -0.87)
     r.t(F, 0.25, "U3.5", "R1.1")
     r.t(F, 0.4, "R1.2", (26.35, 21.2), "R4.2"); r.v((26.35, 21.2), net="GND")
     r.t(F, 0.5, "U3.4", "C4.1"); r.gnd("C4.2", 0.95, 0)
     r.t(F, 0.5, "U3.2", (20.03, 23.0), "C5.2"); r.v((18.7, 22.8), net="GND"); r.t(F, 0.4, "C5.2", (18.7, 22.8))
-    r.t(F, 0.25, "U4.12", (32.6, 15.46), (31.8, 16.26), (29.0, 16.26), "C6.1")
+    r.t(F, 0.25, "U4.12", (31.365, 15.46), "C6.1")
     r.t(F, 0.25, "C6.1", (28.25, 17.82), (27.3, 18.77), "R4.1")
     r.t(F, 0.25, "R4.1", ("R4.1", -0.28, -0.28), "R3.2")
     r.gnd("C6.2", -0.7, 1.0)
@@ -556,7 +581,8 @@ def route(r):
 
     # ================= USB: pair 0.2/0.2, 45 deg into the ESD chip =================
     r.t(F, 0.2, "U4.13", (31.3, 16.73), (30.85, 17.18), (30.85, 23.5), (25.6, 28.75), (23.6, 28.75), (23.15, 29.2), "U12.6")
-    r.t(F, 0.2, "U4.14", (31.25, 18.0), (31.25, 23.66), (25.05, 29.86), "U12.4")
+    # D+ is the inner line of the pair: meander makes it as long as D- (tools/pairlen.py)
+    r.t(F, 0.2, "U4.14", (31.25, 18.0), *meander_v(31.25, 18.9, USB_TUNE), (31.25, 23.66), (25.05, 29.86), "U12.4")
     r.t(F, 0.2, "U12.1", (23.35, 33.3), "J3.B7")
     r.t(F, 0.2, "U12.3", (24.85, 33.3), "J3.B6")
     # A6/A7 row: D+ jumps over A7 on top, D- goes through B.Cu
@@ -565,7 +591,7 @@ def route(r):
     r.t(B, 0.2, (24.35, 37.45), (23.35, 36.4), net="Net-(J3-D--PadA7)"); r.v((23.35, 36.4), d=0.4, h=0.2, net="Net-(J3-D--PadA7)")
     r.gnd("U12.2", 0, 0.9)
     # CC pull-downs
-    r.t(F, 0.25, "J3.A5", (22.85, 37.0), "R23.1"); r.gnd("R23.2", 0, -0.9)
+    r.t(F, 0.25, "J3.A5", (22.85, 37.675), "R23.1"); r.gnd("R23.2", 0, -0.9)
     r.t(F, 0.25, "J3.B5", (25.85, 37.0), "R22.1"); r.gnd("R22.2", 0, -0.9)
     # VBUS: both connector pads -> B.Cu ring -> ESD VBUS pin and charger input
     V = "VBUS_NATIVE"
@@ -632,7 +658,7 @@ def route(r):
     r.t(F, 0.25, "U6.10", (41.55, 38.45)); r.t(F, 0.4, (41.55, 38.45), (41.85, 38.75), (46.4, 38.75)); r.v((46.4, 38.75))
     r.t(B, 0.4, (46.4, 38.75), (50.5, 38.75), net="Net-(U6-OUTN)"); r.v((50.5, 38.75), net="Net-(U6-OUTN)")
     r.t(F, 0.4, (50.5, 38.75), "SP1.2")
-    r.t(F, 0.25, "U6.9", (41.05, 39.2)); r.t(F, 0.4, (41.05, 39.2), (41.45, 39.6), (47.6, 39.6), "SP1.1")
+    r.t(F, 0.25, "U6.9", (41.05, 39.2)); r.t(F, 0.4, (41.05, 39.2), (41.45, 39.6), (47.35, 39.6), net="Net-(U6-OUTP)")
     r.gnd("C22.2", 1.0, 0); r.drop("C22.1", -1.0, 0)
     r.gnd("C1.2", 0, -1.42); r.drop("C1.1", 0, 1.42)
 
@@ -641,14 +667,14 @@ def route(r):
 
     # ================= In2: 5V / 3V3 / BAT distribution =================
     P5 = "5V_PERIPH"
-    r.t(I2, 0.8, (21.3, 5.95), (21.3, 9.0), (26.9, 9.0), (29.9, 12.0), (30.2, 12.3), (30.2, 30.6), (31.0, 31.4), (32.2, 31.4), net=P5)
-    r.t(I2, 0.6, (30.2, 27.4), (29.6, 28.0), (21.8, 28.0), (21.8, 31.5), (16.43, 32.1), net=P5)
-    r.t(I2, 0.6, (32.2, 31.4), (34.5, 31.4), (43.5, 31.4), (43.9, 31.8), net=P5)
-    r.t(I2, 0.6, (34.0, 31.4), (34.5, 31.9), (34.5, 36.0), (37.0, 38.5), (38.9, 38.5), net=P5)
-    r.t(I2, 0.6, (34.5, 34.95), (34.0, 35.45), (31.3, 35.45), net=P5)
+    r.t(I2, 0.8, (21.3, 5.95), (23.85, 5.95), (29.9, 12.0), (30.2, 12.3), (30.2, 29.39), (32.2, 31.39), net=P5)
+    r.t(I2, 0.6, (30.2, 27.4), (29.6, 28.0), (22.28, 28.0), (21.8, 28.48), (20.05, 28.48), (16.43, 32.1), net=P5)
+    r.t(I2, 0.6, (32.2, 31.39), (43.49, 31.39), (43.9, 31.8), net=P5)
+    r.t(I2, 0.6, (34.0, 31.39), (34.51, 31.9), (34.51, 34.95), (38.06, 38.5), (38.9, 38.5), net=P5)
+    r.t(I2, 0.6, (34.51, 34.6), (33.76, 35.35), (31.4, 35.35), (31.3, 35.45), net=P5)
     r.t(I2, 0.6, (43.9, 31.8), (43.9, 28.0), (47.6, 25.6), (47.6, 31.6), net=P5)
     P3 = "3V3_MCU"
-    r.t(I2, 0.5, (26.3, 15.0), (19.6, 19.2), (9.43, 27.45), (9.43, 33.45), net=P3)
+    r.t(I2, 0.5, (26.3, 15.0), (19.6, 19.205), (9.425, 27.45), (9.425, 33.45), net=P3)
     r.t(I2, 0.6, ("R3.1", 0, -0.85), (25.38, 18.2), (18.6, 24.98), net="BAT_P"); r.v((18.6, 24.98), net="BAT_P", d=0.6)
 
 
@@ -673,6 +699,10 @@ def build():
         m = pcbnew.FootprintLoad(f"{FPLIB}/{lib}.pretty", name)
         assert m is not None, fpid
         m.SetFPID(pcbnew.LIB_ID(lib, name))
+        if name in OWN_MODELS:  # KiCad has no model for these: own ones (scripts/gen_3d_jst_ph_sm4.py)
+            models = m.Models()  # iterating yields copies, indexing edits in place
+            for i in range(len(models)):
+                models[i].m_Filename = f"${{KIPRJMOD}}/3dmodels/{name}.wrl"
         m.SetPath(pcbnew.KIID_PATH("/" + ts))
         m.SetReference(ref)
         m.SetValue(val)

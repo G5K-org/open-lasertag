@@ -31,6 +31,8 @@ Abzug/Nachladen, WS2812, Weste (Sensoren) und Vibration.
 
 Schaltplan ([kiutils][1]) und Platine (pcbnew) werden per Python erzeugt und
 mit `kicad-cli` geprüft; die Generator-Skripte liegen in [`scripts/`](scripts/).
+3D-Modelle der JST-PH-SMD-Stecker (BT1, SP1, J1) liegen in [`3dmodels/`](3dmodels/)
+(STEP + WRL, erzeugt mit `freecadcmd scripts/gen_3d_jst_ph_sm4.py`).
 
 [1]: https://github.com/mvnmgrx/kiutils
 
@@ -92,11 +94,14 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **Regeln (`.kicad_pro`):** min. 0,15 mm Leiterbahn/Abstand, Vias 0,5/0,3 mm
   (USB-Kreuzung 0,4/0,2 mm), Netzklassen Default 0,2 mm, Power 0,5 mm,
   3V3 0,6 mm, USB 0,2/0,2 mm (Paar)
-- **Leiterbahnen so kurz wie möglich:** lange Wege als ein 45°-Abschnitt statt
-  L-Form; parallele Bündel bleiben parallel und kreuzungsfrei
-- **Beschriftung oben** (F.SilkS, 0,8 mm) direkt neben dem jeweiligen Stecker,
-  frei von Pads und Bauteilkörpern; Pin 1 von J2 mit „1“ markiert; Bauteilbezeichner
-  nur auf F.Fab
+- **Leiterbahnen so kurz wie möglich** auf allen Lagen: lange Wege als ein 45°-Abschnitt
+  statt L-Form; parallele Bündel bleiben parallel und kreuzungsfrei
+- **USB-Paar gleich lang:** D+ mit Mäander zwischen Modul und USBLC6, jeder Abschnitt
+  D+/D− auf 0,000 mm gleich (Leiterbahnlänge)
+- **Beschriftung oben** (F.SilkS), alle Labels waagerecht und einheitlich 0,8 mm hoch,
+  direkt am jeweiligen Stecker/Taster, frei von Pads, Vias und Bauteilkörpern; Labels einer
+  Steckerspalte auf gemeinsamer Mittelachse, untere Stecker mittig beschriftet; Pin 1 von J2
+  mit „1“ markiert; Bauteilbezeichner nur auf F.Fab
 - **Leiterbahnen nur in 0°/45°/90°**, jeder Knick max. 45°, Abzweige laufen
   unter 45° ein; Teardrops an allen Pads und Vias (außer GND-Stichen in der
   GND-Fläche)

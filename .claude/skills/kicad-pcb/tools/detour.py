@@ -24,7 +24,7 @@ def octi(dx, dy):
 
 
 def key(p):
-    return (round(p.x / 1e6, 3), round(p.y / 1e6, 3))
+    return (round(p.x / 1e6, 2), round(p.y / 1e6, 2))  # 10 µm: track ends and via centres may differ slightly
 
 
 def main():
