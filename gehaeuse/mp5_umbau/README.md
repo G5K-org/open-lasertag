@@ -14,7 +14,8 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte, Motor, Drehgeber, Schraubensenkungen |
 | `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht |
 | `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | Schallkammer mit Löchern in den Rillen, Kabelschacht |
-| `handschutz_vorn.stl` | Handschutz vorn mit Schalldämpfer | `obj_10_2` | Lautsprechertasche, Basskammer, TSOP-Aufnahme, Gewinde M24 × 1,5, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
+| `handschutz_vorn_links.stl` | Handschutz vorn mit Schalldämpfer links | `obj_10_2` | links/rechts geteilt (flach auf der Teilungsfläche), Einschmelzmuttern; Lautsprechertasche, Basskammer, TSOP-Aufnahme, Gewinde M24 × 1,5, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
+| `handschutz_vorn_rechts.stl` | Handschutz vorn mit Schalldämpfer rechts | `obj_10_2` | Gegenstück, Schraubensenkungen |
 | `frontkappe.stl` | Frontkappe | neu | 12 Fenster für das Ringlicht (Front unten drucken) |
 | `linsenhuelse.stl` | Linsenhülse | neu | Gewinde M24 × 1,5 für die Linse Ø 20 |
 | `tsop_einsatz.stl` | TSOP-Einsatz | neu | Halter für den TSOP34838 mit Linsenfenster (Fensterseite oben drucken) |
@@ -49,6 +50,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | Vibrationsmotor | Ø 10 × 20 mm mit Unwucht |
 | Platine | M2 × 8 ISO 7380 (2 ×) |
 | Gehäusehälften | 6 × M3 × 10 ISO 4762, 6 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
+| Handschutz vorn | 5 × M3 × 10 ISO 4762, 5 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
 | Lautsprecher | Ø 40 mm, 4–8 Ω, 2–3 W, bis 6 mm Einbautiefe |
 | Handschutz-Teilung | 2 × Stift Ø 2 × 12 mm |
 | TSOP 6 | TSOP34838 (6 × 6,95 × 5,6 mm) |
@@ -79,9 +81,13 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 - **Gehäusehälften** verschraubt: Einschmelzmuttern von der Teilungsebene in die linke Hälfte,
   Schrauben M3 × 10 von rechts (Kopf versenkt); vorn oben, Mitte oben, hinten oben, vor dem Abzug,
   hinten über dem Griff, unten im Griff
+- **Handschutz vorn mit Schalldämpfer** links/rechts geteilt (Z = 0), beide Hälften flach drucken:
+  Einschmelzmuttern in die linke Hälfte, Schrauben M3 × 10 von rechts (Kopf versenkt); 2 Schrauben
+  direkt vor der Basskammer, 3 am Schalldämpfer. Lautsprecher, LED, TSOP-Einsatz und Kabel vor dem Verschrauben einlegen.
+  Der Handschutz hinten bleibt einteilig
 - **Lautsprecher** Ø 40 im Handschutz, Teilung bei Y = −56: Lautsprecher in die Tasche des vorderen
   Teils legen (Membran nach hinten), Kabel durch die kleine Bohrung in den Schacht und abdichten
-  (Basskammer ca. 42 cm³ bleibt geschlossen), hinteren Teil mit 2 Stiften Ø 2 aufsetzen und verkleben.
+  (Basskammer ca. 42 cm³ bleibt geschlossen), hinteren Teil mit 2 Stiften Ø 2 (einer je Hälfte) aufsetzen und verkleben.
   Der Schall geht durch 2 Reihen Löcher Ø 1,8 in den Rillen zwischen den Rippen
 - **TSOP 6** vorn an der Rundung unter dem Korn, über dem Schalldämpfer, Linse nach vorn: TSOP von
   hinten in den Einsatz schieben, Kabel an die Beinchen (zeigen nach unten), Einsatz in die Aufnahme

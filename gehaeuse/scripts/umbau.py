@@ -9,6 +9,7 @@ Einbauten:
   - Schalldämpfer: Innengewinde M24 x 1,5 für die Linsenhülse (Linse Ø 20 x 7), IR-LED 5 mm 21 mm
     hinter der Linse, Ringlicht 12 x WS2812 (Ø 36,8/23,3) in einer Frontkappe mit 12 Fenstern
   - Kabelschacht von der Mündung bis in die Platinentasche, Abzweig in den Magazinschacht
+  - Handschutz vorn mit Schalldämpfer links/rechts geteilt, 5 x M3 x 10 mit Einschmelzmuttern
   - Lautsprecher Ø 40 im Handschutz (geteilt), strahlt nach hinten in eine Schallkammer mit Löchern
     in den Rillen, geschlossene Basskammer davor
   - TSOP 6 vorn an der Rundung unter dem Korn, über dem Schalldämpfer: Aufnahme + gedruckter Einsatz
@@ -92,6 +93,8 @@ SCREWS = [(55.0, 45.0), (60.0, 120.0), (55.0, 190.0), (135.5, 106.0), (110.0, 19
 INSERT = (4.0, 6.5)           # Loch für die Einschmelzmutter: Ø, Tiefe ab Teilung (links)
 SCREW_HOLE = 3.4              # Durchgang rechts
 HEAD = (6.2, 5.0)             # Kopfsenkung rechts: Ø, Auflage so weit vor der Teilung (Z = -5)
+# Handschutz vorn mit Schalldämpfer: links/rechts geteilt, ebenso verschraubt (X, Y)
+HG_SCREWS = [(92.0, -108.0), (61.0, -113.0), (67.0, -165.0), (92.0, -165.0), (67.0, -200.0)]
 
 # ---------------------------------------------------------------- Kabelschächte
 TRUNK = (81.0, 2.5)           # Hauptschacht X, Radius (Mündung -> Platinentasche)
@@ -473,10 +476,10 @@ def speaker(y_back):
     return cut, trunk
 
 
-def screws():
-    """Bohrungen für die Verschraubung der Gehäusehälften (beide Hälften, Gun-Rahmen)."""
+def screws(points=None):
+    """Bohrungen für eine Verschraubung über die Teilungsebene Z = 0 (beide Hälften, Gun-Rahmen)."""
     cut = None
-    for x, y in SCREWS:
+    for x, y in (SCREWS if points is None else points):
         c = cyl((x, y, -0.01), (x, y, INSERT[1]), INSERT[0] / 2, 32)                     # links: Einschmelzmutter
         c = c + cyl((x, y, 0.01), (x, y, -HEAD[1]), SCREW_HOLE / 2, 32)                 # rechts: Durchgang
         c = c + cyl((x, y, -HEAD[1]), (x, y, -40.0), HEAD[0] / 2, 32)                   # rechts: Kopfsenkung
@@ -489,7 +492,7 @@ def build():
     L = P.load("obj_1_3")
     R = P.load("obj_3_6").transform(to_right[:3].tolist())
     parts = {name: (src, mat) for name, src, mat, _ in B.parts()}
-    hg_mat = parts[B.NAMES["handschutz_vorn"]][1]
+    hg_mat = B.hg_matrix()
     ring_mat = parts[B.NAMES["zwischenring"]][1]
     mag_mat = parts[B.NAMES["magazin"]][1]
 
@@ -514,6 +517,8 @@ def build():
     hg = hg + (add ^ hg.hull()) - ocut - scut - strunk - tcut
     split = box(-500, 500, SPLIT_Y, 500, -500, 500)
     hg_rear, hg_front = hg ^ split, hg - split
+    hg_front = hg_front - screws(HG_SCREWS)
+    hg_front_l, hg_front_r = hg_front ^ P.HALF_L, hg_front ^ P.HALF_R
     ring = load_gun("obj_5_5", ring_mat) - capsule((TRUNK[0], 5.0, 0), (TRUNK[0], 35.0, 0), TRUNK[1])
     stocks = {}
     for key, orig, side in (("schaft_links", "obj_4_7", P.HALF_L), ("schaft_rechts", "obj_2_4", P.HALF_R)):
@@ -527,7 +532,6 @@ def build():
     # vollständiger Drucksatz mit eindeutigen Namen (Schlüssel aus baugruppe.NAMES)
     P.save(L, os.path.join(OUT, "gehaeuse_links.stl"))
     P.save(R.transform(P.TO_RIGHT), os.path.join(OUT, "gehaeuse_rechts.stl"))
-    save_orig(hg_front, hg_mat, os.path.join(OUT, "handschutz_vorn.stl"))
     save_orig(hg_rear, hg_mat, os.path.join(OUT, "handschutz_hinten.stl"))
     save_orig(ring, ring_mat, os.path.join(OUT, "zwischenring.stl"))
     save_orig(*stocks["schaft_links"], os.path.join(OUT, "schaft_links.stl"))
@@ -555,6 +559,9 @@ def build():
 
     flat = np.eye(4)[:3]                                   # Abzug liegt flach (Z oben)
     new_part("abzug", trig, flat)
+    new_part("handschutz_vorn_links", hg_front_l, flat)                       # Teilungsfläche unten
+    new_part("handschutz_vorn_rechts", hg_front_r,
+             np.array([[-1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0]], float))   # gedreht, Teilungsfläche unten
     front_up = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, -1, 0, 0]], float)     # -Y -> +z
     front_down = np.array([[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0]], float)   # -Y -> -z
     new_part("linsenhuelse", sleeve, front_up)

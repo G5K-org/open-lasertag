@@ -32,9 +32,10 @@ th=np.radians(12.0); ag=np.array([-np.cos(th),np.sin(th),0])   # Magazinachse (o
 OFF={
  'Gehäuse links':(0,0,100),'Gehäuse rechts':(0,0,-75),'Platine':(0,0,-38),
  'Abzug':(75,0,45),'Zwischenring':(0,-40,0),'Steg vorn (Rundstab 100 mm)':(-55,-30,0),
- 'Handschutz hinten':(0,-80,0),'Handschutz vorn mit Schalldämpfer':(0,-130,0),
+ 'Handschutz hinten':(0,-80,0),'Handschutz vorn mit Schalldämpfer links':(25,-130,45),
+ 'Handschutz vorn mit Schalldämpfer rechts':(-30,-130,-45),
  'Spannhebel Stift':(-25,-80,45),'Spannhebel Knauf':(-25,-80,70),
- 'Korn':(-45,-130,0),'TSOP-Einsatz':(-10,-175,0),'Linsenhülse':(0,-205,0),'Frontkappe':(0,-235,0),
+ 'Korn':(-45,-130,0),'TSOP-Einsatz':(-60,-175,0),'Linsenhülse':(0,-205,0),'Frontkappe':(0,-235,0),
  'Schaft links':(0,80,45),'Schaft rechts':(0,80,-50),'OLED-Rahmen':(-35,100,0),
  'Steg hinten (Rundstab 77 mm)':(-60,40,0),
  'Magazin':tuple(-ag*90),'Magazin Unterteil':tuple(-ag*150),

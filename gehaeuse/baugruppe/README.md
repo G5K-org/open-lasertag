@@ -12,7 +12,7 @@ Alle Teile der Waffe an ihrem Platz in einer Datei, erzeugt mit
 |---|---|---|
 | <img src="baugruppe_links.png" width="280"> | <img src="baugruppe_offen.png" width="280"> | <img src="baugruppe_schraeg.png" width="280"> |
 
-| Rechts (Schraubensenkungen, Schalllöcher) | Vorn rechts (Frontkappe, Linsenhülse) | Hinten (OLED am Schaft) |
+| Rechts (Schraubensenkungen an Gehäuse und Handschutz, Schalllöcher) | Vorn rechts (Frontkappe, Linsenhülse) | Hinten (OLED am Schaft) |
 |---|---|---|
 | <img src="baugruppe_rechts.png" width="280"> | <img src="baugruppe_vorn.png" width="280"> | <img src="baugruppe_hinten.png" width="200"> |
 
@@ -41,7 +41,7 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 |---|---|
 | Gehäuse links / rechts | Bezug (Teilungsebene Z = 0), 6 × M3 verschraubt |
 | Zwischenring | vor dem Gehäuse, Profil und Stegkanal fluchtend |
-| Handschutz hinten, Handschutz vorn mit Schalldämpfer | vor dem Zwischenring, geteilt am Lautsprecher (Y = −56) |
+| Handschutz hinten, Handschutz vorn mit Schalldämpfer links / rechts | vor dem Zwischenring, geteilt am Lautsprecher (Y = −56); vorderer Teil links/rechts geteilt (Z = 0), 5 × M3 verschraubt |
 | Linsenhülse, Frontkappe | vorn im bzw. auf dem Schalldämpfer |
 | TSOP-Einsatz | vorn an der Rundung unter dem Korn, über dem Schalldämpfer |
 | Steg vorn (Rundstab 100 mm) | Gehäuse 34 mm, Zwischenring 21 mm, Handschutz 45 mm (bis in die Kegelspitze des Kanals) |
@@ -57,7 +57,7 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 
 Überschneidungen in der Baugruppe (Prüfung mit manifold3d):
 - Magazin ↔ Gehäuse 2 × 156 mm³: Mittelrippe hinten im Schacht (Z ±3,6) im Magazinrücken
-- Korn ↔ Handschutz 276 mm³: Steg (9 × 12 mm) im Schlitz (6,7 × 8,1 mm), Klemmsitz
+- Korn ↔ Handschutz vorn links / rechts je ca. 138 mm³: Steg (9 × 12 mm) im Schlitz (6,7 × 8,1 mm), Klemmsitz
 - Stege, Schaft, Platine, Spannhebel, Abzug, Linsenhülse, Frontkappe, Magazinunterteil, TSOP-Einsatz,
   OLED-Rahmen: ≤ 4 mm³
 

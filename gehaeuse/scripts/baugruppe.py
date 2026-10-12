@@ -125,7 +125,8 @@ def board(tmp):
 NAMES = {
     "gehaeuse_links": "Gehäuse links", "gehaeuse_rechts": "Gehäuse rechts",
     "zwischenring": "Zwischenring", "handschutz_hinten": "Handschutz hinten",
-    "handschutz_vorn": "Handschutz vorn mit Schalldämpfer", "frontkappe": "Frontkappe",
+    "handschutz_vorn_links": "Handschutz vorn mit Schalldämpfer links",
+    "handschutz_vorn_rechts": "Handschutz vorn mit Schalldämpfer rechts", "frontkappe": "Frontkappe",
     "linsenhuelse": "Linsenhülse", "tsop_einsatz": "TSOP-Einsatz", "korn": "Korn",
     "spannhebel_stift": "Spannhebel Stift", "spannhebel_knauf": "Spannhebel Knauf",
     "schaft_links": "Schaft links", "schaft_rechts": "Schaft rechts", "oled_rahmen": "OLED-Rahmen",
@@ -134,7 +135,8 @@ NAMES = {
 }
 # Herkunft im Originalsatz (mp5_toygun_stls)
 ORIGINAL = {"gehaeuse_links": "obj_1_3", "gehaeuse_rechts": "obj_3_6", "zwischenring": "obj_5_5",
-            "handschutz_hinten": "obj_10_2", "handschutz_vorn": "obj_10_2", "korn": "obj_7_1",
+            "handschutz_hinten": "obj_10_2", "handschutz_vorn_links": "obj_10_2",
+            "handschutz_vorn_rechts": "obj_10_2", "korn": "obj_7_1",
             "spannhebel_stift": "obj_11_12", "spannhebel_knauf": "obj_9_10", "schaft_links": "obj_4_7",
             "schaft_rechts": "obj_2_4", "steg_vorn_100mm": "obj_8_8", "steg_hinten_77mm": "obj_8_8",
             "magazin": "obj_6_9"}
@@ -149,14 +151,13 @@ def parts():
     a_sight = np.cross([1, 0, 0], n_sight)        # Ringachse
     knob_axis = np.array([-0.385, 0.923, 0.0]); knob_axis /= np.linalg.norm(knob_axis)
     y_hg = Y_FRONT - RING_L                       # Rückseite Handschutz
-    hg = m4(rot([[0, 0, 1], [-1, 0, 0], [0, -1, 0]]), (200.27, 60.73, 0), (X_AXIS, y_hg, 0))
+    hg = hg_matrix()
     N = NAMES
     out = [
         (N["gehaeuse_links"], mod("gehaeuse_links"), np.eye(4), DARK),
         (N["gehaeuse_rechts"], mod("gehaeuse_rechts"), to_right, DARK),
         (N["zwischenring"], mod("zwischenring"),
          m4(rot([[0, 0, -1], [1, 0, 0], [0, -1, 0]]), (37.7, -182.72, 0), (X_AXIS, Y_FRONT, 0)), BLACK),
-        (N["handschutz_vorn"], mod("handschutz_vorn"), hg, BLACK),
         (N["handschutz_hinten"], mod("handschutz_hinten", None), hg, BLACK),
         (N["korn"], mod("korn"), _sight_matrix(n_sight, a_sight, y_hg), BLACK),
         (N["spannhebel_stift"], mod("spannhebel_stift"), _rod_matrix(y_hg), STEEL),
@@ -172,6 +173,11 @@ def parts():
     return [p for p in out if p[1] is not None or p[0].startswith("Steg")]
 
 
+def hg_matrix():
+    """Handschutz + Schalldämpfer (obj_10_2) -> Gun-Rahmen."""
+    return m4(rot([[0, 0, 1], [-1, 0, 0], [0, -1, 0]]), (200.27, 60.73, 0), (X_AXIS, Y_FRONT - RING_L, 0))
+
+
 def key_of(name):
     return next(k for k, v in NAMES.items() if v == name)
 
@@ -184,7 +190,7 @@ def mod(key, fallback=""):
     return ORIGINAL.get(key) if fallback == "" else fallback
 
 
-NEW = {"abzug": DARK, "linsenhuelse": STEEL, "frontkappe": BLACK, "magazin_unterteil": BLACK,
+NEW = {"abzug": DARK, "handschutz_vorn_links": BLACK, "handschutz_vorn_rechts": BLACK, "linsenhuelse": STEEL, "frontkappe": BLACK, "magazin_unterteil": BLACK,
        "oled_rahmen": BLACK, "tsop_einsatz": BLACK}
 
 
