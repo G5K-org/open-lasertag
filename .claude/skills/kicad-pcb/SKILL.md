@@ -26,10 +26,13 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   beide Leitungen erst einzeln so kurz wie möglich, dann die kürzere mit einem **Mäander** (0/45/90°,
   Abstand ≥ 3 × Bahnbreite) auf die längere ausgleichen. Rest-Differenz ≤ 0,1 mm. Mäander mit
   `meander_v(x, y0, extra, n, c, t, gap, side)` in build_board.py (senkrechter Lauf, n Ausbuchtungen,
-  Zusatzlänge pro Ausbuchtung 2h − 4c(2 − √2)); Zielwert `USB_TUNE`. Prüfen mit
+  Zusatzlänge pro Ausbuchtung 2h − 4c(2 − √2)); Zielwerte `USB_TUNE` (Modul–U12) und `USB_TUNE2` (U12–J3). Prüfen mit
   `tools/pairlen.py w.kicad_pcb U4.14-U12.4 U4.13-U12.6 U12.3-J3.B6 U12.1-J3.B7 U12.3-J3.A6 U12.1-J3.A7 --via=0`
-  (je Paar-Abschnitt zwischen denselben Bauteilen; Stand: alle 0,000 mm). Die D−-Brücke A7 über B.Cu hat
-  zwei Vias mehr als A6 – mit `--via=1.6` sichtbar; Via-Paar bei USB-C-Kreuzung ist nicht vermeidbar.
+  (je Paar-Abschnitt zwischen denselben Bauteilen; Stand: Modul–U12 0,000, U12–J3 ≤ 0,007 mm). J3 ist die
+  senkrechte HRO TYPE-C-31-E-17 (Projektbibliothek `footprints/lasertag.pretty`): A-Reihe oben, B-Reihe unten.
+  D+ = Diagonale A6–B6 durch ein Via in der Buchsenmitte (`vc`), von oben über B.Cu gespeist; D− = B.Cu-Brücke
+  von Via über A7 zu Via unter B7, Abgriff `tap` in der Längenmitte der Brücke → A- und B-Steckrichtung gleich
+  lang, je Leitung 2 Vias. VBUS A4/B9 und A9/B4 je über Vias, auf B.Cu als Ring über der Buchse verbunden.
 - **Beschriftung auf der Vorderseite** (`F.SilkS`, nicht gespiegelt), **lesbar mit bestückten Bauteilen**:
   kein Text auf Pads, Bauteilkörpern (F.Fab-Umriss), Footprint-Silk, anderen Texten, ≥ 0,3 mm vom Rand.
   Jedes Steckerlabel direkt an **seinem** Stecker, näher an ihm als an jedem Nachbarn.
@@ -40,7 +43,7 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   **Mehrere Stecker in einer Reihe/Spalte:** ihre Labels gemeinsam ausrichten – in einer Spalte (links
   LED1/TSOP/ABZUG/NACHL., rechts VIB) gleiche Mittelpunkt-x (horizontal zentriert
   untereinander), jedes Label direkt am eigenen Stecker (nie zwei Labels zwischen zwei Steckern so, dass
-  beide zum selben zu gehören scheinen). Reihe (unten J1/J3/J2/SP1): gemeinsame y geht wegen
+  beide zum selben zu gehören scheinen). Reihe (unten J1/J2/SP1): gemeinsame y geht wegen
   unterschiedlicher Steckerhöhen nicht → jedes Label mittig (gleiche x) über seinem Stecker.
   Suche: `silk.py --column "A=REF" ...` bzw. `--row`; Mindestabstand Label ↔ Pad/Via/Körper/Silk 0,12 mm.
   Die gefundenen Werte sind Mittelpunkte der Strichkontur; KiCad-Textanker liegt bis 0,1 mm daneben
@@ -150,7 +153,10 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
 - Schaltplan-Parität braucht `SetFPID(LIB_ID(lib, name))`, `SetPath(KIID_PATH("/" + uuid))` und volle Netznamen
   (`/TRIGGER`); der Routing-Code nutzt die Kurznamen ohne `/`.
 - `PCB_VIA.GetWidth()` braucht einen Layer (`GetWidth(pcbnew.F_Cu)`).
-- **3D-Modelle:** jedes Bauteil braucht eins (Render, Gehäuse-STEP). KiCad liefert für JST-PH-SM4 (BT1, SP1, J1)
+- **Projekt-Footprints:** `footprints/<lib>.pretty` + `fp-lib-table`; build_board.py lädt eine Bibliothek von dort,
+  wenn es den Ordner gibt, sonst aus `FPLIB`. Kein `Datasheet`-Feld im Footprint (sonst Paritätsfehler).
+- **3D-Modelle:** jedes Bauteil braucht eins (Render, Gehäuse-STEP). J3: `freecadcmd scripts/gen_3d_usb_c_vertical.py`
+  (Pfad steht im Footprint). KiCad liefert für JST-PH-SM4 (BT1, SP1, J1)
   keine → eigene Modelle in `3dmodels/`, erzeugt mit `freecadcmd scripts/gen_3d_jst_ph_sm4.py` (STEP + farbige
   WRL, Maße aus Footprint-F.Fab, Höhe 4,85 wie S*B-PH-K). `OWN_MODELS` in build_board.py setzt den Pfad
   `${KIPRJMOD}/3dmodels/<name>.wrl`; KiCad nimmt beim STEP-Export die `.step` daneben. Prüfen: Skript-Check
@@ -166,7 +172,7 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
   Für Texte zählt die Strichkontur (`GetEffectiveTextShape().BBox()`, bei 0,8 mm ≈ 0,92 mm hoch), nicht
   `GetBoundingBox()` (≈ 1,36 mm mit Zeilenabstand) – sonst findet die Suche viele echte Lücken nicht.
 - Label-Stand: linke Spalte x = 4,2 (LED1 unter LED1, TSOP/ABZUG/NACHL. über ihrem Stecker), rechte
-  „VIB“ über M1 (x = 49,85), USB/SENSOR/LAUTSPR. mittig über J3/J2/SP1,
+  „VIB“ über M1 (x = 49,85), SENSOR/LAUTSPR. mittig über J2/SP1, USB links unter J3 (23,45/44,03; darüber Vias),
   AKKU rechts neben BT1, RESET über SW3, WS2812 links neben J1 (über J1 kein Platz), „1“ an J2-Pin 1,
   BOOT links neben SW4 auf Mittelhöhe, Titel „open-lasertag v1“ frei in der Mitte (19,5/17,9),
   „OLED“/„GEBER“ unter J4/J5 auf gemeinsamer Achse x = 56,95 („DREHGEBER“ zu lang für den Streifen).

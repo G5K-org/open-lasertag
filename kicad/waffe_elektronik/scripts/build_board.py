@@ -29,7 +29,9 @@ W, Y1 = 59.6, 18.5   # L shape: width W for y < Y1, W0 below
 MX, MY = W0 - 11.5, 6.75  # ESP32 module origin; board top edge = antenna keep-out line
 SH_IN = 3.1     # JST-SH horizontal: body front this far from origin -> flush with board edge
 PH_IN = 4.9     # JST-PH SM4 horizontal
-USB_IN = 3.73   # GCT USB4105
+
+JX, JY = 24.1, 41.0   # USB-C, vertical (HRO TYPE-C-31-E-17): plug enters from the component side
+PROJ_FPLIB = os.path.join(PROJ, "footprints")  # footprint libraries of this project (fp-lib-table)
 
 # ------------------------------------------------------------------ placement
 # ref: (x, y, rotation_deg)  - board coords, mm, origin top-left, y down.
@@ -51,8 +53,8 @@ PLACE = {
     "R5": (12.3, 20.05, 180), "R6": (11.95, 17.7, 90),
     # --- trigger / reload debounce
     "C8": (8.6, 24.8, 0), "R9": (8.6, 26.5, 180), "C9": (8.6, 30.8, 0), "R10": (8.6, 32.5, 180),
-    # --- bottom edge connectors: WS2812, USB-C, sensor cable, speaker
-    "J1": (13.0, H - PH_IN, 0), "J3": (24.1, H - USB_IN, 0), "J2": (35.0, H - SH_IN, 0),
+    # --- bottom edge connectors: WS2812, sensor cable, speaker; USB-C stands upright between them
+    "J1": (13.0, H - PH_IN, 0), "J3": (JX, JY, 0), "J2": (35.0, H - SH_IN, 0),
     "SP1": (48.6, H - PH_IN, 0),
     # --- right edge: motors
     "M1": (W0 - SH_IN, 24.8, 90),
@@ -61,7 +63,7 @@ PLACE = {
     # --- WS2812 level shifter
     "U5": (16.0, 29.5, 0), "C21": (20.85, 27.2, 90), "R15": (11.0, 34.4, 270), "C10": (17.9, 34.0, 0),
     # --- USB: ESD (connector side down) + CC
-    "U12": (24.1, 31.5, 90), "R23": (21.2, 35.2, 90), "R22": (27.0, 35.2, 90),
+    "U12": (24.1, 31.5, 90), "R23": (JX - 2.4, JY - 3.7, 180), "R22": (JX + 1.9, JY + 3.35, 0),
     # --- charger
     "U3": (22.5, 23.0, 0), "C4": (25.4, 23.6, 90), "C5": (19.6, 24.2, 90), "R1": (24.6, 20.1, 0), "R2": (19.6, 20.9, 270),
     # --- battery voltage divider
@@ -331,6 +333,7 @@ HOLE_HEAD = 1.75     # courtyard radius = screw head
 HOLE_KEEPOUT = 1.85  # radius without copper on all layers
 
 USB_TUNE = 3.434  # mm added to D+ between module and U12 (D- runs around the outside)
+USB_TUNE2 = 1.28  # mm added to D+ between U12 and J3 (D- bridge is longer than the D+ diagonal)
 
 OWN_MODELS = {"JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
               "JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal"}
@@ -338,7 +341,7 @@ OWN_MODELS = {"JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
 LABELS = [  # front silk, horizontal, next to the connector, clear of pads and bodies (tools/silk.py): (x, y, text, height, angle)
     (11.2, 5.35, "AKKU", 0.8, 0), (4.2, 15.59, "LED1", 0.8, 0), (4.2, 17.04, "TSOP", 0.8, 0),
     (4.2, 24.24, "ABZUG", 0.8, 0), (4.2, 30.04, "NACHL.", 0.8, 0), (2.23, 40.15, "RESET", 0.8, 0),
-    (5.28, 45.05, "WS2812", 0.8, 0), (24.1, 35.55, "USB", 0.8, 0), (35.0, 38.5, "SENSOR", 0.8, 0),
+    (5.28, 45.05, "WS2812", 0.8, 0), (23.45, 44.03, "USB", 0.8, 0), (35.0, 38.5, "SENSOR", 0.8, 0),
     (48.6, 35.8, "LAUTSPR.", 0.8, 0), (49.85, 21.78, "VIB", 0.8, 0),
     (31.1, 22.1, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0), (30.55, 40.1, "1", 0.8, 0), (19.5, 17.9, "open-lasertag v1", 0.8, 0),
 ]
@@ -599,27 +602,46 @@ def route(r):
     r.t(F, 0.2, "U4.13", (31.3, 16.73), (30.85, 17.18), (30.85, 23.5), (25.6, 28.75), (23.6, 28.75), (23.15, 29.2), "U12.6")
     # D+ is the inner line of the pair: meander makes it as long as D- (tools/pairlen.py)
     r.t(F, 0.2, "U4.14", (31.25, 18.0), *meander_v(31.25, 18.9, USB_TUNE), (31.25, 23.66), (25.05, 29.86), "U12.4")
-    r.t(F, 0.2, "U12.1", (23.35, 33.3), "J3.B7")
-    r.t(F, 0.2, "U12.3", (24.85, 33.3), "J3.B6")
-    # A6/A7 row: D+ jumps over A7 on top, D- goes through B.Cu
-    r.t(F, 0.2, "J3.A6", (23.85, 36.75), (24.85, 35.75))
-    r.t(F, 0.2, "J3.A7", (24.35, 37.45)); r.v((24.35, 37.45), d=0.4, h=0.2, net="Net-(J3-D--PadA7)")
-    r.t(B, 0.2, (24.35, 37.45), (23.35, 36.4), net="Net-(J3-D--PadA7)"); r.v((23.35, 36.4), d=0.4, h=0.2, net="Net-(J3-D--PadA7)")
     r.gnd("U12.2", 0, 0.9)
-    # CC pull-downs
-    r.t(F, 0.25, "J3.A5", (22.85, 37.675), "R23.1"); r.gnd("R23.2", 0, -0.9)
-    r.t(F, 0.25, "J3.B5", (25.85, 37.0), "R22.1"); r.gnd("R22.2", 0, -0.9)
-    # VBUS: both connector pads -> B.Cu ring -> ESD VBUS pin and charger input
+    # vertical USB-C: rows A (top) and B (bottom), 0.5 mm pitch; each line has one pad per row.
+    # D+: A6 and B6 on one diagonal through a via in the connector centre, fed on B.Cu.
+    # D-: A7 (via above) and B7 (via below) bridged on B.Cu, fed at the middle of the bridge.
+    # Both plug orientations see the same lengths (tools/pairlen.py: U12.3-J3.A6 = U12.1-J3.A7, B6 = B7).
+    U = dict(d=0.4, h=0.2)
+    DM, DP = "Net-(J3-D--PadA7)", "Net-(J3-D+-PadA6)"
+    vc = (JX, JY)                                               # D+ centre via
+    v3 = (JX + 0.95, JY - 2.5)                                  # D+ F -> B
+    v1, v2, v5 = (JX + 0.25, JY - 2.2), (JX - 0.25, JY + 1.55), (JX - 0.5, JY - 4.8)   # D-: above A7, below B7, feed
+    tap = (JX - 0.5, JY - 0.75)                                 # D- bridge: equal length to A7 and B7
+    r.t(F, 0.2, "U12.3", *meander_v(v3[0], 33.6, USB_TUNE2, side=1), v3); r.v(v3, net=DP, **U)
+    r.t(B, 0.2, v3, (v3[0], vc[1] - (v3[0] - vc[0])), vc, net=DP); r.v(vc, net=DP, **U)
+    r.t(F, 0.2, "J3.A6", (JX - 0.25, JY - 0.25), vc, (JX + 0.25, JY + 0.25), "J3.B6")
+    r.t(F, 0.2, "U12.1", (23.15, v5[1] - (v5[0] - 23.15)), v5); r.v(v5, net=DM, **U)
+    r.t(B, 0.2, v5, tap, (tap[0], v2[1] - 0.8), (v2[0], v2[1] - 0.55), v2, net=DM); r.v(v2, net=DM, **U)
+    r.t(B, 0.2, tap, (v1[0], tap[1] - (v1[0] - tap[0])), v1, net=DM); r.v(v1, net=DM, **U)
+    r.t(F, 0.2, "J3.A7", v1)
+    r.t(F, 0.2, "J3.B7", v2)
+    # CC pull-downs right at the connector: CC1 up-left to R23, CC2 straight down to R22
+    r.t(F, 0.25, "J3.A5", (JX - 0.75, 38.6), ("R23.1", 0, 0.475), "R23.1"); r.gnd("R23.2", -0.9, 0)
+    r.t(F, 0.25, "J3.B5", ("R22.1", -0.325, -0.2)); r.gnd("R22.2", 0.85, 0)
+    # VBUS: A4/B9 and A9/B4 through vias, joined on B.Cu beside the pair, ring above to ESD and charger
     V = "VBUS_NATIVE"
-    for pp, x in (("J3.A4", 21.55), ("J3.A9", 26.65)):
-        r.t(F, 0.4, pp, (x, 37.45)); r.v((x, 37.45), net=V)
-    r.t(B, 0.4, (21.55, 37.45), (21.55, 35.3), (22.35, 34.5), (25.85, 34.5), (26.65, 35.3), (26.65, 37.45), net=V)
-    r.t(B, 0.4, (25.1, 34.5), (25.6, 34.0), (25.6, 25.5), (25.4, 25.3), net=V); r.v((25.4, 25.3), net=V)
+    va4, vb9, va9, vb4 = (JX - 1.5, JY - 2.1), (JX - 1.5, JY + 1.85), (JX + 1.5, JY - 1.75), (JX + 1.5, JY + 1.85)
+    for pp, vv in (("J3.A4", va4), ("J3.B9", vb9), ("J3.A9", va9), ("J3.B4", vb4)):
+        r.t(F, 0.3, pp, vv); r.v(vv, net=V)
+    r.t(B, 0.4, vb9, va4, (va4[0], 36.3), (va4[0] + 0.8, 35.5), (va9[0] - 0.8, 35.5), (va9[0], 36.3), va9, vb4, net=V)
+    r.t(B, 0.4, (24.6, 35.5), (25.6, 34.5), (25.6, 25.5), (25.4, 25.3), net=V); r.v((25.4, 25.3), net=V)
     r.t(F, 0.4, (25.4, 25.3), "C4.1")
     r.t(B, 0.4, (25.6, 30.1), (24.85, 29.35), (24.1, 29.35), net=V); r.v((24.1, 29.35), net=V)
     r.t(F, 0.3, (24.1, 29.35), "U12.5")
-    for pp, x in (("J3.A1", 20.75), ("J3.A12", 27.45)):
-        r.t(F, 0.4, pp, (x, 37.45)); r.v((x, 37.45), net="GND")
+    # GND: outer pins into the shell pads, every shell pad its own via
+    for pp, sx, sy in (("J3.A1", -1, -1), ("J3.A12", 1, -1), ("J3.B12", -1, 1), ("J3.B1", 1, 1)):
+        x0 = JX + sx * 2.75
+        r.t(F, 0.4, pp, (x0, JY + sy * 1.4), (JX + sx * 2.29, JY + sy * 1.86), net="GND")
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            r.t(F, 0.4, (JX + sx * 2.29, JY + sy * 2.08), (JX + sx * 3.15, JY + sy * 2.08), net="GND")
+            r.v((JX + sx * 3.15, JY + sy * 2.08), net="GND")
 
     # ================= BOOT button: IO0 runs under the module on B.Cu =================
     r.t(F, 0.25, "U4.27", (49.85, 17.6)); r.v((49.85, 17.6))
@@ -721,7 +743,8 @@ def build():
     stage_x = W + 10
     for ref, (val, fpid, ts, lcsc) in sorted(comps.items()):
         lib, name = fpid.split(":")
-        m = pcbnew.FootprintLoad(f"{FPLIB}/{lib}.pretty", name)
+        libdir = PROJ_FPLIB if os.path.isdir(f"{PROJ_FPLIB}/{lib}.pretty") else FPLIB
+        m = pcbnew.FootprintLoad(f"{libdir}/{lib}.pretty", name)
         assert m is not None, fpid
         m.SetFPID(pcbnew.LIB_ID(lib, name))
         if name in OWN_MODELS:  # KiCad has no model for these: own ones (scripts/gen_3d_jst_ph_sm4.py)

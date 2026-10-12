@@ -685,7 +685,7 @@ FOOTPRINTS = {
     "C19": "Capacitor_SMD:C_0805_2012Metric", "C22": "Capacitor_SMD:C_0805_2012Metric", "C20": "Capacitor_SMD:C_0805_2012Metric",
     "J1": "Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
     "J2": "Connector_JST:JST_SH_SM07B-SRSS-TB_1x07-1MP_P1.00mm_Horizontal",
-    "J3": "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal",
+    "J3": "lasertag:USB_C_Receptacle_HRO_TYPE-C-31-E-17_Vertical",  # project library, vertical
     "BT1": PH2, "SP1": PH2,
     "M1": SH2, "LED1": SH2, "SW1": SH2, "SW2": SH2,
     "SW3": "Button_Switch_SMD:SW_SPST_B3U-1000P", "SW4": "Button_Switch_SMD:SW_SPST_B3U-1000P",
@@ -699,7 +699,7 @@ LCSC = {
     "R7": "C17903",
     "C1": "C723734", "C10": "C723734", "C7": "C49066", "C3": "C7193",
     "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783",
-    "J1": "C265101", "J2": "C160406", "J3": "C5184243", "BT1": "C225233", "SP1": "C225233",
+    "J1": "C265101", "J2": "C160406", "J3": "C7424785", "BT1": "C225233", "SP1": "C225233",
     "M1": "C160402", "LED1": "C160402", "SW1": "C160402", "SW2": "C160402",
     "SW3": "C231329", "SW4": "C231329", "J4": "C160404", "J5": "C160404",
     "J6": "C7430445",  # ZX-SH1.0-3PWT, JST SM03B-compatible (C160403 out of stock)

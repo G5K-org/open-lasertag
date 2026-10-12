@@ -31,6 +31,9 @@ Abzug/Nachladen, WS2812, Weste (Sensoren) und Vibration.
 
 Schaltplan ([kiutils][1]) und Platine (pcbnew) werden per Python erzeugt und
 mit `kicad-cli` geprüft; die Generator-Skripte liegen in [`scripts/`](scripts/).
+Der Footprint der senkrechten USB-C-Buchse (J3) liegt in der Projektbibliothek
+[`footprints/lasertag.pretty`](footprints/lasertag.pretty) (`fp-lib-table`), ihr 3D-Modell
+erzeugt `freecadcmd scripts/gen_3d_usb_c_vertical.py`.
 3D-Modelle der JST-PH-SMD-Stecker (BT1, SP1, J1) liegen in [`3dmodels/`](3dmodels/)
 (STEP + WRL, erzeugt mit `freecadcmd scripts/gen_3d_jst_ph_sm4.py`).
 
@@ -38,11 +41,11 @@ mit `kicad-cli` geprüft; die Generator-Skripte liegen in [`scripts/`](scripts/)
 
 ## Bauteile
 
-Alle Bauteile sind Symbole aus den KiCad-Standardbibliotheken, u. a.
+Alle Symbole stammen aus den KiCad-Standardbibliotheken, u. a.
 `ESP32-S3-WROOM-1` (`U4`), `USB_C_Receptacle_USB2.0_16P` (`J3`),
 `USBLC6-2SC6`, `MT3608`, `MCP73831-2-OT`, `AMS1117-3.3`, `TSOP348xx`,
 `MAX98357A`, `AO3400A`, `74AHCT125`, `SS14`, `SS34`. Alle Footprints sind
-SMD; Bauteile außerhalb der Platine (Akku, IR-LED, TSOP 6, Taster, Motoren,
+SMD, J3 aus der Projektbibliothek; Bauteile außerhalb der Platine (Akku, IR-LED, TSOP 6, Taster, Motoren,
 Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 
 ## Design-Entscheidungen im Schaltplan
@@ -52,6 +55,8 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   - EN mit 10 kΩ Pull-up und 1 µF (Power-on-Reset), dazu RESET-Taster
   - BOOT-Taster an IO0
 - **USB-C (`J3`) am nativen USB des S3** (IO19/IO20 = USB_D−/USB_D+):
+  - senkrechte Buchse HRO TYPE-C-31-E-17 (LCSC C7424785), 6,0 mm hoch, mit Dichtring;
+    Stecker kommt von der Bestückungsseite (in der Waffe durch die linke Seitenwand)
   - Flashen und serielle Konsole über den eingebauten USB-Serial-JTAG –
     esptool setzt das Modul automatisch in den Download-Modus, ohne
     USB-UART-Chip
@@ -95,15 +100,18 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   Lautsprecherstecker; Ø 3,7 mm kupferfrei auf allen Lagen
 - **Bedienung:** J4 OLED (JST-SH 4, Qwiic: GND/3V3/SDA/SCL) und J5 Drehgeber (JST-SH 4:
   GND/Taster/B/A) übereinander im rechten Streifen; I²C-Pull-ups auf dem OLED-Modul
-- **Stecker:** links IR-LED (LED1)/TSOP 6 (J6)/Abzug/Nachladen, unten WS2812/USB-C/Sensor/
-  Lautsprecher, rechts Vibrationsmotor, rechts oben OLED/Drehgeber, oben links Akku
+- **Stecker:** links IR-LED (LED1)/TSOP 6 (J6)/Abzug/Nachladen, unten WS2812/Sensor/
+  Lautsprecher, rechts Vibrationsmotor, rechts oben OLED/Drehgeber, oben links Akku;
+  USB-C (J3) senkrecht zwischen WS2812- und Sensorstecker, CC2-Widerstand R22 direkt darunter
 - **Regeln (`.kicad_pro`):** min. 0,15 mm Leiterbahn/Abstand, Vias 0,5/0,3 mm
   (USB-Kreuzung 0,4/0,2 mm), Netzklassen Default 0,2 mm, Power 0,5 mm,
   3V3 0,6 mm, USB 0,2/0,2 mm (Paar)
 - **Leiterbahnen so kurz wie möglich** auf allen Lagen: lange Wege als ein 45°-Abschnitt
   statt L-Form; parallele Bündel bleiben parallel und kreuzungsfrei
-- **USB-Paar gleich lang:** D+ mit Mäander zwischen Modul und USBLC6, jeder Abschnitt
-  D+/D− auf 0,000 mm gleich (Leiterbahnlänge)
+- **USB-Paar gleich lang:** D+ mit Mäander zwischen Modul und USBLC6 und zwischen USBLC6
+  und Buchse; an der Buchse D+ über ein Via in der Buchsenmitte (A6–B6-Diagonale), D− über eine
+  B.Cu-Brücke A7–B7 mit Abgriff in der Längenmitte; beide Steckrichtungen gleich lang
+  (Modul–USBLC6 0,000 mm, USBLC6–Buchse ≤ 0,01 mm, je 2 Vias)
 - **Beschriftung oben** (F.SilkS), alle Labels waagerecht und einheitlich 0,8 mm hoch,
   direkt am jeweiligen Stecker/Taster, frei von Pads, Vias und Bauteilkörpern; Labels einer
   Steckerspalte auf gemeinsamer Mittelachse, untere Stecker mittig beschriftet; Pin 1 von J2
