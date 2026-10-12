@@ -115,13 +115,13 @@ HALF_L = m3.Manifold.cube((1000, 1000, 100)).translate((-500, -500, 0))
 HALF_R = HALF_L.translate((0, 0, -100))
 
 
-def steg():
-    """Gekürzter Steg Gehäuse <-> Schaft: einer der beiden Rundstäbe Ø 10 x 100 aus obj_8_8."""
+def steg(length=STEG_L):
+    """Gekürzter Steg (Standard: Gehäuse <-> Schaft): einer der beiden Rundstäbe Ø 10 x 100 aus obj_8_8."""
     tm = trimesh.load(os.path.join(SRC, "obj_8_8.stl")).split(only_watertight=False)[0]
     bar = m3.Manifold(m3.Mesh(vert_properties=np.asarray(tm.vertices, np.float32),
                               tri_verts=np.asarray(tm.faces, np.uint32)))
     lo, hi = tm.bounds
-    keep = m3.Manifold.cube((50.0, 50.0, STEG_L)).translate((lo[0] - 20, lo[1] - 20, lo[2]))
+    keep = m3.Manifold.cube((50.0, 50.0, length)).translate((lo[0] - 20, lo[1] - 20, lo[2]))
     return bar ^ keep
 
 

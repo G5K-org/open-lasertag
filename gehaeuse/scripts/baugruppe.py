@@ -44,6 +44,7 @@ Y_REAR = 211.1      # Rückseite Gehäuse (oberer Teil)
 RING_L = 20.9       # Länge Zwischenring obj_5_5
 X_AXIS = 79.52      # Mitte Rohr/Handschutz (Ø 49,4 an der Vorderseite)
 X_REAR_BAR = 82.25  # Mitte hinterer Stegkanal
+STEG_VORN_L = 96.0  # vorderer Steg gekürzt: endet vor dem Zapfen des hinteren Handschutzes
 X_FRONT_BAR = 71.07  # Mitte vorderer Stegkanal (Tropfenkanal X 63,5..76,5, rund unten Ø 10,9)
 
 
@@ -130,7 +131,7 @@ NAMES = {
     "linsenhuelse": "Linsenhülse", "tsop_einsatz": "TSOP-Einsatz", "korn": "Korn",
     "spannhebel_stift": "Spannhebel Stift", "spannhebel_knauf": "Spannhebel Knauf",
     "schaft_links": "Schaft links", "schaft_rechts": "Schaft rechts", "oled_rahmen": "OLED-Rahmen",
-    "steg_vorn_100mm": "Steg vorn (Rundstab 100 mm)", "steg_hinten_77mm": "Steg hinten (Rundstab 77 mm)",
+    "steg_vorn_96mm": "Steg vorn (Rundstab 96 mm)", "steg_hinten_77mm": "Steg hinten (Rundstab 77 mm)",
     "magazin": "Magazin", "magazin_unterteil": "Magazin Unterteil", "abzug": "Abzug", "platine": "Platine",
 }
 # Herkunft im Originalsatz (mp5_toygun_stls)
@@ -138,7 +139,7 @@ ORIGINAL = {"gehaeuse_links": "obj_1_3", "gehaeuse_rechts": "obj_3_6", "zwischen
             "handschutz_hinten": "obj_10_2", "handschutz_vorn_links": "obj_10_2",
             "handschutz_vorn_rechts": "obj_10_2", "korn": "obj_7_1",
             "spannhebel_stift": "obj_11_12", "spannhebel_knauf": "obj_9_10", "schaft_links": "obj_4_7",
-            "schaft_rechts": "obj_2_4", "steg_vorn_100mm": "obj_8_8", "steg_hinten_77mm": "obj_8_8",
+            "schaft_rechts": "obj_2_4", "steg_vorn_96mm": "obj_8_8", "steg_hinten_77mm": "obj_8_8",
             "magazin": "obj_6_9"}
 
 
@@ -166,7 +167,7 @@ def parts():
          m4(np.eye(3), (374.2, rear_ref, 0), (X_REAR_BAR, Y_REAR, 0)), BLACK),
         (N["schaft_rechts"], mod("schaft_rechts"),
          m4(rot([[-1, 0, 0], [0, 1, 0], [0, 0, -1]]), (507.3, rear_ref_r, 0), (X_REAR_BAR, Y_REAR, 0)), BLACK),
-        (N["steg_vorn_100mm"], None, None, STEEL),
+        (N["steg_vorn_96mm"], None, None, STEEL),
         (N["steg_hinten_77mm"], None, None, STEEL),
         (N["magazin"], mod("magazin"), magazine(), BLACK),
     ] + new_parts()
@@ -251,10 +252,15 @@ def _knob_matrix(axis, y_hg):
     return m4(r, face, bottom + 7.5 * dg)         # 0,5 vor der Oberfläche der Mulde
 
 
+def steg_vorn():
+    """Vorderer Steg im Gun-Rahmen, hinteres Ende wie original 34,4 mm im Gehäuse."""
+    return bar(STEG_VORN_L, X_FRONT_BAR, Y_FRONT + 34.4 - STEG_VORN_L)
+
+
 def bar(length, x, y0):
     """Steg (Rundstab Ø 10 aus obj_8_8, ggf. gekürzt) entlang +Y ab y0, Achse bei (x, 0)."""
     if length < 100.0:
-        mm = P.steg().to_mesh()
+        mm = P.steg(length).to_mesh()
         b = trimesh.Trimesh(mm.vert_properties[:, :3], mm.tri_verts)
     else:
         b = load(os.path.join(SRC, "obj_8_8.stl")).split(only_watertight=False)[0]
@@ -272,7 +278,7 @@ def main():
     mm_scene = trimesh.Scene()
     for name, src, mat, color in parts():
         if name.startswith("Steg vorn"):
-            mesh = bar(100.0, X_FRONT_BAR, Y_FRONT + 34.4 - 100.0)
+            mesh = steg_vorn()
         elif name.startswith("Steg hinten"):
             mesh = bar(P.STEG_L, X_REAR_BAR, P.STOP[3])
         else:

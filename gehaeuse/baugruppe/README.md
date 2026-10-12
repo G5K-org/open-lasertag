@@ -27,8 +27,9 @@ Schnitt durch den Schalldämpfer (Linse, IR-LED, Ringlicht als Platzhalter):
 
 <img src="schnitt_schalldaempfer.png" width="640">
 
-Schnitt durch den Handschutz: Lautsprecher (rot, Platzhalter) strahlt nach hinten in die Schallkammer
-mit Löchern, davor die geschlossene Basskammer, oben der Kabelschacht und das Korn:
+Schnitt durch den Handschutz (rechte Hälfte): Lautsprecher (rot, Platzhalter) strahlt nach hinten in die
+Schallkammer mit Löchern, davor die geschlossene Basskammer, oben die Kabelnut und das Korn, rechts (blau)
+der Zapfen des hinteren Handschutzes:
 
 <img src="schnitt_lautsprecher.png" width="640">
 
@@ -41,10 +42,10 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 |---|---|
 | Gehäuse links / rechts | Bezug (Teilungsebene Z = 0), 6 × M3 verschraubt |
 | Zwischenring | vor dem Gehäuse, Profil und Stegkanal fluchtend |
-| Handschutz hinten, Handschutz vorn mit Schalldämpfer links / rechts | vor dem Zwischenring, geteilt am Lautsprecher (Y = −56); vorderer Teil links/rechts geteilt (Z = 0), 5 × M3 verschraubt |
+| Handschutz hinten, Handschutz vorn mit Schalldämpfer links / rechts | vor dem Zwischenring, geteilt bei Y = −32; vorderer Teil links/rechts geteilt (Z = 0), 5 × M3 verschraubt, umschließt den Zapfen des hinteren Teils (4 × M3) |
 | Linsenhülse, Frontkappe | vorn im bzw. auf dem Schalldämpfer |
 | TSOP-Einsatz | vorn an der Rundung unter dem Korn, über dem Schalldämpfer |
-| Steg vorn (Rundstab 100 mm) | Gehäuse 34 mm, Zwischenring 21 mm, Handschutz 45 mm (bis in die Kegelspitze des Kanals) |
+| Steg vorn (Rundstab 96 mm) | Gehäuse 34 mm, Zwischenring 21 mm, Handschutz hinten 41 mm (bis vor den Zapfen) |
 | Korn | Ring auf dem Rohr vorn am Handschutz, Steg im Schlitz |
 | Spannhebel Stift, Spannhebel Knauf | Stift im schrägen Loch der linken Mulde, Knauf außen darauf |
 | Schaft links / rechts, OLED-Rahmen | an der Gehäuserückseite; Rahmen in der Stufe des OLED-Sockels |

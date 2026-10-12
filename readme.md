@@ -148,7 +148,8 @@ verstellbare Linse, vorn das Ringlicht; der 18650-Akku steckt im Magazin, das OL
 angewinkelt vorn oben am Schaft, der Drehgeber unten im Griff, der Abzug löst einen Mikroschalter aus.
 Im Handschutz sitzt ein Lautsprecher Ø 40 mit Basskammer, vorn unter dem Korn der TSOP 6. Gehäusehälften
 (6 × M3) und die beiden Hälften des vorderen Handschutzes mit Schalldämpfer (5 × M3) sind mit
-Einschmelzmuttern verschraubt.
+Einschmelzmuttern verschraubt; die vorderen Hälften umschließen einen Zapfen am hinteren Handschutz
+und sind dort mit je 2 × M3 befestigt (ohne Kleber, lösbar).
 Umgebaute und neue Druckteile: [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/). Alle Teile samt
 Platine zusammengesetzt: [gehaeuse/baugruppe/](gehaeuse/baugruppe/) (GLB/3MF).
 
@@ -172,9 +173,10 @@ vorn die Frontkappe mit Ringlicht, unten der Kabelkanal für das Ringlicht.
 
 <img src="gehaeuse/baugruppe/schnitt_schalldaempfer.png" alt="Schnitt durch den Schalldämpfer: Linsenhülse mit Gewinde, Linse, IR-LED, Frontkappe mit Ringlicht" width="700">
 
-**Schnitt durch den Handschutz:** Lautsprecher Ø 40 (rot) strahlt nach hinten in eine Schallkammer
-mit Löchern in den Rillen, davor die geschlossene Basskammer (ca. 42 cm³); oben im Rohr der
-Kabelschacht, darüber das Korn.
+**Schnitt durch den Handschutz** (rechte Hälfte): Lautsprecher Ø 40 (rot) strahlt nach hinten in eine
+Schallkammer mit Löchern in den Rillen, davor die geschlossene Basskammer (ca. 42 cm³); oben der
+Kabelschacht als offene Nut an der Teilungsfläche, darüber das Korn; rechts (blau) der Zapfen des
+hinteren Handschutzes, den die vorderen Hälften umschließen.
 
 <img src="gehaeuse/baugruppe/schnitt_lautsprecher.png" alt="Schnitt durch den Handschutz: Lautsprecher, Schallkammer mit Löchern, Basskammer, Kabelschacht" width="700">
 

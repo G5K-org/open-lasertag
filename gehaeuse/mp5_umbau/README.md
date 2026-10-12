@@ -13,9 +13,9 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite), Abzugsmechanik, Kabelschächte, Motor, Drehgeber, Einschmelzmuttern |
 | `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte, Motor, Drehgeber, Schraubensenkungen |
 | `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht |
-| `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | Schallkammer mit Löchern in den Rillen, Kabelschacht |
-| `handschutz_vorn_links.stl` | Handschutz vorn mit Schalldämpfer links | `obj_10_2` | links/rechts geteilt (flach auf der Teilungsfläche), Einschmelzmuttern; Lautsprechertasche, Basskammer, TSOP-Aufnahme, Gewinde M24 × 1,5, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
-| `handschutz_vorn_rechts.stl` | Handschutz vorn mit Schalldämpfer rechts | `obj_10_2` | Gegenstück, Schraubensenkungen |
+| `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | einteilig, ab Y = −32; vorn Zapfen mit 4 Einschmelzmuttern, Kabelschacht |
+| `handschutz_vorn_links.stl` | Handschutz vorn mit Schalldämpfer links | `obj_10_2` | links/rechts geteilt (flach auf der Teilungsfläche), Einschmelzmuttern; Aufnahme für den Zapfen, Lautsprechertasche, Schallkammer mit Löchern, Basskammer, Kabelnut, TSOP-Aufnahme, Gewinde M24 × 1,5, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
+| `handschutz_vorn_rechts.stl` | Handschutz vorn mit Schalldämpfer rechts | `obj_10_2` | Gegenstück, Schraubensenkungen (auch für den Zapfen) |
 | `frontkappe.stl` | Frontkappe | neu | 12 Fenster für das Ringlicht (Front unten drucken) |
 | `linsenhuelse.stl` | Linsenhülse | neu | Gewinde M24 × 1,5 für die Linse Ø 20 |
 | `tsop_einsatz.stl` | TSOP-Einsatz | neu | Halter für den TSOP34838 mit Linsenfenster (Fensterseite oben drucken) |
@@ -25,7 +25,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | `schaft_links.stl` | Schaft links | `obj_4_7` | OLED-Sockel, Kabelschacht |
 | `schaft_rechts.stl` | Schaft rechts | `obj_2_4` | OLED-Sockel, Kabelschacht |
 | `oled_rahmen.stl` | OLED-Rahmen | neu | Fenster 24 × 14 mit Fase (Außenseite oben drucken) |
-| `steg_vorn_100mm.stl` | Steg vorn (Rundstab 100 mm) | `obj_8_8` | ein Stab, unverändert |
+| `steg_vorn_96mm.stl` | Steg vorn (Rundstab 96 mm) | `obj_8_8` | auf 96 mm gekürzt (endet vor dem Zapfen) |
 | `steg_hinten_77mm.stl` | Steg hinten (Rundstab 77 mm) | `obj_8_8` | auf 77 mm gekürzt |
 | `magazin.stl` | Magazin | `obj_6_9` | Akkuhalter (3 Rippen), unteres Drittel abgetrennt, Öffnung oben |
 | `magazin_unterteil.stl` | Magazin Unterteil | `obj_6_9` | abnehmbar, Zapfen stützt den Akku |
@@ -51,8 +51,8 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | Platine | M2 × 8 ISO 7380 (2 ×) |
 | Gehäusehälften | 6 × M3 × 10 ISO 4762, 6 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
 | Handschutz vorn | 5 × M3 × 10 ISO 4762, 5 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
+| Handschutz vorn ↔ hinten | 4 × M3 × 10 ISO 4762, 4 × Einschmelzmutter M3 × 5,7 (in den Zapfen) |
 | Lautsprecher | Ø 40 mm, 4–8 Ω, 2–3 W, bis 6 mm Einbautiefe |
-| Handschutz-Teilung | 2 × Stift Ø 2 × 12 mm |
 | TSOP 6 | TSOP34838 (6 × 6,95 × 5,6 mm) |
 
 ## Einbau
@@ -83,14 +83,18 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
   hinten über dem Griff, unten im Griff
 - **Handschutz vorn mit Schalldämpfer** links/rechts geteilt (Z = 0), beide Hälften flach drucken:
   Einschmelzmuttern in die linke Hälfte, Schrauben M3 × 10 von rechts (Kopf versenkt); 2 Schrauben
-  direkt vor der Basskammer, 3 am Schalldämpfer. Lautsprecher, LED, TSOP-Einsatz und Kabel vor dem Verschrauben einlegen.
-  Der Handschutz hinten bleibt einteilig
-- **Lautsprecher** Ø 40 im Handschutz, Teilung bei Y = −56: Lautsprecher in die Tasche des vorderen
-  Teils legen (Membran nach hinten), Kabel durch die kleine Bohrung in den Schacht und abdichten
-  (Basskammer ca. 42 cm³ bleibt geschlossen), hinteren Teil mit 2 Stiften Ø 2 (einer je Hälfte) aufsetzen und verkleben.
-  Der Schall geht durch 2 Reihen Löcher Ø 1,8 in den Rillen zwischen den Rippen
+  direkt vor der Basskammer, 3 am Schalldämpfer. Lautsprecher, LED, TSOP-Einsatz und Kabel vor dem Verschrauben einlegen
+- **Handschutz vorn ↔ hinten:** der hintere Handschutz (einteilig) hat vorn einen Zapfen (Hals Ø 22, Kopf Ø 33
+  mit zwei Flächen); die vorderen Hälften umschließen ihn formschlüssig (zieht nicht ab, verdreht nicht).
+  4 Einschmelzmuttern seitlich in die Flächen des Kopfs, jede Hälfte mit 2 × M3 × 10 von außen
+  (Kopf versenkt) daran schrauben, dann die Hälften miteinander verschrauben. Kein Kleber, alles lösbar
+- **Lautsprecher** Ø 40 im vorderen Handschutz: in die Tasche einer Hälfte legen (Membran nach hinten zur
+  Schallkammer), Kabel durch die kleine Bohrung in die Kabelnut und abdichten (Basskammer ca. 42 cm³
+  bleibt geschlossen). Der Schall geht durch 2 Reihen Löcher Ø 1,8 in den Rillen zwischen den Rippen
 - **TSOP 6** vorn an der Rundung unter dem Korn, über dem Schalldämpfer, Linse nach vorn: TSOP von
   hinten in den Einsatz schieben, Kabel an die Beinchen (zeigen nach unten), Einsatz in die Aufnahme
   stecken; Kabel senkrecht nach unten in den Hauptschacht
 - **Kabelschächte** laufen als gerade Stücke in beliebiger Richtung (auch diagonal), z. B. vom OLED
-  schräg durch das Gehäuse und im Handschutz oben im Rohr um den Lautsprecher herum
+  schräg durch das Gehäuse und im Handschutz oben im Rohr um den Lautsprecher herum. Dieses Stück liegt
+  als offene Nut an der Teilungsfläche der rechten Hälfte: Kabel einlegen, dann durch die Bohrung im
+  Zapfen in den hinteren Handschutz

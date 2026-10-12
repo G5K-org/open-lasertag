@@ -9,8 +9,9 @@ Einbauten:
   - Schalldämpfer: Innengewinde M24 x 1,5 für die Linsenhülse (Linse Ø 20 x 7), IR-LED 5 mm 21 mm
     hinter der Linse, Ringlicht 12 x WS2812 (Ø 36,8/23,3) in einer Frontkappe mit 12 Fenstern
   - Kabelschacht von der Mündung bis in die Platinentasche, Abzweig in den Magazinschacht
-  - Handschutz vorn mit Schalldämpfer links/rechts geteilt, 5 x M3 x 10 mit Einschmelzmuttern
-  - Lautsprecher Ø 40 im Handschutz (geteilt), strahlt nach hinten in eine Schallkammer mit Löchern
+  - Handschutz vorn mit Schalldämpfer links/rechts geteilt, 5 x M3 x 10 mit Einschmelzmuttern; umschließt
+    einen Zapfen am hinteren Handschutz, je Hälfte 2 x M3 x 10 in Einschmelzmuttern im Zapfen
+  - Lautsprecher Ø 40 im vorderen Handschutz, strahlt nach hinten in eine Schallkammer mit Löchern
     in den Rillen, geschlossene Basskammer davor
   - TSOP 6 vorn an der Rundung unter dem Korn, über dem Schalldämpfer: Aufnahme + gedruckter Einsatz
   - Magazin: Halter für 1 x 18650, abnehmbarer Boden, Öffnung oben für Kabel und JST-PH-Stecker
@@ -72,12 +73,19 @@ WIRE_R = 15.5                 # Kanal für die Ringlicht-Kabel (Radius, unten)
 
 # ---------------------------------------------------------------- Lautsprecher im Handschutz
 SPK = (40.0, 6.0)             # Lautsprecher Ø, Einbautiefe (Korb + Magnet + Anschlüsse)
-SPLIT_Y = -56.0               # Teilung des Handschutzes = Vorderkante Lautsprecher (strahlt nach hinten)
-SOUND = (36.0, 9.0)           # Schallkammer hinter der Membran (hinterer Teil): Ø, Länge
-BASS = (37.0, 39.0)           # geschlossene Kammer hinter dem Magneten (vorderer Teil): Ø, Länge (ca. 42 cm³)
+SPK_Y = -56.0                 # Vorderkante Lautsprecher (strahlt nach hinten in die Schallkammer)
+SOUND = (36.0, 9.0)           # Schallkammer hinter der Membran: Ø, Länge
+BASS = (37.0, 39.0)           # geschlossene Kammer hinter dem Magneten: Ø, Länge (ca. 42 cm³)
 HOLES_D = 1.8                 # Schalllöcher in den Rillen zwischen den Rippen
 RIB_VALLEY_Z0, RIB_PITCH = 1.5, 4.0   # Rillen im Handschutz (z ab Rückseite)
-PIN = (56.5, 6.0, 2.2, 7.0)   # Stifte Ø 2 an der Teilung: X, ±Z, Bohrung, Tiefe je Seite
+# Verbindung Handschutz hinten <-> vorn (statt Stiften und Kleber): Zapfen vorn am hinteren Teil (Hals + Kopf mit
+# zwei Flächen), die beiden vorderen Hälften umschließen ihn formschlüssig; je Hälfte 2 x M3 x 10 quer in
+# Einschmelzmuttern im Kopf. Lautsprecher, Schall- und Basskammer liegen damit ganz im vorderen Teil.
+JOINT_Y = -32.0               # Teilung hinten/vorn (vorderer Steg auf 96 mm gekürzt, endet bei -31,6)
+NECK = (11.0, 3.0)            # Hals: Radius, Länge
+HEAD_J = (16.5, 8.0, 10.5)    # Kopf: Radius, Länge, halber Abstand der Flächen (Z, Auflage der Muttern)
+JOINT_CLR = (0.2, 0.1, 0.3)   # Spiel radial, Schulter axial, vor dem Kopf
+JOINT_SCREWS = (69.0, 90.0)   # X der Querschrauben (Y = Kopfmitte), je eine von links und rechts
 LOBE = (52.5, -3.0)           # Kabelschacht weicht hier oben ins Rohr aus (X, Z), weg vom Spannhebel-Loch
 
 # ---------------------------------------------------------------- TSOP 6 an der Waffe
@@ -453,27 +461,53 @@ def speaker(y_back):
     """Schnitte im Handschutz für den Lautsprecher; liefert (Schnitt, Kabelschacht im Handschutz)."""
     ax, az = AX
     d, depth = SPK
-    cut = cyl((ax, SPLIT_Y - depth, az), (ax, SPLIT_Y + 0.01, az), d / 2 + 0.2)             # Lautsprecher (vorderer Teil)
-    cut = cut + cyl((ax, SPLIT_Y - depth - BASS[1], az), (ax, SPLIT_Y - depth + 0.01, az), BASS[0] / 2)   # Basskammer
-    cut = cut + cyl((ax, SPLIT_Y - 0.01, az), (ax, SPLIT_Y + SOUND[1], az), SOUND[0] / 2)   # Schallkammer
+    cut = cyl((ax, SPK_Y - depth, az), (ax, SPK_Y + 0.01, az), d / 2 + 0.2)               # Lautsprecher
+    cut = cut + cyl((ax, SPK_Y - depth - BASS[1], az), (ax, SPK_Y - depth + 0.01, az), BASS[0] / 2)   # Basskammer
+    cut = cut + cyl((ax, SPK_Y - 0.01, az), (ax, SPK_Y + SOUND[1], az), SOUND[0] / 2)   # Schallkammer
     # Schalllöcher radial in den Rillen über der Schallkammer, unten und seitlich
     for k in range(40):
         z = RIB_VALLEY_Z0 + RIB_PITCH * k
         y = y_back - z
-        if not (SPLIT_Y + 1.5 < y < SPLIT_Y + SOUND[1] - 1.0):
+        if not (SPK_Y + 1.5 < y < SPK_Y + SOUND[1] - 1.0):
             continue
         for a in np.radians(np.arange(-110, 110.1, 12.5)):
             dirn = np.array([np.cos(a), 0, np.sin(a)])
             p0 = np.array([ax, y, az]) + dirn * (SOUND[0] / 2 - 1)
             cut = cut + cyl(p0, p0 + dirn * 10, HOLES_D / 2, 16)
     # Kabel des Lautsprechers aus der Basskammer in den Schacht (nach dem Löten abdichten)
-    cut = cut + cyl((ax - BASS[0] / 2 + 1, SPLIT_Y - depth - 4, LOBE[1]), (LOBE[0], SPLIT_Y - depth - 4, LOBE[1]), 1.25)
-    # Stifte an der Teilung
-    for z in (-PIN[1], PIN[1]):
-        cut = cut + cyl((PIN[0], SPLIT_Y - PIN[3], z), (PIN[0], SPLIT_Y + PIN[3], z), PIN[2] / 2, 24)
-    trunk = path([(TRUNK[0], -156.0, 0), (TRUNK[0], -116.0, 0), (LOBE[0], -103.0, LOBE[1]), (LOBE[0], -44.0, LOBE[1]),
-                  (TRUNK[0], -40.5, 0), (TRUNK[0], 12.0, 0)], TRUNK[1])
+    cut = cut + cyl((ax - BASS[0] / 2 + 1, SPK_Y - depth - 4, LOBE[1]), (LOBE[0], SPK_Y - depth - 4, LOBE[1]), 1.25)
+    pts = [(TRUNK[0], -156.0, 0), (TRUNK[0], -116.0, 0), (LOBE[0], -103.0, LOBE[1]), (LOBE[0], -44.0, LOBE[1]),
+           (TRUNK[0], -40.5, 0), (TRUNK[0], 12.0, 0)]
+    trunk = path(pts, TRUNK[1])
+    # wo der Schacht neben der Teilungsebene läuft: Nut bis zur Teilungsfläche, Kabel wird eingelegt
+    for a, b in zip(pts[1:4], pts[2:5]):
+        a0, b0 = (a[0], a[1], 0.0), (b[0], b[1], 0.0)
+        trunk = trunk + m3.Manifold.batch_hull([capsule(a, b, TRUNK[1]), capsule(a0, b0, TRUNK[1])])
     return cut, trunk
+
+
+def joint():
+    """Zapfen am hinteren Handschutz, Aussparung in den vorderen Hälften, Querschrauben (Gun-Rahmen)."""
+    ax, az = AX
+    (rn, ln), (rh, lh, zf), (cr, ca, cf) = NECK, HEAD_J, JOINT_CLR
+    y_head = JOINT_Y - ln                                   # Rückseite des Kopfs
+    flats = box(-500, 500, -500, 500, -zf, zf)
+    spigot = cyl((ax, y_head - 0.01, az), (ax, JOINT_Y + 2.0, az), rn)
+    spigot = spigot + (cyl((ax, y_head - lh, az), (ax, y_head, az), rh) ^ flats)
+    spigot = spigot - cyl((B.X_FRONT_BAR, JOINT_Y - 0.1, 0), (B.X_FRONT_BAR, JOINT_Y + 3.0, 0), 5.45)   # Stegkanal frei
+    pocket = cyl((ax, y_head - 0.01, az), (ax, JOINT_Y + 1.0, az), rn + cr)
+    pocket = pocket + (cyl((ax, y_head - lh - cf, az), (ax, y_head + ca, az), rh + cr) ^ box(-500, 500, -500, 500, -zf - cr, zf + cr))
+    yc = y_head - lh / 2
+    nut, hole = None, None
+    for x in JOINT_SCREWS:
+        for sgn in (1, -1):
+            n = cyl((x, yc, sgn * (zf + 0.01)), (x, yc, sgn * (zf - INSERT[1])), INSERT[0] / 2, 32)
+            seat = zf + cr + 3.3                            # Wand unter dem Schraubenkopf
+            h = cyl((x, yc, sgn * (zf - 0.5)), (x, yc, sgn * seat), SCREW_HOLE / 2, 32)
+            h = h + cyl((x, yc, sgn * seat), (x, yc, sgn * 40.0), HEAD[0] / 2, 32)
+            nut = n if nut is None else nut + n
+            hole = h if hole is None else hole + h
+    return spigot - nut, pocket + hole
 
 
 def screws(points=None):
@@ -515,9 +549,10 @@ def build():
     scut, strunk = speaker(B.Y_FRONT - B.RING_L)
     tcut, tsop_ins, tsop_loc = tsop()
     hg = hg + (add ^ hg.hull()) - ocut - scut - strunk - tcut
-    split = box(-500, 500, SPLIT_Y, 500, -500, 500)
-    hg_rear, hg_front = hg ^ split, hg - split
-    hg_front = hg_front - screws(HG_SCREWS)
+    split = box(-500, 500, JOINT_Y, 500, -500, 500)
+    spigot, pocket = joint()
+    hg_rear = (hg ^ split) + (spigot - strunk)
+    hg_front = hg - split - pocket - screws(HG_SCREWS)
     hg_front_l, hg_front_r = hg_front ^ P.HALF_L, hg_front ^ P.HALF_R
     ring = load_gun("obj_5_5", ring_mat) - capsule((TRUNK[0], 5.0, 0), (TRUNK[0], 35.0, 0), TRUNK[1])
     stocks = {}
@@ -539,8 +574,7 @@ def build():
     save_orig(mag_body, mag_mat, os.path.join(OUT, "magazin.stl"))
     P.save(P.steg(), os.path.join(OUT, f"steg_hinten_{P.STEG_L:.0f}mm.stl"))
     # unveränderte Teile, nur umbenannt
-    rods = trimesh.load(os.path.join(P.SRC, "obj_8_8.stl")).split(only_watertight=False)
-    rods[0].export(os.path.join(OUT, "steg_vorn_100mm.stl"))
+    P.save(P.steg(B.STEG_VORN_L), os.path.join(OUT, f"steg_vorn_{B.STEG_VORN_L:.0f}mm.stl"))
     for key, orig in (("korn", "obj_7_1"), ("spannhebel_stift", "obj_11_12"), ("spannhebel_knauf", "obj_9_10")):
         trimesh.load(os.path.join(P.SRC, orig + ".stl")).export(os.path.join(OUT, key + ".stl"))
 
