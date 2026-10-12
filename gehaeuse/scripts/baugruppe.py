@@ -121,8 +121,27 @@ def board(tmp):
     return scene, g @ s
 
 
+# Eindeutige Teilenamen: Schlüssel = Dateiname in mp5_umbau/ (ohne .stl), Wert = Name in der Baugruppe
+NAMES = {
+    "gehaeuse_links": "Gehäuse links", "gehaeuse_rechts": "Gehäuse rechts",
+    "zwischenring": "Zwischenring", "handschutz_hinten": "Handschutz hinten",
+    "handschutz_vorn": "Handschutz vorn mit Schalldämpfer", "frontkappe": "Frontkappe",
+    "linsenhuelse": "Linsenhülse", "tsop_einsatz": "TSOP-Einsatz", "korn": "Korn",
+    "spannhebel_stift": "Spannhebel Stift", "spannhebel_knauf": "Spannhebel Knauf",
+    "schaft_links": "Schaft links", "schaft_rechts": "Schaft rechts", "oled_rahmen": "OLED-Rahmen",
+    "steg_vorn_100mm": "Steg vorn (Rundstab 100 mm)", "steg_hinten_77mm": "Steg hinten (Rundstab 77 mm)",
+    "magazin": "Magazin", "magazin_unterteil": "Magazin Unterteil", "abzug": "Abzug", "platine": "Platine",
+}
+# Herkunft im Originalsatz (mp5_toygun_stls)
+ORIGINAL = {"gehaeuse_links": "obj_1_3", "gehaeuse_rechts": "obj_3_6", "zwischenring": "obj_5_5",
+            "handschutz_hinten": "obj_10_2", "handschutz_vorn": "obj_10_2", "korn": "obj_7_1",
+            "spannhebel_stift": "obj_11_12", "spannhebel_knauf": "obj_9_10", "schaft_links": "obj_4_7",
+            "schaft_rechts": "obj_2_4", "steg_vorn_100mm": "obj_8_8", "steg_hinten_77mm": "obj_8_8",
+            "magazin": "obj_6_9"}
+
+
 def parts():
-    """(Name, Mesh, Matrix in den Gun-Rahmen, Farbe)."""
+    """(Name, Datei, Matrix in den Gun-Rahmen, Farbe)."""
     to_right = np.linalg.inv(np.vstack([P.TO_RIGHT, [0, 0, 0, 1]]))
     rear_ref = load(os.path.join(SRC, "obj_4_7.stl")).vertices[:, 1].min()
     rear_ref_r = load(os.path.join(SRC, "obj_2_4.stl")).vertices[:, 1].min()
@@ -131,36 +150,42 @@ def parts():
     knob_axis = np.array([-0.385, 0.923, 0.0]); knob_axis /= np.linalg.norm(knob_axis)
     y_hg = Y_FRONT - RING_L                       # Rückseite Handschutz
     hg = m4(rot([[0, 0, 1], [-1, 0, 0], [0, -1, 0]]), (200.27, 60.73, 0), (X_AXIS, y_hg, 0))
+    N = NAMES
     out = [
-        ("Gehaeuse links (obj_1_3)", mod("obj_1_3_links", "obj_1_3"), np.eye(4), DARK),
-        ("Gehaeuse rechts (obj_3_6)", mod("obj_3_6_rechts", "obj_3_6"), to_right, DARK),
-        ("Zwischenring (obj_5_5)", mod("obj_5_5_zwischenring", "obj_5_5"),
+        (N["gehaeuse_links"], mod("gehaeuse_links"), np.eye(4), DARK),
+        (N["gehaeuse_rechts"], mod("gehaeuse_rechts"), to_right, DARK),
+        (N["zwischenring"], mod("zwischenring"),
          m4(rot([[0, 0, -1], [1, 0, 0], [0, -1, 0]]), (37.7, -182.72, 0), (X_AXIS, Y_FRONT, 0)), BLACK),
-        ("Handschutz + Schalldaempfer (obj_10_2)", mod("obj_10_2_handschutz_vorn", "obj_10_2"), hg, BLACK),
-        ("Handschutz hinten (obj_10_2)", mod("obj_10_2_handschutz_hinten", None), hg, BLACK),
-        ("Korn (obj_7_1)", "obj_7_1", _sight_matrix(n_sight, a_sight, y_hg), BLACK),
-        ("Spannhebel Stift (obj_11_12)", "obj_11_12", _rod_matrix(y_hg), STEEL),
-        ("Spannhebel Knauf (obj_9_10)", "obj_9_10", _knob_matrix(knob_axis, y_hg), BLACK),
-        ("Schaft links (obj_4_7)", mod("obj_4_7_schaft_links", "obj_4_7"),
+        (N["handschutz_vorn"], mod("handschutz_vorn"), hg, BLACK),
+        (N["handschutz_hinten"], mod("handschutz_hinten", None), hg, BLACK),
+        (N["korn"], mod("korn"), _sight_matrix(n_sight, a_sight, y_hg), BLACK),
+        (N["spannhebel_stift"], mod("spannhebel_stift"), _rod_matrix(y_hg), STEEL),
+        (N["spannhebel_knauf"], mod("spannhebel_knauf"), _knob_matrix(knob_axis, y_hg), BLACK),
+        (N["schaft_links"], mod("schaft_links"),
          m4(np.eye(3), (374.2, rear_ref, 0), (X_REAR_BAR, Y_REAR, 0)), BLACK),
-        ("Schaft rechts (obj_2_4)", mod("obj_2_4_schaft_rechts", "obj_2_4"),
+        (N["schaft_rechts"], mod("schaft_rechts"),
          m4(rot([[-1, 0, 0], [0, 1, 0], [0, 0, -1]]), (507.3, rear_ref_r, 0), (X_REAR_BAR, Y_REAR, 0)), BLACK),
-        ("Steg vorn (obj_8_8)", None, None, STEEL),
-        ("Steg hinten, gekuerzt", None, None, STEEL),
-        ("Magazin (obj_6_9)", mod("obj_6_9_magazin", "obj_6_9"), magazine(), BLACK),
+        (N["steg_vorn_100mm"], None, None, STEEL),
+        (N["steg_hinten_77mm"], None, None, STEEL),
+        (N["magazin"], mod("magazin"), magazine(), BLACK),
     ] + new_parts()
     return [p for p in out if p[1] is not None or p[0].startswith("Steg")]
 
 
-def mod(name, orig):
-    """Geändertes Teil aus mp5_umbau (gleiche Drucklage wie das Original), sonst das Original."""
-    p = os.path.join(MOD, name + ".stl")
-    return p if os.path.exists(p) else orig
+def key_of(name):
+    return next(k for k, v in NAMES.items() if v == name)
 
 
-NEW = {"abzug": ("Abzug", DARK), "linsenhuelse": ("Linsenhuelse", STEEL), "frontkappe": ("Frontkappe", BLACK),
-       "magazinboden": ("Magazinboden", BLACK), "oled_rahmen": ("OLED-Rahmen", BLACK),
-       "tsop_einsatz": ("TSOP-Einsatz", BLACK)}
+def mod(key, fallback=""):
+    """Teil aus mp5_umbau (gleiche Drucklage wie das Original), sonst das Original."""
+    p = os.path.join(MOD, key + ".stl")
+    if os.path.exists(p):
+        return p
+    return ORIGINAL.get(key) if fallback == "" else fallback
+
+
+NEW = {"abzug": DARK, "linsenhuelse": STEEL, "frontkappe": BLACK, "magazin_unterteil": BLACK,
+       "oled_rahmen": BLACK, "tsop_einsatz": BLACK}
 
 
 def new_parts():
@@ -169,7 +194,7 @@ def new_parts():
     if not os.path.exists(path):
         return []
     lage = json.load(open(path))
-    return [(NEW[k][0], os.path.join(MOD, k + ".stl"), np.array(m), NEW[k][1]) for k, m in lage.items()]
+    return [(NAMES[k], os.path.join(MOD, k + ".stl"), np.array(m), NEW[k]) for k, m in lage.items() if k in NEW]
 
 
 def _hg_to_gun(p, y_hg):

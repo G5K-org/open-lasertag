@@ -6,22 +6,32 @@ Geänderte Originalteile liegen in derselben Drucklage wie die Originale, neue T
 
 ## Dateien
 
-| Datei | ersetzt / neu | Inhalt |
-|---|---|---|
-| `obj_1_3_links.stl`, `obj_3_6_rechts.stl` | `obj_1_3`, `obj_3_6` | Platinentasche, Abzugsmechanik, Kabelschächte, Motor, Drehgeber, 6 Schraubstellen (Kimme bleibt) |
-| `obj_4_7_schaft_links.stl`, `obj_2_4_schaft_rechts.stl` | `obj_4_7`, `obj_2_4` | OLED-Sockel in der Schrägfläche vorn oben, Kabelschacht |
-| `obj_10_2_handschutz_vorn.stl` | `obj_10_2` (vorderer Teil) | Lautsprechertasche mit Basskammer, TSOP-Aufnahme, Innengewinde für die Linsenhülse, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
-| `obj_10_2_handschutz_hinten.stl` | `obj_10_2` (hinterer Teil) | Schallkammer mit Löchern in den Rillen, Kabelschacht |
-| `obj_5_5_zwischenring.stl` | `obj_5_5` | Kabelschacht |
-| `obj_6_9_magazin.stl` | `obj_6_9` | Akkuhalter (3 Rippen), unteres Drittel abgetrennt, Öffnung oben |
-| `steg_schaft_77mm.stl` | ein Stab aus `obj_8_8` | Steg zum Schaft, 77 mm |
-| `abzug.stl` | neu | Abzug mit Nabe und Hebel (flach drucken) |
-| `linsenhuelse.stl` | neu | Hülse M24 × 1,5 für die Linse Ø 20 |
-| `frontkappe.stl` | neu | Kappe vorn am Schalldämpfer, 12 Fenster für das Ringlicht |
-| `magazinboden.stl` | neu | abnehmbares Magazin-Unterteil mit Zapfen (stützt den Akku) |
-| `oled_rahmen.stl` | neu | Rahmen über dem OLED, Fenster 24 × 14 mit Fase (Außenseite oben drucken) |
-| `tsop_einsatz.stl` | neu | Einsatz für den TSOP mit Linsenfenster (Fensterseite oben drucken) |
-| `lage.json` | – | Lage der neuen Teile in der Waffe (für `baugruppe.py`) |
+Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Knoten in der Baugruppe).
+
+| Datei | Teil | aus Original | Änderung |
+|---|---|---|---|
+| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite), Abzugsmechanik, Kabelschächte, Motor, Drehgeber, Einschmelzmuttern |
+| `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte, Motor, Drehgeber, Schraubensenkungen |
+| `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht |
+| `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | Schallkammer mit Löchern in den Rillen, Kabelschacht |
+| `handschutz_vorn.stl` | Handschutz vorn mit Schalldämpfer | `obj_10_2` | Lautsprechertasche, Basskammer, TSOP-Aufnahme, Gewinde M24 × 1,5, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
+| `frontkappe.stl` | Frontkappe | neu | 12 Fenster für das Ringlicht (Front unten drucken) |
+| `linsenhuelse.stl` | Linsenhülse | neu | Gewinde M24 × 1,5 für die Linse Ø 20 |
+| `tsop_einsatz.stl` | TSOP-Einsatz | neu | Halter für den TSOP34838 mit Linsenfenster (Fensterseite oben drucken) |
+| `korn.stl` | Korn | `obj_7_1` | unverändert |
+| `spannhebel_stift.stl` | Spannhebel Stift | `obj_11_12` | unverändert |
+| `spannhebel_knauf.stl` | Spannhebel Knauf | `obj_9_10` | unverändert |
+| `schaft_links.stl` | Schaft links | `obj_4_7` | OLED-Sockel, Kabelschacht |
+| `schaft_rechts.stl` | Schaft rechts | `obj_2_4` | OLED-Sockel, Kabelschacht |
+| `oled_rahmen.stl` | OLED-Rahmen | neu | Fenster 24 × 14 mit Fase (Außenseite oben drucken) |
+| `steg_vorn_100mm.stl` | Steg vorn (Rundstab 100 mm) | `obj_8_8` | ein Stab, unverändert |
+| `steg_hinten_77mm.stl` | Steg hinten (Rundstab 77 mm) | `obj_8_8` | auf 77 mm gekürzt |
+| `magazin.stl` | Magazin | `obj_6_9` | Akkuhalter (3 Rippen), unteres Drittel abgetrennt, Öffnung oben |
+| `magazin_unterteil.stl` | Magazin Unterteil | `obj_6_9` | abnehmbar, Zapfen stützt den Akku |
+| `abzug.stl` | Abzug | `obj_1_3`/`obj_3_6` | aus dem Gehäuse gelöst, Nabe und Hebel (flach drucken) |
+| `lage.json` | – | – | Lage der neuen Teile in der Waffe (für `baugruppe.py`) |
+
+`obj_12_11` (Sechskantstift 6 × 17,6 mm) aus dem Originalsatz hat keine erkennbare Aufnahme und ist nicht enthalten.
 
 ## Kaufteile
 
@@ -73,7 +83,8 @@ Geänderte Originalteile liegen in derselben Drucklage wie die Originale, neue T
   Teils legen (Membran nach hinten), Kabel durch die kleine Bohrung in den Schacht und abdichten
   (Basskammer ca. 42 cm³ bleibt geschlossen), hinteren Teil mit 2 Stiften Ø 2 aufsetzen und verkleben.
   Der Schall geht durch 2 Reihen Löcher Ø 1,8 in den Rillen zwischen den Rippen
-- **TSOP 6** oben links am Handschutz hinter dem Korn, Linse nach oben links: TSOP von hinten in den
-  Einsatz schieben, Kabel an die Beinchen, Einsatz in die Aufnahme stecken; Kabel in den Schacht
+- **TSOP 6** vorn an der Rundung unter dem Korn, über dem Schalldämpfer, Linse nach vorn: TSOP von
+  hinten in den Einsatz schieben, Kabel an die Beinchen (zeigen nach unten), Einsatz in die Aufnahme
+  stecken; Kabel senkrecht nach unten in den Hauptschacht
 - **Kabelschächte** laufen als gerade Stücke in beliebiger Richtung (auch diagonal), z. B. vom OLED
   schräg durch das Gehäuse und im Handschutz oben im Rohr um den Lautsprecher herum

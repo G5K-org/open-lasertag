@@ -11,7 +11,7 @@ Einbauten:
   - Kabelschacht von der Mündung bis in die Platinentasche, Abzweig in den Magazinschacht
   - Lautsprecher Ø 40 im Handschutz (geteilt), strahlt nach hinten in eine Schallkammer mit Löchern
     in den Rillen, geschlossene Basskammer davor
-  - TSOP 6 oben links am Handschutz hinter dem Korn: Aufnahme + gedruckter Einsatz, Kabel in den Schacht
+  - TSOP 6 vorn an der Rundung unter dem Korn, über dem Schalldämpfer: Aufnahme + gedruckter Einsatz
   - Magazin: Halter für 1 x 18650, abnehmbarer Boden, Öffnung oben für Kabel und JST-PH-Stecker
   - OLED 0,96" 128 x 64 angewinkelt in der Schrägfläche vorn oben am Schaft, Kabelschacht zur Platine
     (Kimme und Korn bleiben)
@@ -81,9 +81,9 @@ LOBE = (52.5, -3.0)           # Kabelschacht weicht hier oben ins Rohr aus (X, Z
 
 # ---------------------------------------------------------------- TSOP 6 an der Waffe
 TSOP_BODY = (6.0, 6.95, 5.6)  # TSOP34838: Breite, Höhe (Beinchen unten), Tiefe mit Linse
-TSOP_Y = (-115.7, -106.5)     # Einsatz in Y, hinter dem Korn
-TSOP_DIR = (-0.707, 0.707)    # Linse zeigt nach oben links (X, Z)
-TSOP_LOBE = (58.45, 11.0)     # Rohr oben am Handschutz: Mitte X, Radius
+TSOP_FRONT = (56.0, -133.4)   # Mitte der Linse (X), Vorderkante Einsatz (Y): vorn an der Rundung unter dem
+                              # Korn, über dem Schalldämpfer; Linse nach vorn, Beinchen nach unten
+TSOP_LEN = 8.6                # Einsatz in Beinchenrichtung (oben 0,15 Luft zum Steg des Korns)
 TSOP_INSERT = (8.6, 6.0, 0.15)   # Einsatz: Breite, Tiefe, Spiel in der Aufnahme
 
 # ---------------------------------------------------------------- Verschraubung der Gehäusehälften
@@ -424,25 +424,25 @@ def housing_cuts(tip, yw, mag_top):
 
 
 def tsop():
-    """Aufnahme und Einsatz für den TSOP oben links am Handschutz; liefert (Schnitt, Einsatz, Lage)."""
-    n = np.array([TSOP_DIR[0], 0, TSOP_DIR[1]]); n /= np.linalg.norm(n)
-    y = np.array([0, 1.0, 0])
+    """Aufnahme und Einsatz für den TSOP vorn am Handschutz; liefert (Schnitt, Einsatz, Lage)."""
+    n = np.array([0, -1.0, 0])                              # Linse nach vorn
+    y = np.array([1.0, 0, 0])                               # Beinchen nach unten
     x = np.cross(y, n)
-    cx, r = TSOP_LOBE
-    yc = (TSOP_Y[0] + TSOP_Y[1]) / 2
-    surf = np.array([cx, yc, 0]) + n * (r - 0.2)
-    loc = np.column_stack([x, y, n, surf])                 # lokal: x quer, y nach hinten (Beinchen), z nach außen
+    surf = np.array([TSOP_FRONT[0], TSOP_FRONT[1], 0.0])
+    loc = np.column_stack([x, y, n, surf])                 # lokal: x quer, y Beinchen, z nach außen
     w, h, d = TSOP_BODY
     iw, idp, clr = TSOP_INSERT
-    ih = TSOP_Y[1] - TSOP_Y[0]
+    ih = TSOP_LEN
     ins = box(-iw / 2, iw / 2, -ih / 2, ih / 2, -idp, 0)
-    y0 = -ih / 2 + 1.0                                      # Körper liegt vorn (-y) an, Beinchen nach +y
+    y0 = -ih / 2 + 0.7                                      # Körper liegt oben an, Beinchen nach +y
     ins = ins - box(-w / 2 - 0.08, w / 2 + 0.08, y0, y0 + h + 0.15, -idp - 1, -1.0)        # Sensor, von hinten
     ins = ins - box(-2.4, 2.4, y0 + 0.9, y0 + h - 1.3, -1.5, 1)                         # Fenster für die Linse
     ins = ins - box(-3.3, 3.3, y0 + h - 0.5, ih / 2 + 1, -idp - 1, -2.4)                # Beinchen
     sock = box(-iw / 2 - clr, iw / 2 + clr, -ih / 2 - clr, ih / 2 + clr, -idp - clr, 4.0)
     sock = sock.transform(loc.tolist())
-    wire = capsule(surf + n * (-idp + 1.5) + y * (ih / 2 - 1.0), (LOBE[0], -101.0, LOBE[1]), 1.5)
+    # Kabel: unten hinten aus der Aufnahme senkrecht nach unten in den Hauptschacht
+    start = surf + y * (ih / 2 - 1.0) - n * (idp - 2.0)
+    wire = capsule(start, (TRUNK[0], start[1], 0.0), 1.5)
     return sock + wire, ins.transform(loc.tolist()), loc
 
 
@@ -489,9 +489,9 @@ def build():
     L = P.load("obj_1_3")
     R = P.load("obj_3_6").transform(to_right[:3].tolist())
     parts = {name: (src, mat) for name, src, mat, _ in B.parts()}
-    hg_mat = parts["Handschutz + Schalldaempfer (obj_10_2)"][1]
-    ring_mat = parts["Zwischenring (obj_5_5)"][1]
-    mag_mat = parts["Magazin (obj_6_9)"][1]
+    hg_mat = parts[B.NAMES["handschutz_vorn"]][1]
+    ring_mat = parts[B.NAMES["zwischenring"]][1]
+    mag_mat = parts[B.NAMES["magazin"]][1]
 
     trig, trig_cut = trigger(L + R)
     add, ocut, sleeve, cap, tip, yw = optics()
@@ -516,20 +516,29 @@ def build():
     hg_rear, hg_front = hg ^ split, hg - split
     ring = load_gun("obj_5_5", ring_mat) - capsule((TRUNK[0], 5.0, 0), (TRUNK[0], 35.0, 0), TRUNK[1])
     stocks = {}
-    for key, orig, side in (("Schaft links (obj_4_7)", "obj_4_7", P.HALF_L), ("Schaft rechts (obj_2_4)", "obj_2_4", P.HALF_R)):
-        mat = parts[key][1]
+    for key, orig, side in (("schaft_links", "obj_4_7", P.HALF_L), ("schaft_rechts", "obj_2_4", P.HALF_R)):
+        mat = parts[B.NAMES[key]][1]
         stocks[key] = (load_gun(orig, mat) + (pod ^ side) - pod_cut, mat)
 
     os.makedirs(OUT, exist_ok=True)
-    P.save(L, os.path.join(OUT, "obj_1_3_links.stl"))
-    P.save(R.transform(P.TO_RIGHT), os.path.join(OUT, "obj_3_6_rechts.stl"))
-    save_orig(hg_front, hg_mat, os.path.join(OUT, "obj_10_2_handschutz_vorn.stl"))
-    save_orig(hg_rear, hg_mat, os.path.join(OUT, "obj_10_2_handschutz_hinten.stl"))
-    save_orig(ring, ring_mat, os.path.join(OUT, "obj_5_5_zwischenring.stl"))
-    save_orig(*stocks["Schaft links (obj_4_7)"], os.path.join(OUT, "obj_4_7_schaft_links.stl"))
-    save_orig(*stocks["Schaft rechts (obj_2_4)"], os.path.join(OUT, "obj_2_4_schaft_rechts.stl"))
-    save_orig(mag_body, mag_mat, os.path.join(OUT, "obj_6_9_magazin.stl"))
-    P.save(P.steg(), os.path.join(OUT, f"steg_schaft_{P.STEG_L:.0f}mm.stl"))
+    for f in os.listdir(OUT):                               # alter Stand (auch frühere Dateinamen)
+        if f.endswith(".stl"):
+            os.remove(os.path.join(OUT, f))
+    # vollständiger Drucksatz mit eindeutigen Namen (Schlüssel aus baugruppe.NAMES)
+    P.save(L, os.path.join(OUT, "gehaeuse_links.stl"))
+    P.save(R.transform(P.TO_RIGHT), os.path.join(OUT, "gehaeuse_rechts.stl"))
+    save_orig(hg_front, hg_mat, os.path.join(OUT, "handschutz_vorn.stl"))
+    save_orig(hg_rear, hg_mat, os.path.join(OUT, "handschutz_hinten.stl"))
+    save_orig(ring, ring_mat, os.path.join(OUT, "zwischenring.stl"))
+    save_orig(*stocks["schaft_links"], os.path.join(OUT, "schaft_links.stl"))
+    save_orig(*stocks["schaft_rechts"], os.path.join(OUT, "schaft_rechts.stl"))
+    save_orig(mag_body, mag_mat, os.path.join(OUT, "magazin.stl"))
+    P.save(P.steg(), os.path.join(OUT, f"steg_hinten_{P.STEG_L:.0f}mm.stl"))
+    # unveränderte Teile, nur umbenannt
+    rods = trimesh.load(os.path.join(P.SRC, "obj_8_8.stl")).split(only_watertight=False)
+    rods[0].export(os.path.join(OUT, "steg_vorn_100mm.stl"))
+    for key, orig in (("korn", "obj_7_1"), ("spannhebel_stift", "obj_11_12"), ("spannhebel_knauf", "obj_9_10")):
+        trimesh.load(os.path.join(P.SRC, orig + ".stl")).export(os.path.join(OUT, key + ".stl"))
 
     # neue Teile in Drucklage; Matrix Drucklage -> Gun-Rahmen
     lage = {}
@@ -556,7 +565,7 @@ def build():
     new_part("tsop_einsatz", tsop_ins, np.linalg.inv(tl)[:3])      # Fensterseite oben
     fz = np.asarray(frame(-floor_dir, (0, 0, 0)))          # Boden: Zapfen nach oben
     r = np.linalg.inv(np.vstack([fz, [0, 0, 0, 1]]))
-    new_part("magazinboden", mag_floor, r[:3])
+    new_part("magazin_unterteil", mag_floor, r[:3])
     json.dump(lage, open(os.path.join(OUT, "lage.json"), "w"), indent=1)
     info = {"zelle_oben": cell_top.tolist(), "zelle_unten": cell_bottom.tolist(), "led_spitze_y": tip,
             "led_scheibe_y": yw}
