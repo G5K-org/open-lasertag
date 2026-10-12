@@ -16,6 +16,10 @@ Alle Teile der Waffe an ihrem Platz in einer Datei, erzeugt mit
 |---|---|
 | <img src="baugruppe_vorn.png" width="280"> | <img src="baugruppe_hinten.png" width="200"> |
 
+Schnitt durch den Schalldämpfer (Linse, IR-LED, Ringlicht als Platzhalter):
+
+<img src="schnitt_schalldaempfer.png" width="640">
+
 ## Teile
 
 | Teil | Datei | Lage |

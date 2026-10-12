@@ -157,6 +157,12 @@ Platine zusammengesetzt: [gehaeuse/baugruppe/](gehaeuse/baugruppe/) (GLB/3MF).
 |---|---|
 | <img src="gehaeuse/baugruppe/baugruppe_vorn.png" alt="3D-Ansicht vorn: Frontkappe mit 12 Fenstern und Linsenhülse" width="420"> | <img src="gehaeuse/baugruppe/baugruppe_hinten.png" alt="3D-Ansicht hinten: OLED-Sockel mit Rahmen am Schaft" width="300"> |
 
+**Schnitt durch den Schalldämpfer:** Linsenhülse (gold) mit Linse Ø 20 im Innengewinde M24 × 1,5,
+von vorn verstellbar; dahinter die IR-LED im Sitz (21 mm hinter der Linse), Kabel nach hinten;
+vorn die Frontkappe mit Ringlicht, unten der Kabelkanal für das Ringlicht.
+
+<img src="gehaeuse/baugruppe/schnitt_schalldaempfer.png" alt="Schnitt durch den Schalldämpfer: Linsenhülse mit Gewinde, Linse, IR-LED, Frontkappe mit Ringlicht" width="700">
+
 ## Firmware
 
 ESP-IDF v6.0, nur offizielle Espressif-Komponenten. WLAN und Netz laufen auf
