@@ -9,11 +9,17 @@ Einbauten:
   - Schalldämpfer: Innengewinde M24 x 1,5 für die Linsenhülse (Linse Ø 20 x 7), IR-LED 5 mm 21 mm
     hinter der Linse, Ringlicht 12 x WS2812 (Ø 36,8/23,3) in einer Frontkappe mit 12 Fenstern
   - Kabelschacht von der Mündung bis in die Platinentasche, Abzweig in den Magazinschacht
+  - Lautsprecher Ø 40 im Handschutz (geteilt), strahlt nach hinten in eine Schallkammer mit Löchern
+    in den Rillen, geschlossene Basskammer davor
+  - TSOP 6 oben links am Handschutz hinter dem Korn: Aufnahme + gedruckter Einsatz, Kabel in den Schacht
   - Magazin: Halter für 1 x 18650, abnehmbarer Boden, Öffnung oben für Kabel und JST-PH-Stecker
   - OLED 0,96" 128 x 64 angewinkelt in der Schrägfläche vorn oben am Schaft, Kabelschacht zur Platine
     (Kimme und Korn bleiben)
+  - Gehäusehälften mit 6 x M3 x 10 und Einschmelzmuttern verschraubt
   - Drehgeber EC11 unten im Griff (Welle nach unten), Vibrationsmotor 10 x 20 über dem Griff,
     Kabelschacht Drehgeber -> Motor -> Platine
+
+Kabelschächte sind Ketten gerader Stücke zwischen beliebigen Punkten (path(), auch diagonal).
 
 Ausgabe nach mp5_umbau/: geänderte Originalteile in ihrer Drucklage, neue Teile in Drucklage,
 lage.json mit der Matrix Drucklage -> Gun-Rahmen für die neuen Teile (für baugruppe.py).
@@ -62,6 +68,30 @@ LED = (5.0, 8.6, 5.8)         # IR-LED Ø, Länge Kragen -> Spitze, Kragen Ø
 RING = (36.8, 23.3, 3.4, 15.0)   # Ringlicht außen, innen, Dicke, Radius der LEDs
 CAP = (1.2, 5.0, 18.2)        # Frontkappe: Frontwand, Hülsenlänge über dem Schalldämpfer, Zapfenradius
 WIRE_R = 15.5                 # Kanal für die Ringlicht-Kabel (Radius, unten)
+
+# ---------------------------------------------------------------- Lautsprecher im Handschutz
+SPK = (40.0, 6.0)             # Lautsprecher Ø, Einbautiefe (Korb + Magnet + Anschlüsse)
+SPLIT_Y = -56.0               # Teilung des Handschutzes = Vorderkante Lautsprecher (strahlt nach hinten)
+SOUND = (36.0, 9.0)           # Schallkammer hinter der Membran (hinterer Teil): Ø, Länge
+BASS = (37.0, 39.0)           # geschlossene Kammer hinter dem Magneten (vorderer Teil): Ø, Länge (ca. 42 cm³)
+HOLES_D = 1.8                 # Schalllöcher in den Rillen zwischen den Rippen
+RIB_VALLEY_Z0, RIB_PITCH = 1.5, 4.0   # Rillen im Handschutz (z ab Rückseite)
+PIN = (56.5, 6.0, 2.2, 7.0)   # Stifte Ø 2 an der Teilung: X, ±Z, Bohrung, Tiefe je Seite
+LOBE = (52.5, -3.0)           # Kabelschacht weicht hier oben ins Rohr aus (X, Z), weg vom Spannhebel-Loch
+
+# ---------------------------------------------------------------- TSOP 6 an der Waffe
+TSOP_BODY = (6.0, 6.95, 5.6)  # TSOP34838: Breite, Höhe (Beinchen unten), Tiefe mit Linse
+TSOP_Y = (-115.7, -106.5)     # Einsatz in Y, hinter dem Korn
+TSOP_DIR = (-0.707, 0.707)    # Linse zeigt nach oben links (X, Z)
+TSOP_LOBE = (58.45, 11.0)     # Rohr oben am Handschutz: Mitte X, Radius
+TSOP_INSERT = (8.6, 6.0, 0.15)   # Einsatz: Breite, Tiefe, Spiel in der Aufnahme
+
+# ---------------------------------------------------------------- Verschraubung der Gehäusehälften
+# M3 x 10 (ISO 4762) von rechts, Einschmelzmutter M3 x 5,7 in der linken Hälfte (von der Teilung aus)
+SCREWS = [(55.0, 45.0), (60.0, 120.0), (55.0, 190.0), (135.5, 106.0), (110.0, 190.0), (185.0, 207.0)]   # X, Y
+INSERT = (4.0, 6.5)           # Loch für die Einschmelzmutter: Ø, Tiefe ab Teilung (links)
+SCREW_HOLE = 3.4              # Durchgang rechts
+HEAD = (6.2, 5.0)             # Kopfsenkung rechts: Ø, Auflage so weit vor der Teilung (Z = -5)
 
 # ---------------------------------------------------------------- Kabelschächte
 TRUNK = (81.0, 2.5)           # Hauptschacht X, Radius (Mündung -> Platinentasche)
@@ -387,9 +417,71 @@ def housing_cuts(tip, yw, mag_top):
     wt = m3.Manifold.cube((OLED_WINDOW[1] + 2 * OLED_FRAME[0], OLED_WINDOW[0] + 2 * OLED_FRAME[0], 0.01), True).translate((0, 0, 0.01))
     bezel = (fr - m3.Manifold.batch_hull([wb, wt])).transform(frame_loc.tolist())
     back = c - nv * (depth - 1.5) - sv * 9.0                       # hinter dem Modul, oben (Stiftseite)
-    chan = path([back, (64.0, back[1] - 4.0, 0), (64.0, 156.0, 0), (P.X0 + 1.0, 156.0, 0)], 2.25)
+    # diagonal: aus dem Schaft schräg durch das Gehäuse, am Steg zum Schaft vorbei in die Tasche
+    chan = path([back, (68.0, 170.0, 0), (P.X0 + 1.0, 156.0, 0)], 2.25)
     add(chan)
     return cut, pod, pocket + recess + chan, bezel, frame_loc
+
+
+def tsop():
+    """Aufnahme und Einsatz für den TSOP oben links am Handschutz; liefert (Schnitt, Einsatz, Lage)."""
+    n = np.array([TSOP_DIR[0], 0, TSOP_DIR[1]]); n /= np.linalg.norm(n)
+    y = np.array([0, 1.0, 0])
+    x = np.cross(y, n)
+    cx, r = TSOP_LOBE
+    yc = (TSOP_Y[0] + TSOP_Y[1]) / 2
+    surf = np.array([cx, yc, 0]) + n * (r - 0.2)
+    loc = np.column_stack([x, y, n, surf])                 # lokal: x quer, y nach hinten (Beinchen), z nach außen
+    w, h, d = TSOP_BODY
+    iw, idp, clr = TSOP_INSERT
+    ih = TSOP_Y[1] - TSOP_Y[0]
+    ins = box(-iw / 2, iw / 2, -ih / 2, ih / 2, -idp, 0)
+    y0 = -ih / 2 + 1.0                                      # Körper liegt vorn (-y) an, Beinchen nach +y
+    ins = ins - box(-w / 2 - 0.08, w / 2 + 0.08, y0, y0 + h + 0.15, -idp - 1, -1.0)        # Sensor, von hinten
+    ins = ins - box(-2.4, 2.4, y0 + 0.9, y0 + h - 1.3, -1.5, 1)                         # Fenster für die Linse
+    ins = ins - box(-3.3, 3.3, y0 + h - 0.5, ih / 2 + 1, -idp - 1, -2.4)                # Beinchen
+    sock = box(-iw / 2 - clr, iw / 2 + clr, -ih / 2 - clr, ih / 2 + clr, -idp - clr, 4.0)
+    sock = sock.transform(loc.tolist())
+    wire = capsule(surf + n * (-idp + 1.5) + y * (ih / 2 - 1.0), (LOBE[0], -101.0, LOBE[1]), 1.5)
+    return sock + wire, ins.transform(loc.tolist()), loc
+
+
+def speaker(y_back):
+    """Schnitte im Handschutz für den Lautsprecher; liefert (Schnitt, Kabelschacht im Handschutz)."""
+    ax, az = AX
+    d, depth = SPK
+    cut = cyl((ax, SPLIT_Y - depth, az), (ax, SPLIT_Y + 0.01, az), d / 2 + 0.2)             # Lautsprecher (vorderer Teil)
+    cut = cut + cyl((ax, SPLIT_Y - depth - BASS[1], az), (ax, SPLIT_Y - depth + 0.01, az), BASS[0] / 2)   # Basskammer
+    cut = cut + cyl((ax, SPLIT_Y - 0.01, az), (ax, SPLIT_Y + SOUND[1], az), SOUND[0] / 2)   # Schallkammer
+    # Schalllöcher radial in den Rillen über der Schallkammer, unten und seitlich
+    for k in range(40):
+        z = RIB_VALLEY_Z0 + RIB_PITCH * k
+        y = y_back - z
+        if not (SPLIT_Y + 1.5 < y < SPLIT_Y + SOUND[1] - 1.0):
+            continue
+        for a in np.radians(np.arange(-110, 110.1, 12.5)):
+            dirn = np.array([np.cos(a), 0, np.sin(a)])
+            p0 = np.array([ax, y, az]) + dirn * (SOUND[0] / 2 - 1)
+            cut = cut + cyl(p0, p0 + dirn * 10, HOLES_D / 2, 16)
+    # Kabel des Lautsprechers aus der Basskammer in den Schacht (nach dem Löten abdichten)
+    cut = cut + cyl((ax - BASS[0] / 2 + 1, SPLIT_Y - depth - 4, LOBE[1]), (LOBE[0], SPLIT_Y - depth - 4, LOBE[1]), 1.25)
+    # Stifte an der Teilung
+    for z in (-PIN[1], PIN[1]):
+        cut = cut + cyl((PIN[0], SPLIT_Y - PIN[3], z), (PIN[0], SPLIT_Y + PIN[3], z), PIN[2] / 2, 24)
+    trunk = path([(TRUNK[0], -156.0, 0), (TRUNK[0], -116.0, 0), (LOBE[0], -103.0, LOBE[1]), (LOBE[0], -44.0, LOBE[1]),
+                  (TRUNK[0], -40.5, 0), (TRUNK[0], 12.0, 0)], TRUNK[1])
+    return cut, trunk
+
+
+def screws():
+    """Bohrungen für die Verschraubung der Gehäusehälften (beide Hälften, Gun-Rahmen)."""
+    cut = None
+    for x, y in SCREWS:
+        c = cyl((x, y, -0.01), (x, y, INSERT[1]), INSERT[0] / 2, 32)                     # links: Einschmelzmutter
+        c = c + cyl((x, y, 0.01), (x, y, -HEAD[1]), SCREW_HOLE / 2, 32)                 # rechts: Durchgang
+        c = c + cyl((x, y, -HEAD[1]), (x, y, -40.0), HEAD[0] / 2, 32)                   # rechts: Kopfsenkung
+        cut = c if cut is None else cut + c
+    return cut
 
 
 def build():
@@ -410,14 +502,18 @@ def build():
 
     halves = []
     for H, side in ((L, P.HALF_L), (R, P.HALF_R)):
-        H = H - pcut - trig_cut - hcut + (stop ^ side)
+        H = H - pcut - trig_cut - hcut - screws() + (stop ^ side)
         if side is P.HALF_R:
             H = H + bosses - pilots
         halves.append(H)
     L, R = halves
 
     hg = load_gun("obj_10_2", hg_mat)
-    hg = hg + (add ^ hg.hull()) - ocut - capsule((TRUNK[0], -156.0, 0), (TRUNK[0], 12.0, 0), TRUNK[1])
+    scut, strunk = speaker(B.Y_FRONT - B.RING_L)
+    tcut, tsop_ins, tsop_loc = tsop()
+    hg = hg + (add ^ hg.hull()) - ocut - scut - strunk - tcut
+    split = box(-500, 500, SPLIT_Y, 500, -500, 500)
+    hg_rear, hg_front = hg ^ split, hg - split
     ring = load_gun("obj_5_5", ring_mat) - capsule((TRUNK[0], 5.0, 0), (TRUNK[0], 35.0, 0), TRUNK[1])
     stocks = {}
     for key, orig, side in (("Schaft links (obj_4_7)", "obj_4_7", P.HALF_L), ("Schaft rechts (obj_2_4)", "obj_2_4", P.HALF_R)):
@@ -427,7 +523,8 @@ def build():
     os.makedirs(OUT, exist_ok=True)
     P.save(L, os.path.join(OUT, "obj_1_3_links.stl"))
     P.save(R.transform(P.TO_RIGHT), os.path.join(OUT, "obj_3_6_rechts.stl"))
-    save_orig(hg, hg_mat, os.path.join(OUT, "obj_10_2_handschutz.stl"))
+    save_orig(hg_front, hg_mat, os.path.join(OUT, "obj_10_2_handschutz_vorn.stl"))
+    save_orig(hg_rear, hg_mat, os.path.join(OUT, "obj_10_2_handschutz_hinten.stl"))
     save_orig(ring, ring_mat, os.path.join(OUT, "obj_5_5_zwischenring.stl"))
     save_orig(*stocks["Schaft links (obj_4_7)"], os.path.join(OUT, "obj_4_7_schaft_links.stl"))
     save_orig(*stocks["Schaft rechts (obj_2_4)"], os.path.join(OUT, "obj_2_4_schaft_rechts.stl"))
@@ -455,6 +552,8 @@ def build():
     new_part("frontkappe", cap, front_down)
     loc = np.vstack([oled_loc, [0, 0, 0, 1]])
     new_part("oled_rahmen", oled_frame, np.linalg.inv(loc)[:3])   # Außenseite oben
+    tl = np.vstack([tsop_loc, [0, 0, 0, 1]])
+    new_part("tsop_einsatz", tsop_ins, np.linalg.inv(tl)[:3])      # Fensterseite oben
     fz = np.asarray(frame(-floor_dir, (0, 0, 0)))          # Boden: Zapfen nach oben
     r = np.linalg.inv(np.vstack([fz, [0, 0, 0, 1]]))
     new_part("magazinboden", mag_floor, r[:3])

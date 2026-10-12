@@ -130,13 +130,14 @@ def parts():
     a_sight = np.cross([1, 0, 0], n_sight)        # Ringachse
     knob_axis = np.array([-0.385, 0.923, 0.0]); knob_axis /= np.linalg.norm(knob_axis)
     y_hg = Y_FRONT - RING_L                       # Rückseite Handschutz
-    return [
+    hg = m4(rot([[0, 0, 1], [-1, 0, 0], [0, -1, 0]]), (200.27, 60.73, 0), (X_AXIS, y_hg, 0))
+    out = [
         ("Gehaeuse links (obj_1_3)", mod("obj_1_3_links", "obj_1_3"), np.eye(4), DARK),
         ("Gehaeuse rechts (obj_3_6)", mod("obj_3_6_rechts", "obj_3_6"), to_right, DARK),
         ("Zwischenring (obj_5_5)", mod("obj_5_5_zwischenring", "obj_5_5"),
          m4(rot([[0, 0, -1], [1, 0, 0], [0, -1, 0]]), (37.7, -182.72, 0), (X_AXIS, Y_FRONT, 0)), BLACK),
-        ("Handschutz + Schalldaempfer (obj_10_2)", mod("obj_10_2_handschutz", "obj_10_2"),
-         m4(rot([[0, 0, 1], [-1, 0, 0], [0, -1, 0]]), (200.27, 60.73, 0), (X_AXIS, y_hg, 0)), BLACK),
+        ("Handschutz + Schalldaempfer (obj_10_2)", mod("obj_10_2_handschutz_vorn", "obj_10_2"), hg, BLACK),
+        ("Handschutz hinten (obj_10_2)", mod("obj_10_2_handschutz_hinten", None), hg, BLACK),
         ("Korn (obj_7_1)", "obj_7_1", _sight_matrix(n_sight, a_sight, y_hg), BLACK),
         ("Spannhebel Stift (obj_11_12)", "obj_11_12", _rod_matrix(y_hg), STEEL),
         ("Spannhebel Knauf (obj_9_10)", "obj_9_10", _knob_matrix(knob_axis, y_hg), BLACK),
@@ -148,6 +149,7 @@ def parts():
         ("Steg hinten, gekuerzt", None, None, STEEL),
         ("Magazin (obj_6_9)", mod("obj_6_9_magazin", "obj_6_9"), magazine(), BLACK),
     ] + new_parts()
+    return [p for p in out if p[1] is not None or p[0].startswith("Steg")]
 
 
 def mod(name, orig):
@@ -157,7 +159,8 @@ def mod(name, orig):
 
 
 NEW = {"abzug": ("Abzug", DARK), "linsenhuelse": ("Linsenhuelse", STEEL), "frontkappe": ("Frontkappe", BLACK),
-       "magazinboden": ("Magazinboden", BLACK), "oled_rahmen": ("OLED-Rahmen", BLACK)}
+       "magazinboden": ("Magazinboden", BLACK), "oled_rahmen": ("OLED-Rahmen", BLACK),
+       "tsop_einsatz": ("TSOP-Einsatz", BLACK)}
 
 
 def new_parts():

@@ -8,9 +8,10 @@ Geänderte Originalteile liegen in derselben Drucklage wie die Originale, neue T
 
 | Datei | ersetzt / neu | Inhalt |
 |---|---|---|
-| `obj_1_3_links.stl`, `obj_3_6_rechts.stl` | `obj_1_3`, `obj_3_6` | Platinentasche, Abzugsmechanik, Kabelschächte, Motor, Drehgeber (Kimme bleibt) |
+| `obj_1_3_links.stl`, `obj_3_6_rechts.stl` | `obj_1_3`, `obj_3_6` | Platinentasche, Abzugsmechanik, Kabelschächte, Motor, Drehgeber, 6 Schraubstellen (Kimme bleibt) |
 | `obj_4_7_schaft_links.stl`, `obj_2_4_schaft_rechts.stl` | `obj_4_7`, `obj_2_4` | OLED-Sockel in der Schrägfläche vorn oben, Kabelschacht |
-| `obj_10_2_handschutz.stl` | `obj_10_2` | Innengewinde für die Linsenhülse, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
+| `obj_10_2_handschutz_vorn.stl` | `obj_10_2` (vorderer Teil) | Lautsprechertasche mit Basskammer, TSOP-Aufnahme, Innengewinde für die Linsenhülse, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
+| `obj_10_2_handschutz_hinten.stl` | `obj_10_2` (hinterer Teil) | Schallkammer mit Löchern in den Rillen, Kabelschacht |
 | `obj_5_5_zwischenring.stl` | `obj_5_5` | Kabelschacht |
 | `obj_6_9_magazin.stl` | `obj_6_9` | Akkuhalter (3 Rippen), unteres Drittel abgetrennt, Öffnung oben |
 | `steg_schaft_77mm.stl` | ein Stab aus `obj_8_8` | Steg zum Schaft, 77 mm |
@@ -19,6 +20,7 @@ Geänderte Originalteile liegen in derselben Drucklage wie die Originale, neue T
 | `frontkappe.stl` | neu | Kappe vorn am Schalldämpfer, 12 Fenster für das Ringlicht |
 | `magazinboden.stl` | neu | abnehmbares Magazin-Unterteil mit Zapfen (stützt den Akku) |
 | `oled_rahmen.stl` | neu | Rahmen über dem OLED, Fenster 24 × 14 mit Fase (Außenseite oben drucken) |
+| `tsop_einsatz.stl` | neu | Einsatz für den TSOP mit Linsenfenster (Fensterseite oben drucken) |
 | `lage.json` | – | Lage der neuen Teile in der Waffe (für `baugruppe.py`) |
 
 ## Kaufteile
@@ -36,6 +38,10 @@ Geänderte Originalteile liegen in derselben Drucklage wie die Originale, neue T
 | Drehgeber | EC11 mit Taster, Welle Ø 6, 20 mm |
 | Vibrationsmotor | Ø 10 × 20 mm mit Unwucht |
 | Platine | M2 × 8 ISO 7380 (2 ×) |
+| Gehäusehälften | 6 × M3 × 10 ISO 4762, 6 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
+| Lautsprecher | Ø 40 mm, 4–8 Ω, 2–3 W, bis 6 mm Einbautiefe |
+| Handschutz-Teilung | 2 × Stift Ø 2 × 12 mm |
+| TSOP 6 | TSOP34838 (6 × 6,95 × 5,6 mm) |
 
 ## Einbau
 
@@ -60,3 +66,14 @@ Geänderte Originalteile liegen in derselben Drucklage wie die Originale, neue T
 - **Drehgeber** hinten in der schrägen Griffunterseite, Achse entlang des Griffs, Buchse bündig,
   Welle schaut heraus (Kappe aufstecken)
 - **Vibrationsmotor** über dem Griff, Unwucht hinten; Kabel mit dem Drehgeberkabel zur Platine (VIB)
+- **Gehäusehälften** verschraubt: Einschmelzmuttern von der Teilungsebene in die linke Hälfte,
+  Schrauben M3 × 10 von rechts (Kopf versenkt); vorn oben, Mitte oben, hinten oben, vor dem Abzug,
+  hinten über dem Griff, unten im Griff
+- **Lautsprecher** Ø 40 im Handschutz, Teilung bei Y = −56: Lautsprecher in die Tasche des vorderen
+  Teils legen (Membran nach hinten), Kabel durch die kleine Bohrung in den Schacht und abdichten
+  (Basskammer ca. 42 cm³ bleibt geschlossen), hinteren Teil mit 2 Stiften Ø 2 aufsetzen und verkleben.
+  Der Schall geht durch 2 Reihen Löcher Ø 1,8 in den Rillen zwischen den Rippen
+- **TSOP 6** oben links am Handschutz hinter dem Korn, Linse nach oben links: TSOP von hinten in den
+  Einsatz schieben, Kabel an die Beinchen, Einsatz in die Aufnahme stecken; Kabel in den Schacht
+- **Kabelschächte** laufen als gerade Stücke in beliebiger Richtung (auch diagonal), z. B. vom OLED
+  schräg durch das Gehäuse und im Handschutz oben im Rohr um den Lautsprecher herum

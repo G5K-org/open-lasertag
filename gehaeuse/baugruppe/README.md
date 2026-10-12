@@ -12,13 +12,18 @@ Alle Teile der Waffe an ihrem Platz in einer Datei, erzeugt mit
 |---|---|---|
 | <img src="baugruppe_links.png" width="280"> | <img src="baugruppe_offen.png" width="280"> | <img src="baugruppe_schraeg.png" width="280"> |
 
-| Vorn rechts (Frontkappe, Linsenhülse) | Hinten (OLED am Schaft) |
-|---|---|
-| <img src="baugruppe_vorn.png" width="280"> | <img src="baugruppe_hinten.png" width="200"> |
+| Rechts (Schraubensenkungen, Schalllöcher) | Vorn rechts (Frontkappe, Linsenhülse) | Hinten (OLED am Schaft) |
+|---|---|---|
+| <img src="baugruppe_rechts.png" width="280"> | <img src="baugruppe_vorn.png" width="280"> | <img src="baugruppe_hinten.png" width="200"> |
 
 Schnitt durch den Schalldämpfer (Linse, IR-LED, Ringlicht als Platzhalter):
 
 <img src="schnitt_schalldaempfer.png" width="640">
+
+Schnitt durch den Handschutz: Lautsprecher (rot, Platzhalter) strahlt nach hinten in die Schallkammer
+mit Löchern, davor die geschlossene Basskammer, oben der Kabelschacht und das Korn:
+
+<img src="schnitt_lautsprecher.png" width="640">
 
 ## Teile
 
@@ -26,7 +31,8 @@ Schnitt durch den Schalldämpfer (Linse, IR-LED, Ringlicht als Platzhalter):
 |---|---|---|
 | Gehäuse links / rechts | `mp5_umbau/obj_1_3_links.stl`, `obj_3_6_rechts.stl` | Bezug (Teilungsebene Z = 0) |
 | Zwischenring | `mp5_umbau/obj_5_5_zwischenring.stl` | vor dem Gehäuse, Profil und Stegkanal fluchtend |
-| Handschutz + Schalldämpfer | `mp5_umbau/obj_10_2_handschutz.stl` | vor dem Zwischenring |
+| Handschutz hinten, Handschutz vorn + Schalldämpfer | `mp5_umbau/obj_10_2_handschutz_hinten.stl`, `obj_10_2_handschutz_vorn.stl` | vor dem Zwischenring, geteilt am Lautsprecher (Y = −56) |
+| TSOP-Einsatz | `mp5_umbau/tsop_einsatz.stl` | oben links am Handschutz hinter dem Korn |
 | Linsenhülse, Frontkappe | `mp5_umbau/linsenhuelse.stl`, `frontkappe.stl` | vorn im bzw. auf dem Schalldämpfer |
 | Steg vorn | `obj_8_8.stl` (Rundstab Ø 10 × 100) | Gehäuse 34 mm, Zwischenring 21 mm, Handschutz 45 mm (bis in die Kegelspitze des Kanals) |
 | Korn | `obj_7_1.stl` | Ring auf dem Rohr vorn am Handschutz, Steg im Schlitz |
@@ -43,7 +49,8 @@ Schnitt durch den Schalldämpfer (Linse, IR-LED, Ringlicht als Platzhalter):
 Überschneidungen in der Baugruppe (Prüfung mit manifold3d):
 - Magazin ↔ Gehäuse 2 × 156 mm³: Mittelrippe hinten im Schacht (Z ±3,6) im Magazinrücken
 - Korn ↔ Handschutz 276 mm³: Steg (9 × 12 mm) im Schlitz (6,7 × 8,1 mm), Klemmsitz
-- Stege, Schaft, Platine, Spannhebel, Abzug, Linsenhülse, Frontkappe, Magazinunterteil: ≤ 4 mm³
+- Stege, Schaft, Platine, Spannhebel, Abzug, Linsenhülse, Frontkappe, Magazinunterteil, TSOP-Einsatz,
+  OLED-Rahmen: ≤ 4 mm³
 
 ## Erzeugen
 

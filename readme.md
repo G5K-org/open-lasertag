@@ -146,6 +146,8 @@ Die Platine sitzt im Unterteil zwischen Magazinschacht und Griff; die senkrechte
 USB-C-Buchse ist durch die linke Seitenwand erreichbar. Im Schalldämpfer sitzen IR-LED und
 verstellbare Linse, vorn das Ringlicht; der 18650-Akku steckt im Magazin, das OLED sitzt
 angewinkelt vorn oben am Schaft, der Drehgeber unten im Griff, der Abzug löst einen Mikroschalter aus.
+Im Handschutz sitzt ein Lautsprecher Ø 40 mit Basskammer, dahinter der TSOP 6; die Gehäusehälften
+sind mit 6 × M3 und Einschmelzmuttern verschraubt.
 Umgebaute und neue Druckteile: [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/). Alle Teile samt
 Platine zusammengesetzt: [gehaeuse/baugruppe/](gehaeuse/baugruppe/) (GLB/3MF).
 
@@ -162,6 +164,12 @@ von vorn verstellbar; dahinter die IR-LED im Sitz (21 mm hinter der Linse), Kabe
 vorn die Frontkappe mit Ringlicht, unten der Kabelkanal für das Ringlicht.
 
 <img src="gehaeuse/baugruppe/schnitt_schalldaempfer.png" alt="Schnitt durch den Schalldämpfer: Linsenhülse mit Gewinde, Linse, IR-LED, Frontkappe mit Ringlicht" width="700">
+
+**Schnitt durch den Handschutz:** Lautsprecher Ø 40 (rot) strahlt nach hinten in eine Schallkammer
+mit Löchern in den Rillen, davor die geschlossene Basskammer (ca. 42 cm³); oben im Rohr der
+Kabelschacht, darüber das Korn.
+
+<img src="gehaeuse/baugruppe/schnitt_lautsprecher.png" alt="Schnitt durch den Handschutz: Lautsprecher, Schallkammer mit Löchern, Basskammer, Kabelschacht" width="700">
 
 ## Firmware
 
@@ -462,8 +470,8 @@ Akku und Metall), USB-Zugang einplanen.
 - Gehäuse/3D-Druck-Maße, inkl. Platz für Akku/Lautsprecher/LED in der Waffe –
   als Basis ausgewählt: [MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay)
   (STLs + Quellenangabe in [gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/)),
-  Umbau in [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/); offen: Lautsprecher, Nachlade-Taster,
-  TSOP 6 an der Waffe, WS2812-Lebensbalken/Munitionsanzeige, Verschraubung der Hälften
+  Umbau in [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/); offen: Nachlade-Taster,
+  WS2812-Lebensbalken/Munitionsanzeige
 - Akku-/Laufzeitbudget (WLAN + WS2812 + Sound + IR-Pulse) für Eventplanung
 - OTA-Update-Mechanismus für die Waffe bei mehreren Sets
 - CI-Build für die Firmware
