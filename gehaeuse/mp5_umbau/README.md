@@ -10,8 +10,8 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 | Datei | Teil | aus Original | Änderung |
 |---|---|---|---|
-| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite), Abzugsmechanik, Kabelschächte, Motor, Drehgeber, Einschmelzmuttern |
-| `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte, Motor, Drehgeber, Schraubensenkungen |
+| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite), Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Einschmelzmuttern |
+| `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Schraubensenkungen |
 | `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht |
 | `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | einteilig, ab Y = −32; vorn Zapfen mit 4 Einschmelzmuttern, Kabelschacht |
 | `handschutz_vorn_links.stl` | Handschutz vorn mit Schalldämpfer links | `obj_10_2` | links/rechts geteilt (flach auf der Teilungsfläche), Einschmelzmuttern; Aufnahme für den Zapfen, Lautsprechertasche, Schallkammer mit Löchern, Basskammer, Kabelnut, TSOP-Aufnahme, Gewinde M24 × 1,5, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
@@ -22,8 +22,8 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | `korn.stl` | Korn | `obj_7_1` | unverändert |
 | `spannhebel_stift.stl` | Spannhebel Stift | `obj_11_12` | unverändert |
 | `spannhebel_knauf.stl` | Spannhebel Knauf | `obj_9_10` | unverändert |
-| `schaft_links.stl` | Schaft links | `obj_4_7` | OLED-Sockel, Kabelschacht |
-| `schaft_rechts.stl` | Schaft rechts | `obj_2_4` | OLED-Sockel, Kabelschacht |
+| `schaft_links.stl` | Schaft links | `obj_4_7` | OLED-Sockel, Kabelschacht, Aufnahme der GX16-Buchse (Weste) |
+| `schaft_rechts.stl` | Schaft rechts | `obj_2_4` | OLED-Sockel, Kabelschacht, Aufnahme der GX16-Buchse (Weste) |
 | `oled_rahmen.stl` | OLED-Rahmen | neu | Fenster 24 × 14 mit Fase (Außenseite oben drucken) |
 | `steg_vorn_96mm.stl` | Steg vorn (Rundstab 96 mm) | `obj_8_8` | auf 96 mm gekürzt (endet vor dem Zapfen) |
 | `steg_hinten_77mm.stl` | Steg hinten (Rundstab 77 mm) | `obj_8_8` | auf 77 mm gekürzt |
@@ -53,6 +53,8 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | Handschutz vorn | 5 × M3 × 10 ISO 4762, 5 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
 | Handschutz vorn ↔ hinten | 4 × M3 × 10 ISO 4762, 4 × Einschmelzmutter M3 × 5,7 (in den Zapfen) |
 | Lautsprecher | Ø 40 mm, 4–8 Ω, 2–3 W, bis 6 mm Einbautiefe |
+| Sensorkabel Weste | GX16-7 Einbaubuchse (Gewinde M16 × 1, Mutter SW 19, Flansch bis Ø 20) + GX16-7 Kabelstecker; 7 Litzen AWG 28 zu J2 (JST-SH 7) |
+| Kabel innen | Litze AWG 28 (Ø ≤ 0,9 mm), Akku AWG 24 (Ø ≤ 1,3 mm) |
 | TSOP 6 | TSOP34838 (6 × 6,95 × 5,6 mm) |
 
 ## Einbau
@@ -98,3 +100,36 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
   schräg durch das Gehäuse und im Handschutz oben im Rohr um den Lautsprecher herum. Dieses Stück liegt
   als offene Nut an der Teilungsfläche der rechten Hälfte: Kabel einlegen, dann durch die Bohrung im
   Zapfen in den hinteren Handschutz
+- **Weste:** GX16-7 Buchse unten vorn am Schaft, senkrecht nach unten; der Stecker hängt hinter dem
+  Griff (ca. 30 mm Abstand zur Griffrückseite, 50 mm vor der Schaftkappe), weg von Schießhand und Wange.
+  Mutter vor dem Zusammensetzen der Schafthälften in die Sechskanttasche legen, Buchse später von außen
+  eindrehen (Flansch auf der Planfläche). Litzen an die Lötkelche, durch den Schacht schräg nach vorn
+  durch das Gehäuse in die Zone unter der Platine zu J2. Belegung: [Sensorkabel](../../readme.md#3-sensorkabel-zwischen-weste-und-waffe)
+
+<img src="../baugruppe/schnitt_weste.png" alt="Schnitt: GX16-Buchse im Schaft, Mutter, Stecker, Kabelschacht zur Platine" width="520">
+
+## Kabelwege
+
+Geprüft mit [`../scripts/kabelwege.py`](../scripts/kabelwege.py): jede Leitung vom Stecker auf der Platine
+bis zum Bauteil, das Kabelbündel als Zylinder gegen alle Teile der Baugruppe (Platine eingeschlossen).
+Alle Wege sind frei. Zwischen den Zonen am Platinenrand laufen die Kabel flach im Spalt unter der Platine
+(2,5 mm, Dome).
+
+| Leitung | Stecker | Adern | Weg | Länge ca. |
+|---|---|---|---|---|
+| Akku | BT1 (JST-PH 2) | 2 × AWG 24 | linke Zone → Hauptschacht → Abzweig in den Magazinschacht → JST-PH im Magazin | 35 mm + Stecker |
+| IR-LED | LED1 (JST-SH 2) | 2 | linke Zone → Hauptschacht → Zwischenring → Handschutz (um den Lautsprecher) → LED-Sitz | 345 mm |
+| TSOP 6 | J6 (JST-SH 3) | 3 | wie IR-LED bis Y −129, senkrecht hoch in den TSOP-Einsatz | 305 mm |
+| Ringlicht | J1 (JST-PH 3) | 3 | untere Zone → unter der Platine → Hauptschacht → Bohrung → Kanal unten im Schalldämpfer → Frontkappe | 445 mm |
+| Lautsprecher | SP1 (JST-PH 2) | 2 | untere Zone → unter der Platine → Hauptschacht → Kabelnut → Bohrung in die Basskammer | 355 mm |
+| Abzug | SW1 (JST-SH 2) | 2 | linke Zone → unter der Platine → untere Zone → Schaltertasche | 85 mm |
+| Weste | J2 (JST-SH 7) | 7 | untere Zone → Westenschacht → GX16-Buchse im Schaft | 120 mm |
+| OLED | J4 (JST-SH 4) | 4 | Zone rechts oben → OLED-Schacht → OLED im Schaft | 95 mm |
+| Drehgeber | J5 (JST-SH 4) | 4 | Zone rechts oben → VIB-Zone → Motorschacht → Motorraum → Drehgeber | 130 mm |
+| Vibrationsmotor | M1 (JST-SH 2) | 2 | VIB-Zone → Motorschacht → Motor | 70 mm |
+
+Füllung der Schächte (Querschnitt der Adern / Schacht): Hauptschacht im Gehäuse 46 % (12 Adern inkl. Akku,
+dünne Silikonlitze verwenden), im Handschutz 33 %, Westenschacht 23 %, Motor-/Drehgeberschacht 19 %,
+OLED-Schacht 16 %. Längen ohne Zugabe; je Leitung ca. 30 mm Reserve lassen.
+
+**Offen:** SW2 (Nachladen, JST-SH 2) hat auf der Platine einen Stecker, im Gehäuse aber noch keinen Taster.

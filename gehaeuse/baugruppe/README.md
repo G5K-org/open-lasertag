@@ -33,6 +33,11 @@ der Zapfen des hinteren Handschutzes:
 
 <img src="schnitt_lautsprecher.png" width="640">
 
+Schnitt durch Gehäuse und Schaft (rechte Hälfte): GX16-Buchse für die Weste (gold, Platzhalter) mit Mutter in der
+Sechskanttasche und Stecker, Westenschacht schräg nach vorn zur Platine; darüber OLED-Schacht und Steg hinten:
+
+<img src="schnitt_weste.png" width="520">
+
 ## Teile
 
 Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README.md#dateien)
@@ -48,7 +53,7 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 | Steg vorn (Rundstab 96 mm) | Gehäuse 34 mm, Zwischenring 21 mm, Handschutz hinten 41 mm (bis vor den Zapfen) |
 | Korn | Ring auf dem Rohr vorn am Handschutz, Steg im Schlitz |
 | Spannhebel Stift, Spannhebel Knauf | Stift im schrägen Loch der linken Mulde, Knauf außen darauf |
-| Schaft links / rechts, OLED-Rahmen | an der Gehäuserückseite; Rahmen in der Stufe des OLED-Sockels |
+| Schaft links / rechts, OLED-Rahmen | an der Gehäuserückseite; Rahmen in der Stufe des OLED-Sockels; GX16-Buchse unten vorn (X = 114,4, Y = 232) |
 | Steg hinten (Rundstab 77 mm) | ab Anschlag Y = 164 bis in den Schaft |
 | Magazin, Magazin Unterteil | voll im Magazinschacht, 12° geneigt |
 | Abzug | auf der Achse X = 136 / Y = 129, Ruhelage |
@@ -68,6 +73,7 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 .venv/bin/pip install numpy trimesh manifold3d lxml networkx scipy shapely matplotlib
 .venv/bin/python gehaeuse/scripts/umbau.py       # Druckteile nach mp5_umbau/
 .venv/bin/python gehaeuse/scripts/baugruppe.py   # GLB/3MF
+.venv/bin/python gehaeuse/scripts/kabelwege.py   # alle Kabelwege prüfen
 .venv/bin/python gehaeuse/scripts/explosion.py gehaeuse/baugruppe/explosion_links.png -30 -22
 .venv/bin/python gehaeuse/scripts/explosion.py gehaeuse/baugruppe/explosion_rechts.png 150 -22
 ```

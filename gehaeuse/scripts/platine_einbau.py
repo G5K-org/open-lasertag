@@ -38,7 +38,7 @@ PILOT_DEPTH = 6.0        # unter der Platinenrückseite
 ZONES = [
     (33.5 - 1, -6.0 - 1, 51.5 + 1, 0),   # Antenne des ESP32-S3
     (-6.4, -1.0, 0, 37.0),              # links: AKKU, LED1, TSOP, ABZUG, NACHL.
-    (59.6, -1.0, 67.6, 19.5),           # rechts oben: OLED, GEBER
+    (59.6, -1.0, 67.6, 23.0),           # rechts oben: OLED, GEBER (offen zur VIB-Zone: Drehgeberkabel)
     (54.0, 20.5, 62.0, 29.0),           # rechts: VIB
     (6.0, 46.0, 55.0, 54.0),            # unten: WS2812, USB, SENSOR, LAUTSPR.
 ]

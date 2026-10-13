@@ -18,6 +18,7 @@ Einbauten:
   - OLED 0,96" 128 x 64 angewinkelt in der Schrägfläche vorn oben am Schaft, Kabelschacht zur Platine
     (Kimme und Korn bleiben)
   - Gehäusehälften mit 6 x M3 x 10 und Einschmelzmuttern verschraubt
+  - GX16-7 Buchse für das Sensorkabel der Weste unten vorn am Schaft, Kabelschacht zur Platine (J2)
   - Drehgeber EC11 unten im Griff (Welle nach unten), Vibrationsmotor 10 x 20 über dem Griff,
     Kabelschacht Drehgeber -> Motor -> Platine
 
@@ -107,6 +108,18 @@ HG_SCREWS = [(92.0, -108.0), (61.0, -113.0), (67.0, -165.0), (92.0, -165.0), (67
 # ---------------------------------------------------------------- Kabelschächte
 TRUNK = (81.0, 2.5)           # Hauptschacht X, Radius (Mündung -> Platinentasche)
 DROP_R = 3.0                  # Abzweig in den Magazinschacht
+
+# ---------------------------------------------------------------- Sensorkabel zur Weste
+# GX16-7 Einbaubuchse unten vorn am Schaft, senkrecht nach unten: der Stecker hängt hinter dem Griff, frei von der
+# Schießhand. Mutter in einer Sechskanttasche (Schlüsselweite quer zur Teilung), Buchse von außen eindrehen.
+# Kabelschacht schräg durch das Gehäuse in die Zone unter der Platine (J2, 7 Adern).
+GX = (114.4, 232.0)           # Mitte der Auflage: X Unterseite Schaft, Y
+GX_SPOT = (21.0, 0.5)         # Planfläche für den Flansch: Ø, Tiefe
+GX_HOLE = (16.3, 2.9)         # Durchgang M16 x 1, Wandstärke
+GX_NUT = (19.4, 3.4)          # Mutter SW 19 (mit Spiel), Höhe
+GX_BODY = (16.6, 14.0)        # Raum für Gewinde und Lötkelche: Ø, Länge
+GX_PATH = [(104.0, 186.0, 0), (116.0, 160.0, 0), (125.5, 144.0, 0)]   # nach der Buchse, bis in die Zone unten
+GX_WIRE = 2.5                 # Radius Kabelschacht (7 x AWG 28)
 
 # ---------------------------------------------------------------- Magazin, Akku
 CELL = (18.8, 66.2)           # 18650 mit Spiel
@@ -510,6 +523,22 @@ def joint():
     return spigot - nut, pocket + hole
 
 
+def vest():
+    """Aufnahme der GX16-Buchse im Schaft und Kabelschacht zur Platine (Gun-Rahmen, beide Hälften)."""
+    x0, y = GX
+    xs = x0 - GX_SPOT[1]
+    cut = cyl((xs, y, 0), (x0 + 20.0, y, 0), GX_SPOT[0] / 2, 64)
+    xw = xs - GX_HOLE[1]
+    cut = cut + cyl((xw - 0.01, y, 0), (xs + 0.01, y, 0), GX_HOLE[0] / 2, 64)
+    xn = xw - GX_NUT[1]
+    hexa = m3.CrossSection.circle(GX_NUT[0] / np.sqrt(3), 6).extrude(GX_NUT[1])     # Flächen bei ±Z (SW quer)
+    cut = cut + hexa.rotate((0, 0, 30)).transform(frame((1, 0, 0), (xn, y, 0), (0, 0, 1)))
+    xb = xn - GX_BODY[1]
+    cut = cut + cyl((xb, y, 0), (xn + 0.01, y, 0), GX_BODY[0] / 2, 64)
+    cut = cut + path([(xb + 2.0, y, 0)] + GX_PATH, GX_WIRE)
+    return cut
+
+
 def screws(points=None):
     """Bohrungen für eine Verschraubung über die Teilungsebene Z = 0 (beide Hälften, Gun-Rahmen)."""
     cut = None
@@ -536,10 +565,11 @@ def build():
     mag_body, mag_floor, cell_top, cell_bottom, mag_top, cell_dir, floor_dir = magazine_parts(mag)
     hcut, pod, pod_cut, oled_frame, oled_loc = housing_cuts(tip, yw, mag_top)
     pcut, bosses, pilots, stop = P.pocket_shapes()
+    vcut = vest()
 
     halves = []
     for H, side in ((L, P.HALF_L), (R, P.HALF_R)):
-        H = H - pcut - trig_cut - hcut - screws() + (stop ^ side)
+        H = H - pcut - trig_cut - hcut - screws() - vcut + (stop ^ side)
         if side is P.HALF_R:
             H = H + bosses - pilots
         halves.append(H)
@@ -558,7 +588,7 @@ def build():
     stocks = {}
     for key, orig, side in (("schaft_links", "obj_4_7", P.HALF_L), ("schaft_rechts", "obj_2_4", P.HALF_R)):
         mat = parts[B.NAMES[key]][1]
-        stocks[key] = (load_gun(orig, mat) + (pod ^ side) - pod_cut, mat)
+        stocks[key] = (load_gun(orig, mat) + (pod ^ side) - pod_cut - vcut, mat)
 
     os.makedirs(OUT, exist_ok=True)
     for f in os.listdir(OUT):                               # alter Stand (auch frühere Dateinamen)

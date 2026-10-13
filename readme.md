@@ -149,7 +149,9 @@ angewinkelt vorn oben am Schaft, der Drehgeber unten im Griff, der Abzug löst e
 Im Handschutz sitzt ein Lautsprecher Ø 40 mit Basskammer, vorn unter dem Korn der TSOP 6. Gehäusehälften
 (6 × M3) und die beiden Hälften des vorderen Handschutzes mit Schalldämpfer (5 × M3) sind mit
 Einschmelzmuttern verschraubt; die vorderen Hälften umschließen einen Zapfen am hinteren Handschutz
-und sind dort mit je 2 × M3 befestigt (ohne Kleber, lösbar).
+und sind dort mit je 2 × M3 befestigt (ohne Kleber, lösbar). Das Sensorkabel der Weste steckt unten vorn
+am Schaft in einer GX16-7-Buchse (Stecker hängt hinter dem Griff nach unten). Alle Kabelwege sind geprüft:
+[gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/README.md#kabelwege).
 Umgebaute und neue Druckteile: [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/). Alle Teile samt
 Platine zusammengesetzt: [gehaeuse/baugruppe/](gehaeuse/baugruppe/) (GLB/3MF).
 
@@ -179,6 +181,12 @@ Kabelschacht als offene Nut an der Teilungsfläche, darüber das Korn; rechts (b
 hinteren Handschutzes, den die vorderen Hälften umschließen.
 
 <img src="gehaeuse/baugruppe/schnitt_lautsprecher.png" alt="Schnitt durch den Handschutz: Lautsprecher, Schallkammer mit Löchern, Basskammer, Kabelschacht" width="700">
+
+**Schnitt durch Gehäuse und Schaft:** GX16-7-Buchse für das Sensorkabel der Weste unten vorn am Schaft
+(gold, Mutter in einer Sechskanttasche), Stecker nach unten; der Westenschacht läuft schräg nach vorn
+durch das Gehäuse zur Platine (J2).
+
+<img src="gehaeuse/baugruppe/schnitt_weste.png" alt="Schnitt: GX16-Buchse im Schaft mit Mutter und Stecker, Kabelschacht zur Platine" width="520">
 
 ## Firmware
 
@@ -347,9 +355,9 @@ kein Protokoll.
 | 6 | TSOP 4 – Rücken |
 | 7 | TSOP 5 – Schultern (optional) |
 
-- Mind. 7 Adern (bei 5 Sensoren): GX12/GX16-Aviation-Steckverbinder
-  (Schraubverriegelung, 7–9-polig) oder mehradriges Sensorkabel mit passendem
-  Stecker.
+- 7 Adern (bei 5 Sensoren): GX16-7-Aviation-Steckverbinder mit Schraubverriegelung.
+  Buchse unten vorn am Schaft, im Gehäuse Litzen zu J2 (JST-SH 7), siehe
+  [Weste im Gehäuse](gehaeuse/mp5_umbau/README.md#einbau).
 - Je TSOP 100 Ω + 4,7 µF direkt am Sensor, nicht erst an der Waffe.
 - Kabel kurz halten, geschirmt.
 - Reine GPIO/RMT-Eingänge, von derselben Firmware ausgewertet, die auch sendet.
@@ -485,6 +493,5 @@ Akku und Metall), USB-Zugang einplanen.
 - OTA-Update-Mechanismus für die Waffe bei mehreren Sets
 - CI-Build für die Firmware
 - Server (Python) folgt eigener Umsetzung, ohne externe Basis – ESP-IDF-Vorgabe gilt nur für die Firmware
-- Steckverbinder für das Sensorkabel festlegen (z. B. GX12/GX16, Polzahl nach TSOP-Anzahl)
 - Gewichtsverteilung der Waffe mit Gesamt-BOM früh real nachbauen/wiegen
 
