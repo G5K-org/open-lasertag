@@ -1,7 +1,7 @@
-"""3D model for the vertical USB-C receptacle HRO TYPE-C-31-E-17 (LCSC C7424785).
+"""3D model for the vertical USB-C receptacle hanxia HX-TYPE-C 16P 180 LT H10.5 (LCSC C49261570).
 
-Dimensions from the HRO drawing: body 9.70 x 4.20, sealing flange 10.38 x 4.59
-(top 1.55 mm), opening 8.34 x 2.56, height 6.00 above the PCB.
+Dimensions from the hanxia drawing: base 12.00 x 5.00 x 2.10 (flanges), shell 8.94 x 3.16 with the
+opening 8.34 x 2.56, height L = 10.50 above the PCB. Pads rotated 180 deg like the footprint (A row on top).
 
     freecadcmd scripts/gen_3d_usb_c_vertical.py
 
@@ -13,8 +13,8 @@ import Part
 from FreeCAD import Vector
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "3dmodels")
-NAME = "USB_C_Receptacle_HRO_TYPE-C-31-E-17_Vertical"
-H, H_FLANGE = 6.0, 1.55
+NAME = "USB_C_Receptacle_HX_TYPE-C-16P-180-LT-H10.5_Vertical"
+H, H_BASE = 10.5, 2.1
 
 BLACK = (0.12, 0.12, 0.12)
 METAL = (0.80, 0.80, 0.78)
@@ -49,22 +49,26 @@ def write_wrl(path, parts):
             f.write(" ] }\n}\n")
 
 
-housing = box(-4.85, 4.85, -2.1, 2.1, 0.0, H - H_FLANGE)
-housing = housing.fuse(obround(10.38, 4.59, H - H_FLANGE, H)).removeSplitter()
-shell = obround(8.94, 3.16, 1.2, H).cut(obround(8.34, 2.56, 1.0, H + 0.1))   # mating shell
-housing = housing.cut(obround(8.94, 3.16, 1.2, H + 0.1))
-tongue = box(-3.3, 3.3, -0.35, 0.35, 1.2, H - 0.6)
+base = box(-5.37, 5.37, -1.8, 1.8, 0.0, H_BASE)
+for s in (-1, 1):                                                            # side flanges with the pegs
+    base = base.fuse(box(s * 4.6, s * 6.0, -2.5, 2.5, 0.0, H_BASE) if s > 0 else box(-6.0, -4.6, -2.5, 2.5, 0.0, H_BASE))
+housing = base.removeSplitter()
+shell = obround(8.94, 3.16, H_BASE, H).cut(obround(8.34, 2.56, H_BASE - 0.1, H + 0.1))   # mating shell
+tongue = box(-3.3, 3.3, -0.35, 0.35, H_BASE, H - 0.6)
 legs = []
-for x in (-2.75, -1.25, -0.75, -0.25, 0.25, 0.75, 1.25, 2.75):
-    for y in (-0.81, 0.81):
-        legs.append(box(x - 0.1, x + 0.1, y - 0.3, y + 0.3, 0.0, 0.15))
-for x, y in ((-2.29, -2.08), (2.29, -2.08), (-2.29, 2.08), (2.29, 2.08)):
-    legs.append(box(x - 0.25, x + 0.25, y - 0.45, y + 0.45, 0.0, 0.15))
+for i in range(8):
+    for y in (-1.365, 1.365):
+        legs.append(box(-3.5 + i - 0.15, -3.5 + i + 0.15, y - 0.6, y + 0.6, 0.0, 0.15))
+for x, y in ((-4.16, -1.4), (4.16, -1.4), (-4.16, 1.4), (4.16, 1.4)):
+    legs.append(box(x - 0.45, x + 0.45, y - 0.15, y + 0.15, 0.0, 0.25))
+pegs = [Part.makeCylinder(0.35, 1.0, Vector(x, y, -1.0)) for x, y in ((-5.41, -1.48), (5.41, 1.48))]
 metal = shell
 for p in legs:
     metal = metal.fuse(p)
 metal = metal.removeSplitter()
+for p in pegs:
+    housing = housing.fuse(p)
 
 Part.makeCompound([housing, metal, tongue]).exportStep(os.path.join(OUT, NAME + ".step"))
 write_wrl(os.path.join(OUT, NAME + ".wrl"), [(housing, BLACK), (metal, METAL), (tongue, BLACK)])
-print("wrote", NAME, housing.BoundBox)
+print("wrote", NAME, housing.BoundBox, metal.BoundBox)

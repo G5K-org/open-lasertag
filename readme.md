@@ -143,7 +143,7 @@ Standard-Digitaldatei-Lizenz. Details in
 [gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/).</sub>
 
 Die Platine sitzt im Unterteil zwischen Magazinschacht und Griff; die senkrechte
-USB-C-Buchse ist durch die linke Seitenwand erreichbar. Im Schalldämpfer sitzen IR-LED und
+USB-C-Buchse schließt bündig mit einer Mulde in der linken Seitenwand ab. Im Schalldämpfer sitzen IR-LED und
 verstellbare Linse, vorn das Ringlicht; der 18650-Akku steckt im Magazin, das OLED sitzt
 angewinkelt vorn oben am Schaft, der Drehgeber unten im Griff, der Abzug löst einen Mikroschalter aus.
 Im Handschutz sitzt ein Lautsprecher Ø 40 mit Basskammer, vorn unter dem Korn der TSOP 6. Gehäusehälften

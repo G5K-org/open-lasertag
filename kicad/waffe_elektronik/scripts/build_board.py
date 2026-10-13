@@ -30,7 +30,7 @@ MX, MY = W0 - 11.5, 6.75  # ESP32 module origin; board top edge = antenna keep-o
 SH_IN = 3.1     # JST-SH horizontal: body front this far from origin -> flush with board edge
 PH_IN = 4.9     # JST-PH SM4 horizontal
 
-JX, JY = 24.1, 41.0   # USB-C, vertical (HRO TYPE-C-31-E-17): plug enters from the component side
+JX, JY = 28.2, 41.0   # USB-C, vertical (hanxia HX-TYPE-C 16P 180 LT H10.5): flush with the outer wall
 PROJ_FPLIB = os.path.join(PROJ, "footprints")  # footprint libraries of this project (fp-lib-table)
 
 # ------------------------------------------------------------------ placement
@@ -47,29 +47,28 @@ PLACE = {
     "C18": (30.1, 2.1, 90), "C17": (31.95, 2.1, 90), "R21": (28.25, 3.95, 270), "C16": (30.7, 5.3, 270),
     # --- left edge connectors
     "LED1": (SH_IN, 12.8, 270), "J6": (SH_IN, 20.6, 270),  # J6: TSOP 6 on the weapon
-    "SW1": (SH_IN, 27.0, 270), "SW2": (SH_IN, 33.0, 270),
+    # --- left edge, lower part: WS2812 and speaker (cables run forward to the barrel)
+    "J1": (PH_IN, 29.8, 270), "SP1": (PH_IN, 40.2, 270),
     # --- IR driver
     "R7": (9.5, 12.85, 180), "Q1": (8.6, 19.1, 180), "C7": (8.8, 15.65, 180),
     "R5": (12.3, 20.05, 180), "R6": (11.95, 17.7, 90),
-    # --- trigger / reload debounce
-    "C8": (8.6, 24.8, 0), "R9": (8.6, 26.5, 180), "C9": (8.6, 30.8, 0), "R10": (8.6, 32.5, 180),
-    # --- bottom edge connectors: WS2812, sensor cable, speaker; USB-C stands upright between them
-    "J1": (13.0, H - PH_IN, 0), "J3": (JX, JY, 0), "J2": (35.0, H - SH_IN, 0),
-    "SP1": (48.6, H - PH_IN, 0),
-    # --- right edge: motors
-    "M1": (W0 - SH_IN, 24.8, 90),
+    # --- bottom edge: trigger and reload (cables run along the bottom to the switch), USB-C upright
+    "SW1": (13.0, H - SH_IN, 0), "SW2": (18.9, H - SH_IN, 0), "J3": (JX, JY, 0),
+    "R9": (11.675, 37.0, 0), "C8": (13.9, 37.0, 90), "R10": (17.575, 37.0, 0), "C9": (19.8, 37.0, 90),
+    # --- right edge: motor, sensor cable below it (both cables run back into the motor channel)
+    "M1": (W0 - SH_IN, 23.2, 90), "J2": (W0 - SH_IN, 34.2, 90),
     # --- right strip: OLED (I2C, Qwiic) above, rotary encoder below
     "J4": (W - SH_IN, 5.5, 90), "J5": (W - SH_IN, 13.5, 90),
     # --- WS2812 level shifter
-    "U5": (16.0, 29.5, 0), "C21": (20.85, 27.2, 90), "R15": (11.0, 34.4, 270), "C10": (17.9, 34.0, 0),
+    "U5": (16.0, 29.5, 0), "C21": (20.85, 27.2, 90), "R15": (10.85, 26.0, 90), "C10": (16.1, 33.9, 0),
     # --- USB: ESD (connector side down) + CC
-    "U12": (24.1, 31.5, 90), "R23": (JX - 2.4, JY - 3.7, 180), "R22": (JX + 1.9, JY + 3.35, 0),
+    "U12": (JX, 31.5, 90), "R23": (JX - 2.325, JY - 3.7, 180), "R22": (JX + 2.325, JY + 3.85, 0),
     # --- charger
     "U3": (22.5, 23.0, 0), "C4": (25.4, 23.6, 90), "C5": (19.6, 24.2, 90), "R1": (24.6, 20.1, 0), "R2": (19.6, 20.9, 270),
     # --- battery voltage divider
     "R3": (26.2, 17.6, 0), "R4": (27.3, 19.9, 270), "C6": (29.0, 18.6, 270),
     # --- EN (RESET) / BOOT buttons
-    "SW3": (4.8, 42.5, 0), "SW4": (35.0, 22.1, 0), "C1": (32.2, 28.5, 90),
+    "SW3": (16.2, 13.6, 0), "SW4": (35.0, 22.1, 0), "C1": (32.2, 28.5, 90),
     # --- vibration drivers: top channel HIT (pad 24) -> M2, bottom channel RECOIL (pad 25) -> M1
     "R11": (46.13, 21.05, 180), "Q2": (45.55, 23.95, 0), "R12": (42.75, 23.5, 270), "D1": (45.3, 26.95, 0),
     # --- audio
@@ -332,18 +331,18 @@ HOLES = [(20.4, 14.8), (42.2, 42.5)]  # 2x M2 ISO 7380 (button head 3.5 mm), dia
 HOLE_HEAD = 1.75     # courtyard radius = screw head
 HOLE_KEEPOUT = 1.85  # radius without copper on all layers
 
-USB_TUNE = 3.434  # mm added to D+ between module and U12 (D- runs around the outside)
-USB_TUNE2 = 1.28  # mm added to D+ between U12 and J3 (D- bridge is longer than the D+ diagonal)
+USB_TUNE = 2.262  # mm added to D+ between module and U12 (D- runs around the outside)
+USB_TUNE2 = 3.53  # mm added to D+ between U12 and J3 (D- bridge is longer than the D+ diagonal)
 
 OWN_MODELS = {"JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
               "JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal"}
 
 LABELS = [  # front silk, horizontal, next to the connector, clear of pads and bodies (tools/silk.py): (x, y, text, height, angle)
     (11.2, 5.35, "AKKU", 0.8, 0), (4.2, 15.59, "LED1", 0.8, 0), (4.2, 17.04, "TSOP", 0.8, 0),
-    (4.2, 24.24, "ABZUG", 0.8, 0), (4.2, 30.04, "NACHL.", 0.8, 0), (2.23, 40.15, "RESET", 0.8, 0),
-    (5.28, 45.05, "WS2812", 0.8, 0), (23.45, 44.03, "USB", 0.8, 0), (35.0, 38.5, "SENSOR", 0.8, 0),
-    (48.6, 35.8, "LAUTSPR.", 0.8, 0), (49.85, 21.78, "VIB", 0.8, 0),
-    (31.1, 22.1, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0), (30.55, 40.1, "1", 0.8, 0), (19.5, 17.9, "open-lasertag v1", 0.8, 0),
+    (12.35, 39.43, "ABZUG", 0.8, 0), (18.5, 39.43, "NACHL.", 0.8, 0), (17.85, 11.53, "RESET", 0.8, 0),
+    (10.65, 32.98, "WS2812", 0.8, 0), (30.2, 37.83, "USB", 0.8, 0), (46.93, 28.93, "SENSOR", 0.8, 0),
+    (2.98, 44.98, "LAUTSPR.", 0.8, 0), (49.7, 26.03, "VIB", 0.8, 0), (47.0, 37.9, "1", 0.8, 0),
+    (31.1, 22.1, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0), (19.5, 17.9, "open-lasertag v1", 0.8, 0),
 ]
 BACK_LABELS = [  # no room on the front
     (41.5, 16.0, "github.com/G5K-org/open-lasertag", 0.8, 0),
@@ -527,19 +526,23 @@ def route(r):
     # ================= left-pin signals: vias next to the module, long runs on B.Cu =================
     # order top->bottom (EN, TRIGGER, RELOAD, IR_GATE, WS2812) = order of the targets, so no crossings
     r.v((29.4, 4.73), net="Net-(U4-EN)")
-    r.t(B, 0.25, (29.4, 4.73), (29.4, 4.0), (25.35, 4.0), (7.0, 22.35), (7.0, 40.9), net="Net-(U4-EN)")
-    r.v((7.0, 40.9), net="Net-(U4-EN)"); r.t(F, 0.25, (7.0, 40.9), ("SW3.2", 0, -0.5), "SW3.2")
+    r.t(B, 0.25, (29.4, 4.73), (29.4, 4.0), (25.35, 4.0), (16.9, 12.45), net="Net-(U4-EN)")
+    r.v((16.9, 12.45), net="Net-(U4-EN)"); r.t(F, 0.25, (16.9, 12.45), (17.9, 13.45), "SW3.2")
     for pin, yy, xd, end in (("U4.4", 5.30, 7.8, (7.8, 25.65)), ("U4.5", 6.57, 8.6, None), ("U4.6", 7.84, 13.0, None)):
         r.t(F, 0.25, pin, (32.25, yy)); r.v((32.25, yy))
-    r.t(B, 0.25, (32.25, 5.30), (24.95, 5.30), (7.8, 22.45), (7.8, 25.65), net="TRIGGER"); r.v((7.8, 25.65), net="TRIGGER")
-    r.t(F, 0.25, "C8.1", (7.8, 25.65), "R9.2", "SW1.1")
-    r.t(B, 0.25, (32.25, 6.57), (24.58, 6.57), (8.6, 22.55), (8.6, 30.85), (7.8, 31.65), net="RELOAD"); r.v((7.8, 31.65), net="RELOAD")
-    r.t(F, 0.25, "C9.1", (7.8, 31.65), "R10.2", "SW2.1")
+    r.t(B, 0.25, (32.25, 5.30), (24.95, 5.30), (7.8, 22.45), (7.8, 31.4), (12.5, 36.1), net="TRIGGER")
+    r.v((12.5, 36.1), net="TRIGGER")
+    r.t(F, 0.25, (12.5, 36.1), "R9.2", "SW1.1")
+    r.t(F, 0.25, "C8.1", (13.2, 37.77), (12.5, 38.47))
+    r.t(B, 0.25, (32.25, 6.57), (24.58, 6.57), (8.6, 22.55), (8.6, 26.3), (18.4, 36.1), net="RELOAD")
+    r.v((18.4, 36.1), net="RELOAD")
+    r.t(F, 0.25, (18.4, 36.1), "R10.2", "SW2.1")
+    r.t(F, 0.25, "C9.1", (19.1, 37.77), (18.4, 38.47))
     r.t(B, 0.25, (32.25, 7.84), (24.21, 7.84), (13.1, 18.95), net="IR_GATE"); r.v((13.1, 18.95), net="IR_GATE")
     r.t(F, 0.25, (13.1, 18.95), "R5.1")
     r.t(F, 0.25, "U4.10", (32.4, 12.92)); r.v((32.4, 12.92))
-    r.t(B, 0.25, (32.4, 12.92), (26.88, 12.92), (11.6, 28.2), net="WS2812_DIN_3V3")
-    r.v((11.6, 28.2), net="WS2812_DIN_3V3"); r.t(F, 0.25, (11.6, 28.2), "U5.2")
+    r.t(B, 0.25, (32.4, 12.92), (26.88, 12.92), (11.9, 27.9), net="WS2812_DIN_3V3")
+    r.v((11.9, 27.9), net="WS2812_DIN_3V3"); r.t(F, 0.25, (11.9, 27.9), (12.2, 28.2), "U5.2")
 
     # ================= IR driver =================
     K = "Net-(LED1-K)"
@@ -567,22 +570,22 @@ def route(r):
     r.t(F, 0.2, (14.3, 23.7), (7.2, 23.7), (5.3, 21.8), "J6.3")
 
     # ================= trigger / reload / reset =================
-    r.gnd("C8.2", 0.85, 0); r.gnd("C9.2", 0.85, 0)
-    r.gnd("SW1.2", 1.2, 0.4); r.gnd("SW2.2", 1.2, 0.4); r.gnd("SW3.1", 0, -1.2)
+    r.gnd("C8.2", 0.95, 0); r.gnd("C9.2", 0.95, 0)
+    r.gnd("SW1.2", 1.2, 0.4); r.gnd("SW2.2", 1.2, 0.4); r.gnd("SW3.1", 0, 1.2)
     r.drop("R9.1", 0, 0.95); r.drop("R10.1", 0, 0.95)
 
     # ================= WS2812 level shifter =================
-    r.t(F, 0.25, "U5.3", (12.2, 28.85), (11.0, 30.05), "R15.1")
-    r.t(F, 0.4, "R15.2", (11.0, 35.6), "J1.1")
+    r.t(F, 0.25, "U5.3", (12.05, 28.85), (10.85, 27.65), "R15.1")
+    r.t(F, 0.4, "R15.2", (8.23, 27.8), "J1.1")
     for pins, via in ((("U5.1",), (14.7, 27.55)), (("U5.4", "U5.5"), (14.7, 30.15)), (("U5.7",), (14.7, 31.45)),
                       (("U5.12", "U5.13"), (17.3, 28.2)), (("U5.9", "U5.10"), (17.3, 30.15))):
         r.t(F, 0.3, *pins, via, net="GND")
         r.v(via, net="GND")
     r.t(F, 0.5, "U5.14", (20.1, 27.55), "C21.1"); r.gnd("C21.2", 0.9, 0)
     r.drop("C21.1", 0.95, 0.5)
-    r.t(F, 0.8, "J1.2", (13.0, 36.6), (15.6, 34.0), "C10.1")
-    r.gnd("J1.3", 0, -2.3); r.gnd("C10.2", 0, 2.0)
-    r.drop("C10.1", 0, -1.9)
+    r.t(F, 0.8, "J1.2", (9.5, 29.8), (13.6, 33.9), "C10.1")
+    r.gnd("J1.3", 2.55, 0); r.gnd("C10.2", 0, -1.4)
+    r.drop("C10.1", 0.2, 1.6)
 
     # ================= charger (MCP73831) + battery divider =================
     r.t(F, 0.25, "U4.11", (31.7, 14.19), (30.2, 15.69), (25.6, 15.69), (21.363, 19.927), "U3.1")
@@ -599,49 +602,48 @@ def route(r):
     r.drop("R3.1", 0, -0.85)
 
     # ================= USB: pair 0.2/0.2, 45 deg into the ESD chip =================
-    r.t(F, 0.2, "U4.13", (31.3, 16.73), (30.85, 17.18), (30.85, 23.5), (25.6, 28.75), (23.6, 28.75), (23.15, 29.2), "U12.6")
+    r.t(F, 0.2, "U4.13", (31.3, 16.73), (30.85, 17.18), (30.85, 23.5), (27.25, 27.1), "U12.6")
     # D+ is the inner line of the pair: meander makes it as long as D- (tools/pairlen.py)
-    r.t(F, 0.2, "U4.14", (31.25, 18.0), *meander_v(31.25, 18.9, USB_TUNE), (31.25, 23.66), (25.05, 29.86), "U12.4")
+    r.t(F, 0.2, "U4.14", (31.25, 18.0), *meander_v(31.25, 18.9, USB_TUNE), (31.25, 23.66), (29.15, 25.76), "U12.4")
     r.gnd("U12.2", 0, 0.9)
-    # vertical USB-C: rows A (top) and B (bottom), 0.5 mm pitch; each line has one pad per row.
-    # D+: A6 and B6 on one diagonal through a via in the connector centre, fed on B.Cu.
-    # D-: A7 (via above) and B7 (via below) bridged on B.Cu, fed at the middle of the bridge.
-    # Both plug orientations see the same lengths (tools/pairlen.py: U12.3-J3.A6 = U12.1-J3.A7, B6 = B7).
+    # vertical USB-C, 1.0 mm pitch: row A on top, row B below; each line has one pad per row.
+    # D+: A6 and B6 on one F.Cu diagonal through a via in the connector centre, fed on B.Cu from the right.
+    # D-: A7 (via above) and B7 (via below) bridged on B.Cu left of the centre, fed at the middle of the bridge.
+    # Both plug orientations see the same lengths (tools/pairlen.py: U12.3-J3.A6 = U12.3-J3.B6, A7 = B7).
     U = dict(d=0.4, h=0.2)
     DM, DP = "Net-(J3-D--PadA7)", "Net-(J3-D+-PadA6)"
     vc = (JX, JY)                                               # D+ centre via
-    v3 = (JX + 0.95, JY - 2.5)                                  # D+ F -> B
-    v1, v2, v5 = (JX + 0.25, JY - 2.2), (JX - 0.25, JY + 1.55), (JX - 0.5, JY - 4.8)   # D-: above A7, below B7, feed
-    tap = (JX - 0.5, JY - 0.75)                                 # D- bridge: equal length to A7 and B7
-    r.t(F, 0.2, "U12.3", *meander_v(v3[0], 33.6, USB_TUNE2, side=1), v3); r.v(v3, net=DP, **U)
+    v3 = (JX + 0.95, 34.2)                                      # D+ F -> B
+    v1, v2 = (JX + 0.5, JY - 2.9), (JX - 0.5, JY + 2.9)         # D-: above A7, below B7
+    v5 = (JX - 2.0, 34.0)                                       # D- feed F -> B
+    tap = (JX - 1.0, JY - 0.41)                                 # D- bridge: equal length to A7 and B7
+    r.t(F, 0.2, "U12.3", *meander_v(v3[0], 33.15, USB_TUNE2, n=1, side=1), v3); r.v(v3, net=DP, **U)
     r.t(B, 0.2, v3, (v3[0], vc[1] - (v3[0] - vc[0])), vc, net=DP); r.v(vc, net=DP, **U)
-    r.t(F, 0.2, "J3.A6", (JX - 0.25, JY - 0.25), vc, (JX + 0.25, JY + 0.25), "J3.B6")
-    r.t(F, 0.2, "U12.1", (23.15, v5[1] - (v5[0] - 23.15)), v5); r.v(v5, net=DM, **U)
-    r.t(B, 0.2, v5, tap, (tap[0], v2[1] - 0.8), (v2[0], v2[1] - 0.55), v2, net=DM); r.v(v2, net=DM, **U)
-    r.t(B, 0.2, tap, (v1[0], tap[1] - (v1[0] - tap[0])), v1, net=DM); r.v(v1, net=DM, **U)
+    r.t(F, 0.2, "J3.A6", (JX - 0.5, JY - 0.5), vc, (JX + 0.5, JY + 0.5), "J3.B6")
+    r.t(F, 0.2, "U12.1", ("U12.1", 0, 0.31), v5); r.v(v5, net=DM, **U)
+    r.t(B, 0.2, v5, (v5[0], tap[1] - 1.0), tap, net=DM)
+    r.t(B, 0.2, v1, (JX - 0.2, v1[1]), (JX - 1.0, v1[1] + 0.8), tap, (JX - 1.0, v2[1] - 0.5), v2, net=DM)
+    r.v(v1, net=DM, **U); r.v(v2, net=DM, **U)
     r.t(F, 0.2, "J3.A7", v1)
     r.t(F, 0.2, "J3.B7", v2)
-    # CC pull-downs right at the connector: CC1 up-left to R23, CC2 straight down to R22
-    r.t(F, 0.25, "J3.A5", (JX - 0.75, 38.6), ("R23.1", 0, 0.475), "R23.1"); r.gnd("R23.2", -0.9, 0)
-    r.t(F, 0.25, "J3.B5", ("R22.1", -0.325, -0.2)); r.gnd("R22.2", 0.85, 0)
-    # VBUS: A4/B9 and A9/B4 through vias, joined on B.Cu beside the pair, ring above to ESD and charger
+    # CC pull-downs right at the connector: CC1 straight up to R23, CC2 straight down to R22
+    r.t(F, 0.25, "J3.A5", "R23.1"); r.gnd("R23.2", -0.9, 0)
+    r.t(F, 0.25, "J3.B5", "R22.1"); r.gnd("R22.2", 0, -0.95)
+    # VBUS: A4-B9 and A9-B4 straight through the row gap, a via in the gap on each side;
+    # left one on B.Cu to the charger and the ESD centre via, right one on In2 to the ESD centre via
     V = "VBUS_NATIVE"
-    va4, vb9, va9, vb4 = (JX - 1.5, JY - 2.1), (JX - 1.5, JY + 1.85), (JX + 1.5, JY - 1.75), (JX + 1.5, JY + 1.85)
-    for pp, vv in (("J3.A4", va4), ("J3.B9", vb9), ("J3.A9", va9), ("J3.B4", vb4)):
-        r.t(F, 0.3, pp, vv); r.v(vv, net=V)
-    r.t(B, 0.4, vb9, va4, (va4[0], 36.3), (va4[0] + 0.8, 35.5), (va9[0] - 0.8, 35.5), (va9[0], 36.3), va9, vb4, net=V)
-    r.t(B, 0.4, (24.6, 35.5), (25.6, 34.5), (25.6, 25.5), (25.4, 25.3), net=V); r.v((25.4, 25.3), net=V)
+    vl, vr, ve = (JX - 2.5, JY), (JX + 2.5, JY), (JX, 31.5)
+    r.t(F, 0.4, "J3.A4", vl, "J3.B9"); r.v(vl, net=V, d=0.6)
+    r.t(F, 0.4, "J3.A9", vr, "J3.B4"); r.v(vr, net=V, d=0.6)
+    r.t(F, 0.3, "U12.5", ve); r.v(ve, net=V, d=0.6)
+    r.t(B, 0.4, vl, (vl[0] - 0.5, vl[1] - 0.5), (vl[0] - 0.5, 25.5), (25.4, 25.3), net=V); r.v((25.4, 25.3), net=V)
+    r.t(B, 0.4, ve, (vl[0] - 0.5, ve[1] - (ve[0] - vl[0] + 0.5)), net=V)
     r.t(F, 0.4, (25.4, 25.3), "C4.1")
-    r.t(B, 0.4, (25.6, 30.1), (24.85, 29.35), (24.1, 29.35), net=V); r.v((24.1, 29.35), net=V)
-    r.t(F, 0.3, (24.1, 29.35), "U12.5")
-    # GND: outer pins into the shell pads, every shell pad its own via
-    for pp, sx, sy in (("J3.A1", -1, -1), ("J3.A12", 1, -1), ("J3.B12", -1, 1), ("J3.B1", 1, 1)):
-        x0 = JX + sx * 2.75
-        r.t(F, 0.4, pp, (x0, JY + sy * 1.4), (JX + sx * 2.29, JY + sy * 1.86), net="GND")
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            r.t(F, 0.4, (JX + sx * 2.29, JY + sy * 2.08), (JX + sx * 3.15, JY + sy * 2.08), net="GND")
-            r.v((JX + sx * 3.15, JY + sy * 2.08), net="GND")
+    r.t(I2, 0.4, vr, (vr[0], 36.2), (vr[0] - 0.5, 35.7), (vr[0] - 0.5, 33.5), ve, net=V)
+    # GND: outer pins (shell tabs overlap them) through the row gap, via in the gap
+    for xg in (JX - 3.5, JX + 3.5):
+        r.t(F, 0.4, ("J3.A1" if xg < JX else "J3.A12"), (xg, JY), ("J3.B12" if xg < JX else "J3.B1"), net="GND")
+        r.v((xg, JY), net="GND")
 
     # ================= BOOT button: IO0 runs under the module on B.Cu =================
     r.t(F, 0.25, "U4.27", (49.85, 17.6)); r.v((49.85, 17.6))
@@ -649,32 +651,31 @@ def route(r):
     r.t(F, 0.25, (36.7, 20.75), "SW4.2")
     r.gnd("SW4.1", 0, 1.4)
 
-    # ================= TSOP 1-5: via under each pad, 45 deg on B.Cu, straight down to J2 =================
-    for k, (pin, X) in enumerate((("U4.18", 34.0), ("U4.19", 35.0), ("U4.20", 36.0), ("U4.21", 37.0), ("U4.22", 38.0))):
+    # ================= TSOP 1-5: via under each pad, 45 deg on B.Cu, down a column, F.Cu into J2 =================
+    for k, (pin, X) in enumerate((("U4.18", 45.0), ("U4.19", 45.6), ("U4.20", 46.2), ("U4.21", 46.8), ("U4.22", 47.4))):
         x0 = r.pt(pin)[0]
+        yt = r.pt(f"J2.{k + 3}")[1]
         r.t(F, 0.2, pin, (x0, 20.75)); r.v((x0, 20.75))
-        d = x0 - X
-        r.t(B, 0.2, (x0, 20.75), (X, 20.75 + d), (X, 39.4)); r.v((X, 39.4))
-        r.t(F, 0.2, (X, 39.4), f"J2.{k + 3}")
-    r.t(F, 0.4, "J2.2", (33.0, 39.4)); r.v((33.0, 39.4), net="GND")
-    # sensor 3V3: B.Cu from the LDO's lower pin straight down to J2 pin 1
-    r.t(B, 0.4, (26.3, 15.0), (29.5, 18.2), (29.5, 36.9), (32.0, 39.4), net="3V3_MCU")
-    r.v((32.0, 39.4), net="3V3_MCU", d=0.6); r.t(F, 0.4, (32.0, 39.4), "J2.1")
+        r.t(B, 0.2, (x0, 20.75), (X, 20.75 + X - x0), (X, yt)); r.v((X, yt))
+        r.t(F, 0.2, (X, yt), f"J2.{k + 3}")
+    r.gnd("J2.2", -1.7, 0)
+    # sensor 3V3 from In2 (branch of the module 3V3 line down the right edge)
+    r.v((50.4, 37.2), net="3V3_MCU", d=0.6); r.t(F, 0.4, (50.4, 37.2), "J2.1")
 
     # ================= vibration drivers =================
     # one motor for recoil and hit feedback (IO47)
     r.t(F, 0.25, "U4.24", "R11.1")
     r.t(F, 0.25, "R11.2", (44.61, 21.75), "Q2.1")
     r.t(F, 0.25, "R12.1", (44.0, 22.68), "Q2.1")
-    r.t(F, 0.5, "Q2.3", "M1.2"); r.t(F, 0.5, "D1.2", (46.7, 24.25))
-    r.t(F, 0.4, "Q2.2", (43.6, 25.4)); r.t(F, 0.4, "R12.2", (43.6, 25.4)); r.v((43.6, 25.4), net="GND")
-    r.drop("D1.1", 0, 1.05); r.drop("M1.1", -1.3, 0.3)
+    r.t(F, 0.5, "Q2.3", (47.74, 22.7), "M1.2"); r.t(F, 0.5, "D1.2", (46.7, 24.1))
+    r.t(F, 0.4, "Q2.2", (44.21, 25.3), (42.75, 25.3)); r.t(F, 0.4, "R12.2", (42.75, 25.3)); r.v((42.75, 25.3), net="GND")
+    r.drop("D1.1", 0, 1.05); r.drop("M1.1", -0.6, 1.5)
 
     # ================= I2S: three lines beside the module, then diagonal to the amp =================
     # down the column beside the module, then one 45 deg run straight into the amp (x + y = const)
-    for pin, col, c, ycol, d, tail in (("U4.31", 52.45, 71.85, 50.15, 76.55, [(42.55, 34.0), "U6.1"]),
-                                       ("U4.32", 52.95, 72.45, 50.65, 79.45, [(43.9, 35.55), "U6.16"]),
-                                       ("U4.33", 53.45, 73.05, 51.15, 80.45, [(43.9, 36.55), "U6.14"])):
+    for pin, col, c, ycol, d, tail in (("U4.31", 52.45, 70.9, 50.15, 75.55, [(42.55, 33.0), "U6.1"]),
+                                       ("U4.32", 52.95, 71.6, 50.65, 76.3, [(43.9, 32.4), (43.9, 35.55), "U6.16"]),
+                                       ("U4.33", 53.45, 72.3, 51.15, 77.05, [(44.5, 32.55), (44.5, 36.55), "U6.14"])):
         y0 = r.pt(pin)[1]
         r.t(F, 0.2, pin, (col, y0), (col, c - col), (ycol, c - ycol), (ycol, d - ycol), *tail)
 
@@ -686,11 +687,15 @@ def route(r):
     r.t(F, 0.25, "U6.4", (41.05, 34.25), (39.6, 34.25), (39.6, 36.3), (39.95, 36.65))
     r.gnd("C23.2", 0, -0.82)
     r.drop("C23.1", 0, 0.92)
-    r.t(F, 0.25, "U6.10", (41.55, 38.45)); r.t(F, 0.4, (41.55, 38.45), (41.85, 38.75), (46.4, 38.75)); r.v((46.4, 38.75))
-    r.t(B, 0.4, (46.4, 38.75), (50.5, 38.75), net="Net-(U6-OUTN)"); r.v((50.5, 38.75), net="Net-(U6-OUTN)")
-    r.t(F, 0.4, (50.5, 38.75), "SP1.2")
-    r.t(F, 0.25, "U6.9", (41.05, 39.2)); r.t(F, 0.4, (41.05, 39.2), (41.45, 39.6), (47.35, 39.6), net="Net-(U6-OUTP)")
-    r.gnd("C22.2", 1.0, 0); r.drop("C22.1", -1.0, 0)
+    ON, OP = "Net-(U6-OUTN)", "Net-(U6-OUTP)"
+    r.t(F, 0.25, "U6.9", (41.05, 38.0), (40.65, 38.4)); r.t(F, 0.4, (40.65, 38.4), (40.2, 38.85), (40.2, 39.4), net=OP)
+    r.v((40.2, 39.4), net=OP, d=0.6)
+    r.t(F, 0.25, "U6.10", (41.55, 38.2)); r.t(F, 0.4, (41.55, 38.2), (41.55, 39.05), (41.2, 39.4), net=ON); r.v((41.2, 39.4), net=ON, d=0.6)
+    r.t(B, 0.4, (40.2, 39.4), (39.4, 40.2), (39.4, 44.95), (10.75, 44.95), (10.75, 40.0), (9.95, 39.2), net=OP)
+    r.t(B, 0.4, (41.2, 39.4), (40.0, 40.6), (40.0, 45.5), (9.95, 45.5), (9.95, 41.2), net=ON)
+    r.v((9.95, 39.2), net=OP, d=0.6); r.t(F, 0.4, (9.95, 39.2), "SP1.1")
+    r.v((9.95, 41.2), net=ON, d=0.6); r.t(F, 0.4, (9.95, 41.2), "SP1.2")
+    r.gnd("C22.2", 1.0, 0); r.drop("C22.1", 0, 0.95)
     r.gnd("C1.2", 0, -1.42); r.drop("C1.1", 0, 1.42)
 
     # ================= module GND pad 40 =================
@@ -699,10 +704,10 @@ def route(r):
     # ================= In2: 5V / 3V3 / BAT distribution =================
     P5 = "5V_PERIPH"
     r.t(I2, 0.8, (21.3, 5.95), (23.85, 5.95), (29.9, 12.0), (30.2, 12.3), (30.2, 29.39), (32.2, 31.39), net=P5)
-    r.t(I2, 0.6, (30.2, 27.4), (29.6, 28.0), (22.28, 28.0), (21.8, 28.48), (20.05, 28.48), (16.43, 32.1), net=P5)
-    r.t(I2, 0.6, (32.2, 31.39), (40.51, 31.39), (46.3, 25.6), (47.6, 25.6), net=P5)  # through the D1 via to the motor
+    r.t(I2, 0.6, (30.2, 27.4), (29.6, 28.0), (22.28, 28.0), (21.8, 28.48), (20.05, 28.48), (14.83, 33.7), ("C10.1", 0.2, 1.6), net=P5)
+    r.t(I2, 0.6, (32.2, 31.39), (40.51, 31.39), (46.7, 25.2), (48.3, 25.2), net=P5)  # through the D1 via to the motor
     r.t(I2, 0.6, (34.0, 31.39), (34.51, 31.9), (34.51, 34.95), (38.06, 38.5), (38.9, 38.5), net=P5)
-    r.t(I2, 0.6, (34.51, 34.6), (33.76, 35.35), (31.4, 35.35), (31.3, 35.45), net=P5)
+    r.t(I2, 0.6, (34.51, 34.6), (32.71, 36.4), (32.3, 36.4), net=P5)
     # ================= OLED (J4, Qwiic: GND 3V3 SDA SCL) and rotary encoder (J5: GND SW B A) =================
     r.t(F, 0.2, "U4.39", (52.15, 2.76), (53.39, 4.0), "J4.4")          # I2C_SCL
     r.t(F, 0.2, "U4.38", (52.3, 4.03), (53.27, 5.0), "J4.3")           # I2C_SDA
@@ -721,7 +726,8 @@ def route(r):
     r.gnd("J5.1", 1.7, 0)
 
     P3 = "3V3_MCU"
-    r.t(I2, 0.5, (26.3, 15.0), (19.6, 19.205), (9.425, 27.45), (9.425, 33.45), net=P3)
+    r.t(I2, 0.5, (26.3, 15.0), (19.6, 19.205), (9.425, 27.45), (9.425, 37.0), (10.375, 37.95), ("R10.1", 0, 0.95), net=P3)
+    r.t(I2, 0.5, (51.0, 2.76), (51.6, 3.36), (51.6, 36.0), (50.4, 37.2), net=P3)
     r.t(I2, 0.6, ("R3.1", 0, -0.85), (25.38, 18.2), (18.6, 24.98), net="BAT_P"); r.v((18.6, 24.98), net="BAT_P", d=0.6)
 
 

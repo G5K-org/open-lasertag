@@ -55,8 +55,9 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   - EN mit 10 kΩ Pull-up und 1 µF (Power-on-Reset), dazu RESET-Taster
   - BOOT-Taster an IO0
 - **USB-C (`J3`) am nativen USB des S3** (IO19/IO20 = USB_D−/USB_D+):
-  - senkrechte Buchse HRO TYPE-C-31-E-17 (LCSC C7424785), 6,0 mm hoch, mit Dichtring;
-    Stecker kommt von der Bestückungsseite (in der Waffe durch die linke Seitenwand)
+  - senkrechte Buchse hanxia HX-TYPE-C 16P 180 LT H10.5 (LCSC C49261570), 10,5 mm hoch;
+    Stecker kommt von der Bestückungsseite, die Buchse reicht in der Waffe durch die linke Seitenwand
+    und schließt bündig mit einer flachen Mulde außen ab
   - Flashen und serielle Konsole über den eingebauten USB-Serial-JTAG –
     esptool setzt das Modul automatisch in den Download-Modus, ohne
     USB-UART-Chip
@@ -96,13 +97,20 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **ESP32-S3-Modul:** Antenne ragt über die Oberkante hinaus; jedes GND-Pad
   mit eigenem Via nach In1, GND-Stitching-Vias im Raster
 - **Befestigung:** 2 × M2-Loch (2,2 mm, nicht durchkontaktiert) für Linsenkopfschrauben
-  ISO 7380 (Kopf ≤ 3,5 mm), diagonal: neben dem Spannungsregler und zwischen Sensor- und
-  Lautsprecherstecker; Ø 3,7 mm kupferfrei auf allen Lagen
+  ISO 7380 (Kopf ≤ 3,5 mm), diagonal: neben dem Spannungsregler und unten rechts neben dem
+  Verstärker; Ø 3,7 mm kupferfrei auf allen Lagen
 - **Bedienung:** J4 OLED (JST-SH 4, Qwiic: GND/3V3/SDA/SCL) und J5 Drehgeber (JST-SH 4:
   GND/Taster/B/A) übereinander im rechten Streifen; I²C-Pull-ups auf dem OLED-Modul
-- **Stecker:** links IR-LED (LED1)/TSOP 6 (J6)/Abzug/Nachladen, unten WS2812/Sensor/
-  Lautsprecher, rechts Vibrationsmotor, rechts oben OLED/Drehgeber, oben links Akku;
-  USB-C (J3) senkrecht zwischen WS2812- und Sensorstecker, CC2-Widerstand R22 direkt darunter
+- **Stecker nach Kabelweg in der Waffe:** jede Öffnung zeigt in die Zone am Platinenrand, aus der der
+  Kabelschacht des Bauteils abgeht
+  - links (vorn, Hauptschacht zum Lauf, Abzweig Magazin): Akku (BT1), IR-LED (LED1), TSOP 6 (J6),
+    WS2812 (J1), Lautsprecher (SP1)
+  - unten (Kanal zur Abzugsschalter-Tasche): Abzug (SW1), Nachladen (SW2), Entprellung R9/C8 und
+    R10/C9 direkt darüber
+  - rechts (hinten, Motorschacht): Vibrationsmotor (M1), Sensorkabel Weste (J2)
+  - rechts oben: OLED (J4), Drehgeber (J5)
+  - USB-C (J3) senkrecht unten rechts der Abzugsstecker, CC1/CC2-Widerstände R23/R22 direkt
+    darüber/darunter; RESET-Taster auf dem EN-Weg oben links
 - **Regeln (`.kicad_pro`):** min. 0,15 mm Leiterbahn/Abstand, Vias 0,5/0,3 mm
   (USB-Kreuzung 0,4/0,2 mm), Netzklassen Default 0,2 mm, Power 0,5 mm,
   3V3 0,6 mm, USB 0,2/0,2 mm (Paar)
@@ -111,10 +119,12 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **USB-Paar gleich lang:** D+ mit Mäander zwischen Modul und USBLC6 und zwischen USBLC6
   und Buchse; an der Buchse D+ über ein Via in der Buchsenmitte (A6–B6-Diagonale), D− über eine
   B.Cu-Brücke A7–B7 mit Abgriff in der Längenmitte; beide Steckrichtungen gleich lang
-  (Modul–USBLC6 0,000 mm, USBLC6–Buchse ≤ 0,01 mm, je 2 Vias)
+  (Modul–USBLC6 0,000 mm, USBLC6–Buchse ≤ 0,01 mm, je 2 Vias); VBUS A4/B9 und A9/B4 je über ein
+  Via im Reihenspalt, links über B.Cu, rechts über In2 zum USBLC6
 - **Beschriftung oben** (F.SilkS), alle Labels waagerecht und einheitlich 0,8 mm hoch,
-  direkt am jeweiligen Stecker/Taster, frei von Pads, Vias und Bauteilkörpern; Labels einer
-  Steckerspalte auf gemeinsamer Mittelachse, untere Stecker mittig beschriftet; Pin 1 von J2
+  direkt am jeweiligen Stecker/Taster, frei von Pads, Vias und Bauteilkörpern; LED1/TSOP auf
+  gemeinsamer Mittelachse, WS2812 neben und LAUTSPR. unter ihrem Stecker, ABZUG/NACHL. auf gemeinsamer
+  Höhe über ihren Steckern; Pin 1 von J2
   mit „1“ markiert; Bauteilbezeichner nur auf F.Fab
 - **Leiterbahnen nur in 0°/45°/90°**, jeder Knick max. 45°, Abzweige laufen
   unter 45° ein; Teardrops an allen Pads und Vias (außer GND-Stichen in der
@@ -134,7 +144,7 @@ geprüft auf Lagerbestand bei JLCPCB.
 - Leiterplatte: 4 Lagen, 1,6 mm, Impedanz-Stackup JLC04161H-7628, ENIG
 - Bestückung: Top Side, BOM + CPL hochladen, Platzierungsvorschau prüfen
 - Ersatzteile: `U5` 74HCT125PW, `D1`/`D2` SS14 (SOD-123FL), `L1` 10 µH MWSA0503S,
-  `BT1`/`SP1` CJT A2001WR-S-2P (JST-PH-kompatibel)
+  `BT1`/`SP1` CJT A2001WR-S-2P, `J1` CJT A2001WR-S-3P (JST-PH-kompatibel)
 
 ## Bekannte offene Punkte
 

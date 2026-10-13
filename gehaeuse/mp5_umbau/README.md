@@ -10,7 +10,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 | Datei | Teil | aus Original | Änderung |
 |---|---|---|---|
-| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite), Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Nachladetaste, Einschmelzmuttern |
+| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite) mit Zonen für die Stecker, USB-C bündig in einer Mulde, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Nachladetaste, Einschmelzmuttern |
 | `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Auflage der Nachladetaste, Schraubensenkungen |
 | `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht |
 | `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | einteilig, ab Y = −32; vorn Zapfen mit 4 Einschmelzmuttern, Kabelschacht |
@@ -62,7 +62,11 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 ## Einbau
 
 - **Platine** in der rechten Hälfte, Oberkante X = 76 (4 mm höher als zuvor, Platz für den Abzug)
-- **USB-C** durch die linke Seitenwand (Langloch 13,0 × 7,5)
+- **USB-C** (Buchse 10,5 mm hoch) reicht durch die linke Seitenwand (Durchbruch 9,3 × 3,5) und schließt bündig
+  mit einer flachen Mulde (14 × 8,5, Boden auf Höhe der Buchsenoberkante) ab
+
+<img src="../baugruppe/usb_buendig.png" alt="USB-C-Buchse bündig in der Mulde der linken Seitenwand" width="420">
+
 - **Abzug:** Achse X = 136 / Y = 129, Stift durch beide Hälften; Hebel nach hinten unter
   Mikroschalter und Feder; Schalter löst bei ca. 4,5° aus, Anschlag bei 5° (Abzugsweg vorn ca. 3 mm)
 - **Schalldämpfer:** Linsenhülse von vorn einschrauben und mit Werkzeug in den Schlitzen verstellen
@@ -111,7 +115,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 <img src="../baugruppe/schnitt_weste.png" alt="Schnitt: GX16-Buchse im Schaft, Mutter, Stecker, Kabelschacht zur Platine" width="520">
 
-- **Nachladetaste** links über dem Griff, vor dem Knopf des Sicherungshebels (Daumen der Schießhand):
+- **Nachladetaste** links über dem Griff am oberen Rand des Sicherungshebel-Knopfs (Daumen der Schießhand):
   Kappe von innen in das Loch der linken Hälfte stecken (Bund innen), Taster 6 × 6 mit dem Stößel auf die
   Kappe setzen, Beinchen nach unten in die zwei Schlitze der rechten Hälfte biegen, Litzen anlöten und in die
   Nut an der Teilung zur Tasche des Abzugsschalters legen, von dort wie das Abzugskabel zu SW2. Beim
@@ -123,22 +127,23 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 Geprüft mit [`../scripts/kabelwege.py`](../scripts/kabelwege.py): jede Leitung vom Stecker auf der Platine
 bis zum Bauteil, das Kabelbündel als Zylinder gegen alle Teile der Baugruppe (Platine eingeschlossen).
-Alle Wege sind frei. Zwischen den Zonen am Platinenrand laufen die Kabel flach im Spalt unter der Platine
-(2,5 mm, Dome).
+Alle Wege sind frei. Jeder Stecker der Platine zeigt in die Zone am Platinenrand, aus der sein Schacht
+abgeht: links (vorn) in den Hauptschacht, unten in den Kanal zum Abzugsschalter, rechts (hinten) in den
+Motorschacht, rechts oben in OLED- und Motorschacht.
 
 | Leitung | Stecker | Adern | Weg | Länge ca. |
 |---|---|---|---|---|
 | Akku | BT1 (JST-PH 2) | 2 × AWG 24 | linke Zone → Hauptschacht → Abzweig in den Magazinschacht → JST-PH im Magazin | 35 mm + Stecker |
 | IR-LED | LED1 (JST-SH 2) | 2 | linke Zone → Hauptschacht → Zwischenring → Handschutz (um den Lautsprecher) → LED-Sitz | 345 mm |
 | TSOP 6 | J6 (JST-SH 3) | 3 | wie IR-LED bis Y −129, senkrecht hoch in den TSOP-Einsatz | 305 mm |
-| Ringlicht | J1 (JST-PH 3) | 3 | untere Zone → unter der Platine → Hauptschacht → Bohrung → Kanal unten im Schalldämpfer → Frontkappe | 445 mm |
-| Lautsprecher | SP1 (JST-PH 2) | 2 | untere Zone → unter der Platine → Hauptschacht → Kabelnut → Bohrung in die Basskammer | 355 mm |
-| Abzug | SW1 (JST-SH 2) | 2 | linke Zone → unter der Platine → untere Zone → Schaltertasche | 85 mm |
-| Nachladen | SW2 (JST-SH 2) | 2 | wie Abzug bis zur Schaltertasche → Nut an der Teilung → Taster | 95 mm |
-| Weste | J2 (JST-SH 7) | 7 | untere Zone → flach unter der Platine (um den Dom H2) → VIB-Zone → Motorschacht → Westenschacht → GX16-Buchse | 125 mm |
+| Ringlicht | J1 (JST-PH 3) | 3 | linke Zone → Hauptschacht → Bohrung → Kanal unten im Schalldämpfer → Frontkappe | 410 mm |
+| Lautsprecher | SP1 (JST-PH 2) | 2 | linke Zone → Hauptschacht → Kabelnut → Bohrung in die Basskammer | 305 mm |
+| Abzug | SW1 (JST-SH 2) | 2 | untere Zone → Schaltertasche | 50 mm |
+| Nachladen | SW2 (JST-SH 2) | 2 | untere Zone → Schaltertasche → Nut an der Teilung → Taster | 60 mm |
+| Weste | J2 (JST-SH 7) | 7 | rechte Zone → Motorschacht → Westenschacht → GX16-Buchse | 90 mm |
 | OLED | J4 (JST-SH 4) | 4 | Zone rechts oben → OLED-Schacht → OLED im Schaft | 95 mm |
 | Drehgeber | J5 (JST-SH 4) | 4 | Zone rechts oben → VIB-Zone → Motorschacht → Motorraum → Drehgeber | 145 mm |
-| Vibrationsmotor | M1 (JST-SH 2) | 2 | VIB-Zone → Motorschacht → Motor | 85 mm |
+| Vibrationsmotor | M1 (JST-SH 2) | 2 | rechte Zone → Motorschacht → Motor | 80 mm |
 
 Füllung der Schächte (Querschnitt der Adern / Schacht): Hauptschacht im Gehäuse 46 % (12 Adern inkl. Akku,
 dünne Silikonlitze verwenden), im Handschutz 32 %, Motorschacht 29 % (Motor, Drehgeber, Weste: 13 Adern),

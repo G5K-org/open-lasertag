@@ -37,16 +37,18 @@ PILOT_DEPTH = 6.0        # unter der Platinenrückseite
 # Freiräume für Stecker und Kabel (bx0, by0, bx1, by1)
 ZONES = [
     (33.5 - 1, -6.0 - 1, 51.5 + 1, 0),   # Antenne des ESP32-S3
-    (-6.4, -1.0, 0, 37.0),              # links: AKKU, LED1, TSOP, ABZUG, NACHL.
+    (-6.4, -1.0, 0, 45.5),              # links (vorn, zum Hauptschacht): AKKU, LED1, TSOP, WS2812, LAUTSPR.
     (59.6, -1.0, 67.6, 23.0),           # rechts oben: OLED, GEBER (offen zur VIB-Zone: Drehgeberkabel)
-    (52.0, 20.5, 62.0, 29.0),           # rechts: VIB, Drehgeber, Weste (bis unter die Platine)
-    (6.0, 46.0, 55.0, 54.0),            # unten: WS2812, USB, SENSOR, LAUTSPR.
+    (52.0, 20.5, 60.0, 40.5),           # rechts (hinten, zum Motorschacht): VIB, SENSOR (Weste), Drehgeber
+    (6.0, 46.0, 55.0, 54.0),            # unten (Kanal zum Abzugsschalter): ABZUG, NACHL.
 ]
-# USB-C steht senkrecht auf der Platine (HRO TYPE-C-31-E-17, 6,0 mm hoch): Öffnung in der linken
-# Seitenwand für den Steckerkörper, von der Oberkante der Buchse bis nach außen
-USB_B = (24.1, 41.0)     # Mitte der Buchse, Platinenkoordinaten
-USB_H = 6.0              # Höhe über der Platine
-USB_OPEN = (13.0, 7.5)   # Langloch Y x X (Steckerkörper bis 12,4 x 6,5)
+# USB-C steht senkrecht auf der Platine (hanxia HX-TYPE-C 16P 180 LT H10.5, 10,5 mm hoch) und reicht durch
+# die linke Seitenwand bis außen: Durchbruch eng um das Blechgehäuse, außen eine flache Mulde auf Höhe der
+# Buchsenoberkante (Auflage für den Stecker), die Buchse schließt bündig mit der Mulde ab
+USB_B = (28.2, 41.0)     # Mitte der Buchse, Platinenkoordinaten
+USB_H = 10.5             # Oberkante der Buchse über der Platine = Boden der Mulde
+USB_SHELL = (9.3, 3.5)   # Durchbruch Y x X (Blechgehäuse 8,94 x 3,16)
+USB_OPEN = (14.0, 8.5)   # Mulde Y x X (Steckerkörper bis 12,4 x 6,5)
 # Der Kanal für den Steg zum Schaft (obj_8_8, Rundstab Ø 10) beginnt original bei Y = 141 und läuft
 # jetzt in die Tasche. Ein Anschlag dahinter begrenzt ihn; der Steg wird dafür auf STEG_L gekürzt.
 STOP = (76.5, 91.0, 160.5, 164.0, 6.0)   # X0, X1, Y0, Y1, halbe Dicke
@@ -78,13 +80,14 @@ def pocket_shapes():
     left = to_gun(m3.CrossSection([BOARD]).offset(1.0, m3.JoinType.Round) + zones)
     right = to_gun(board + zones)
     cut = slab(left, -0.01, DEPTH_L) + slab(right, -DEPTH_R, 0.01)
-    ly, lx = USB_OPEN
-    r = lx / 2
     cx, cy = X0 + USB_B[1], Y0 + USB_B[0]
-    slot = (m3.CrossSection.circle(r, 48).translate((cx, cy - (ly / 2 - r)))
-            + m3.CrossSection.circle(r, 48).translate((cx, cy + (ly / 2 - r)))
-            + rect(cx - r, cy - (ly / 2 - r), cx + r, cy + (ly / 2 - r)))
-    cut = cut + slab(slot, USB_H - 0.01, 60.0)
+
+    def obround(ly, lx):
+        r = lx / 2
+        return (m3.CrossSection.circle(r, 48).translate((cx, cy - (ly / 2 - r)))
+                + m3.CrossSection.circle(r, 48).translate((cx, cy + (ly / 2 - r)))
+                + rect(cx - r, cy - (ly / 2 - r), cx + r, cy + (ly / 2 - r)))
+    cut = cut + slab(obround(*USB_SHELL), DEPTH_L - 0.01, 60.0) + slab(obround(*USB_OPEN), USB_H, 60.0)
     bosses = None
     pilots = None
     for hx, hy in HOLES:

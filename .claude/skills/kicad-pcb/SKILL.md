@@ -28,11 +28,16 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   `meander_v(x, y0, extra, n, c, t, gap, side)` in build_board.py (senkrechter Lauf, n Ausbuchtungen,
   Zusatzlänge pro Ausbuchtung 2h − 4c(2 − √2)); Zielwerte `USB_TUNE` (Modul–U12) und `USB_TUNE2` (U12–J3). Prüfen mit
   `tools/pairlen.py w.kicad_pcb U4.14-U12.4 U4.13-U12.6 U12.3-J3.B6 U12.1-J3.B7 U12.3-J3.A6 U12.1-J3.A7 --via=0`
-  (je Paar-Abschnitt zwischen denselben Bauteilen; Stand: Modul–U12 0,000, U12–J3 ≤ 0,007 mm). J3 ist die
-  senkrechte HRO TYPE-C-31-E-17 (Projektbibliothek `footprints/lasertag.pretty`): A-Reihe oben, B-Reihe unten.
-  D+ = Diagonale A6–B6 durch ein Via in der Buchsenmitte (`vc`), von oben über B.Cu gespeist; D− = B.Cu-Brücke
-  von Via über A7 zu Via unter B7, Abgriff `tap` in der Längenmitte der Brücke → A- und B-Steckrichtung gleich
-  lang, je Leitung 2 Vias. VBUS A4/B9 und A9/B4 je über Vias, auf B.Cu als Ring über der Buchse verbunden.
+  (je Paar-Abschnitt zwischen denselben Bauteilen; Stand: Modul–U12 0,000, U12–J3 ≤ 0,005 mm). J3 ist die
+  senkrechte hanxia HX-TYPE-C 16P 180 LT H10.5 (10,5 mm hoch, bündig mit der Gehäusewand; Projektbibliothek
+  `footprints/lasertag.pretty`, Padbild aus dem Datenblatt um 180° gedreht): A-Reihe oben, B-Reihe unten,
+  1,0 mm Raster, Reihen 2,73 mm auseinander, Schirmlaschen überlappen A1/B12/A12/B1 (Abstand zu den
+  NPTH-Stiften ≥ 0,19). D+ = F.Cu-Diagonale A6–B6 durch ein Via in der Buchsenmitte (`vc`), von rechts oben
+  über B.Cu gespeist (Mäander `USB_TUNE2` auf F.Cu zwischen U12.3 und `v3`); D− = B.Cu-Brücke links um `vc`
+  von Via über A7 zu Via unter B7, Abgriff `tap` in der Längenmitte, Zuleitung von `v5` unter 45° → A- und
+  B-Steckrichtung gleich lang. VBUS A4–B9 und A9–B4 gerade durch den Reihenspalt, je ein Via im Spalt; links
+  über B.Cu zu C4 und zum Via in der U12-Mitte (U12.5), rechts über In2 zum selben Via. GND A1–B12 und A12–B1
+  ebenfalls durch den Spalt mit Via. CC1 gerade hoch zu R23, CC2 gerade runter zu R22.
 - **Beschriftung auf der Vorderseite** (`F.SilkS`, nicht gespiegelt), **lesbar mit bestückten Bauteilen**:
   kein Text auf Pads, Bauteilkörpern (F.Fab-Umriss), Footprint-Silk, anderen Texten, ≥ 0,3 mm vom Rand.
   Jedes Steckerlabel direkt an **seinem** Stecker, näher an ihm als an jedem Nachbarn.
@@ -41,10 +46,10 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   (oben/unten/neben) als ein senkrechtes Label. Pin 1 von Steckern mit „1“ markieren, wenn die
   Footprint-Silk es nicht schon tut.
   **Mehrere Stecker in einer Reihe/Spalte:** ihre Labels gemeinsam ausrichten – in einer Spalte (links
-  LED1/TSOP/ABZUG/NACHL., rechts VIB) gleiche Mittelpunkt-x (horizontal zentriert
-  untereinander), jedes Label direkt am eigenen Stecker (nie zwei Labels zwischen zwei Steckern so, dass
-  beide zum selben zu gehören scheinen). Reihe (unten J1/J2/SP1): gemeinsame y geht wegen
-  unterschiedlicher Steckerhöhen nicht → jedes Label mittig (gleiche x) über seinem Stecker.
+  LED1/TSOP) gleiche Mittelpunkt-x (horizontal zentriert untereinander), jedes Label direkt am eigenen
+  Stecker (nie zwei Labels zwischen zwei Steckern so, dass beide zum selben zu gehören scheinen); lückenlos
+  aneinander liegende PH-Stecker (J1/SP1) bekommen ihr Label daneben bzw. darunter. Reihe (unten SW1/SW2):
+  gemeinsame y über den Steckern; bei unterschiedlichen Steckerhöhen jedes Label mittig über seinem Stecker.
   Suche: `silk.py --column "A=REF" ...` bzw. `--row`; Mindestabstand Label ↔ Pad/Via/Körper/Silk 0,12 mm.
   Die gefundenen Werte sind Mittelpunkte der Strichkontur; KiCad-Textanker liegt bis 0,1 mm daneben
   (y ≈ +0,036) → nach dem Setzen immer `silk.py --gap=0.12` laufen lassen.
@@ -68,8 +73,8 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
 - **Befestigung:** 2 × M2 nach ISO 7380 (Linsenkopf 3,5 mm), `HOLES` in build_board.py, Footprint
   `MountingHole_2.2mm_M2_ISO7380`, nicht durchkontaktiert, board-only (nicht in Schaltplan/BOM/CPL).
   Courtyard = Kopfradius `HOLE_HEAD` 1,75 mm, Kupfer-Sperrfläche `HOLE_KEEPOUT` 1,85 mm auf allen Lagen
-  (keine Bahnen, Vias, Füllung). Lage diagonal: H1 (20,5/14,9) neben U2, H2 (42,2/42,5) mittig zwischen
-  J2 und SP1 (dort nur 3,51 mm zwischen den Courtyards → größere Köpfe/M2,5/M3 passen nicht).
+  (keine Bahnen, Vias, Füllung). Lage diagonal: H1 (20,4/14,8) neben U2, H2 (42,2/42,5) unten rechts neben U6
+  (Lautsprecherleitungen laufen links daran vorbei).
   Freie Stellen suchen: größte freie Kreise gegen Pads, Körper, Bahnen, Vias mit Bahn und Texte.
   Mehr Löcher oder größere Schrauben nur mit größerer Platine.
 - ESP32-S3-WROOM-1: Antenne ragt über die Oberkante (`MX, MY`), 100 nF + 10 µF und EN-RC direkt an den Pins.
@@ -82,11 +87,20 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   3V3-Diagonale), 2 GND (Via rechts), 3 OUT von IO16: B.Cu-Kanal Diagonale x + y = 38,0 (zwischen
   H1-Sperrfläche und R2-3V3-Via, H1 dafür auf 20,4/14,8, U2-GND-Via auf (−1,2/0,3)), letztes Stück
   F.Cu von unten rechts. Filter 100 Ω + 4,7 µF sitzt am Sensor (U13/R26/C24 nicht auf der Platine).
-  Linker Rand ist auf B.Cu durch das EN/Abzug/Nachladen/IR-Bündel abgetrennt → Signale zu linken
+  Linker Rand ist auf B.Cu durch das Abzug/Nachladen/IR-Bündel abgetrennt → Signale zu linken
   Steckern immer zuletzt auf F.Cu.
+- **Steckerplätze nach Kabelweg im Gehäuse** (Zonen in `gehaeuse/scripts/platine_einbau.py`): links (vorn,
+  Hauptschacht) BT1, LED1, J6, J1 (WS2812), SP1 (Lautsprecher); unten (Kanal zum Abzugsschalter) SW1, SW2
+  mit R9/C8, R10/C9 waagerecht darüber; rechts (hinten, Motorschacht) M1, darunter J2 (Weste); rechts oben
+  J4/J5. SW3 (RESET) sitzt auf der EN-Diagonale oben links. Abzug/Nachladen laufen im B.Cu-Bündel die linke
+  Spalte (x 7,8/8,6) hinunter und unter 45° zu Vias über den Tastern; Lautsprecher OUTP/OUTN von Vias links
+  von H2 auf B.Cu entlang der Unterkante (y 44,95/45,5) zu Vias neben SP1; TSOP 1–5 von Vias unter den
+  Modul-Pads unter 45° auf B.Cu in Spalten x 45,0–47,4, Vias, F.Cu in J2; 3V3 für J2 über In2 rechts neben
+  dem Modul (x 51,6).
 - **Vibration:** ein Motor M1 (Rückstoß + Treffer) an IO47 über Q2/R11/R12/D1; IO48 frei. I²S läuft
-  neben dem Modul nach unten und dann mit einer 45°-Diagonale (x + y = 76,55 / 79,45 / 80,45) direkt
-  zu U6 durch die frei gewordene Fläche.
+  neben dem Modul nach unten (Spalte beim Modul c = 70,9 / 71,6 / 72,3, an M1 vorbei) und dann mit einer
+  45°-Diagonale (x + y = 75,55 / 76,3 / 77,05) über J2 hinweg zu U6, BCLK/LRCLK zuletzt senkrecht (x 43,9 /
+  44,5) von rechts in U6.
 - **Bedienteil-Routing:** SCL/SDA (IO1/IO2) auf F.Cu direkt in J4; 3V3 für J4 über In2 von einem Via an
   Modul-Pin 2 (35,0/2,76) waagerecht nach rechts; ENC_A (IO42) auf F.Cu von oben in J5.4; ENC_B (IO41)
   und ENC_SW (IO9, unten am Modul) über B.Cu zu Vias hinter den J5-Pads (unter dem Steckerkörper). Die
@@ -171,9 +185,9 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
 - Labels: Courtyards sind für die Platzsuche zu groß (Sicherheitsrand) → `silk.py` nutzt den F.Fab-Umriss.
   Für Texte zählt die Strichkontur (`GetEffectiveTextShape().BBox()`, bei 0,8 mm ≈ 0,92 mm hoch), nicht
   `GetBoundingBox()` (≈ 1,36 mm mit Zeilenabstand) – sonst findet die Suche viele echte Lücken nicht.
-- Label-Stand: linke Spalte x = 4,2 (LED1 unter LED1, TSOP/ABZUG/NACHL. über ihrem Stecker), rechte
-  „VIB“ über M1 (x = 49,85), SENSOR/LAUTSPR. mittig über J2/SP1, USB links unter J3 (23,45/44,03; darüber Vias),
-  AKKU rechts neben BT1, RESET über SW3, WS2812 links neben J1 (über J1 kein Platz), „1“ an J2-Pin 1,
+- Label-Stand: linke Spalte x = 4,2 (LED1 unter LED1, TSOP über J6), WS2812 rechts neben J1, LAUTSPR. unter
+  SP1, ABZUG/NACHL. auf y = 39,43 über SW1/SW2, „VIB“ unter M1, SENSOR über J2, „1“ an J2-Pin 1 (unten),
+  USB über J3, AKKU rechts neben BT1, RESET über SW3,
   BOOT links neben SW4 auf Mittelhöhe, Titel „open-lasertag v1“ frei in der Mitte (19,5/17,9),
   „OLED“/„GEBER“ unter J4/J5 auf gemeinsamer Achse x = 56,95 („DREHGEBER“ zu lang für den Streifen).
 - Wegpunkte, die auf einem Via enden sollen, exakt auf die Via-Koordinate legen (z. B. 31,39 statt 31,4);

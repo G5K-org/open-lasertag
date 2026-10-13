@@ -16,6 +16,10 @@ Alle Teile der Waffe an ihrem Platz in einer Datei, erzeugt mit
 |---|---|---|
 | <img src="baugruppe_rechts.png" width="280"> | <img src="baugruppe_vorn.png" width="280"> | <img src="baugruppe_hinten.png" width="200"> |
 
+USB-C-Buchse (10,5 mm hoch) bündig in der Mulde der linken Seitenwand, darüber rechts die Nachladetaste:
+
+<img src="usb_buendig.png" width="420">
+
 Explosionszeichnung (alle Druckteile und die Platine, Namen wie in [`../mp5_umbau/`](../mp5_umbau/README.md#dateien);
 Kaufteile wie Schrauben, Akku und Lautsprecher sind nicht dargestellt):
 
@@ -63,7 +67,7 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 | Steg hinten (Rundstab 77 mm) | ab Anschlag Y = 164 bis in den Schaft |
 | Magazin, Magazin Unterteil | voll im Magazinschacht, 12° geneigt |
 | Abzug | auf der Achse X = 136 / Y = 129, Ruhelage |
-| Nachladetaste | links über dem Griff (X = 114, Y = 155), Bund am Anschlag |
+| Nachladetaste | links über dem Griff (X = 114, Y = 160), Bund am Anschlag |
 | Platine | KiCad-Export (`kicad-cli pcb export glb`), Tasche in der rechten Hälfte |
 
 `obj_12_11` (Sechskantstift 6 × 17,6 mm) ist nicht enthalten: keine passende Aufnahme gefunden.

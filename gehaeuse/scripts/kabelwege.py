@@ -4,8 +4,9 @@ Aufruf: python kabelwege.py   (mp5_umbau/ muss mit umbau.py erzeugt sein; Platin
 
 Jede Leitung ist eine Kette gerader Stücke (Gun-Rahmen, siehe platine_einbau.py). Entlang des Wegs wird ein
 Zylinder mit dem Radius des Kabelbündels gegen alle Teile der Baugruppe geprüft (Platine eingeschlossen).
-Am Steckermaul (erste 3 mm) wird nicht geprüft, dort sitzt der Stecker selbst. Zwischen den Zonen am
-Platinenrand laufen die Kabel im Spalt unter der Platine (Dome, 2,5 mm), dort flach nebeneinander (je Ader geprüft).
+Die Wege beginnen an der Steckeröffnung am Platinenrand (bzw. am Pin für die Stecker in den alten Zonen,
+die ersten 3 mm werden nicht geprüft). Jeder Stecker zeigt in die Zone
+am Platinenrand, aus der sein Schacht abgeht (links: Hauptschacht, unten: Abzugsschalter, rechts: Motorschacht).
 Ausgabe: Länge, Bündelradius, frei/blockiert und die Füllung der gemeinsam genutzten Schächte.
 """
 import os
@@ -58,11 +59,12 @@ def routes(M):
     n = np.array([U.ENC_NORMAL[0], U.ENC_NORMAL[1], 0.0]); n /= np.linalg.norm(n)
     bd, bl, w, zw, h, back = U.ENC
     enc = np.array([U.ENC_FACE[0], U.ENC_FACE[1], 0.0]) - n * (bl + h + back - 1.0)
-    zu = -(P.STANDOFF / 2 + P.T_PCB)                                 # Spalt unter der Platine
     trunk_in = [(81.0, 88.5, 0)]                                     # Hauptschacht in der linken Zone
     hg = [(81, 12, 0), (81, -40.5, 0), (U.LOBE[0], -44, U.LOBE[1]), (U.LOBE[0], -103, U.LOBE[1]),
           (81, -116, 0), (81, -156, 0)]
-    under = [(100, 91, zu), (100, 90, 0)]                            # unter der Platine in die linke Zone
+    def g(bx, by, z=2.0):                                            # Platinenkoordinaten -> Gun-Rahmen
+        return (P.X0 + by, P.Y0 + bx, z)
+    left = 89.0                                                      # Y in der linken Zone (vor der Platine)
     seat, a, inner = U.gx_axis()
     motor = [tuple(p) for p in U.MOTOR_PATH[::-1]]                 # VIB-Zone -> Motor
     spk = (ax - U.BASS[0] / 2 + 1, U.SPK_Y - U.SPK[1] - 4, U.LOBE[1])
@@ -74,26 +76,24 @@ def routes(M):
                           + [(81, -193.4, 0), (ax, -197, 0)], ["Hauptschacht Gehäuse", "Hauptschacht Handschutz"]),
         "TSOP 6 (J6)": (3, AWG28, [(96.6, 96, 2), (96.6, 89.5, 2)] + trunk_in + hg[:5]
                         + [(81, -129.4, 0), (59.3, -129.4, 0)], ["Hauptschacht Gehäuse", "Hauptschacht Handschutz"]),
-        "Ringlicht (J1)": (3, AWG28, [(117.1, 105.9, 2), (125, 105.9, 2), (125, 105.9, zu)] + under + trunk_in + hg
+        "Ringlicht (J1)": (3, AWG28, [g(-0.5, 29.8), (P.X0 + 29.8, left, 2), (82, left, 1)] + trunk_in + hg
                            + [(81, -193.4, 0), (ax + U.WIRE_R, -193.4, 0), (ax + U.WIRE_R, -236, 0)],
                            ["Hauptschacht Gehäuse", "Hauptschacht Handschutz"]),
-        "Lautsprecher (SP1)": (2, AWG28, [(117.1, 141.5, 2), (125, 141.5, 2), (125, 141.5, zu)] + under + trunk_in
+        "Lautsprecher (SP1)": (2, AWG28, [g(-0.5, 40.2), (P.X0 + 40.2, left, 2), (82, left, 1)] + trunk_in
                                + hg[:4] + [(U.LOBE[0], spk[1], U.LOBE[1]), spk],
                                ["Hauptschacht Gehäuse", "Hauptschacht Handschutz"]),
-        "Abzug (SW1)": (2, AWG28, [(103, 96, 2), (103, 89.5, 2), (103, 90, zu), (120, 100, zu), (125, 135, zu),
-                                   (125, 145, 0), (128.7, 152, 0)], []),
-        "Nachladen (SW2)": (2, AWG28, [(109, 96, 2), (109, 89.5, 2), (109, 90, zu), (120, 100, zu), (125, 135, zu),
-                                       (125, 145, 0), (128.7, 152, 0)] + [tuple(p) for p in U.RELOAD_WIRE[::-1]]
+        "Abzug (SW1)": (2, AWG28, [g(13.0, 46.5), (125.5, P.Y0 + 13.0, 2), (125.5, 145, 0), (128.7, 152, 0)], []),
+        "Nachladen (SW2)": (2, AWG28, [g(18.9, 46.5), (124.5, P.Y0 + 18.9, 2), (125.5, 145, 0), (128.7, 152, 0), (127.8, 155, -0.5)]
+                            + [tuple(p) for p in U.RELOAD_WIRE[::-1]]
                             + [(U.RELOAD[0] + U.TACT_LEGS[0], U.RELOAD[1], -1.5)], []),
-        "Weste (J2)": (7, AWG28, [(118.9, 127.9, 2), (125, 127.9, 2), (125, 127.9, zu), (110, 130, zu), (100, 148.5, zu)]
-                       + motor[:2] + [tuple(p) for p in U.GX_PATH[::-1]] + [tuple(inner + a * 2), tuple(inner + a * 4)],
+        "Weste (J2)": (7, AWG28, [g(54.5, 34.2), (P.X0 + 34.2, 150.5, 2), (P.X0 + 30.0, 150.5, 1)] + motor[:2] + [tuple(p) for p in U.GX_PATH[::-1]] + [tuple(inner + a * 2), tuple(inner + a * 4)],
                        ["Motorschacht", "Westenschacht"]),
         "OLED (J4)": (4, AWG28, [(81.5, 149.4, 2), (81.5, 156, 2), (P.X0 + 1, 156, 0), (68, 170, 0), tuple(oled)],
                       ["OLED-Schacht"]),
         "Drehgeber (J5)": (4, AWG28, [(89.5, 149.4, 2), (89.5, 156, 2), (97.5, 156, 0), (100, 152, 0),
                                       (101.5, 151.4, 0)] + motor[1:] + [(152, 183, 0), tuple(enc)],
                            ["Motorschacht"]),
-        "Vibrationsmotor (M1)": (2, AWG28, [(100.8, 143.8, 2), (100.8, 150, 2)] + motor + [(149, 170, 0)],
+        "Vibrationsmotor (M1)": (2, AWG28, [g(54.5, 23.2), (P.X0 + 23.2, 150.5, 2)] + motor + [(149, 170, 0)],
                                  ["Motorschacht"]),
     }
 
@@ -106,14 +106,11 @@ def bundle_r(n, d):
     return 0.5 * d * np.sqrt(n) * 1.15
 
 
-def blocked(M, pts, r, wire_d, step=0.5):
+def blocked(M, pts, r, step=0.5):
     hits = []
     p0 = np.array(pts[0], float)
-    zu = -(P.STANDOFF / 2 + P.T_PCB)
-    r0 = r
     for a, b in zip(pts, pts[1:]):
         a, b = np.array(a, float), np.array(b, float)
-        r = wire_d * 0.6 if abs(a[2] - zu) < 1e-6 and abs(b[2] - zu) < 1e-6 else r0   # unter der Platine flach
         L = np.linalg.norm(b - a)
         if L < 1e-6:
             continue
@@ -145,7 +142,7 @@ def main():
     for name, (n, d, pts, shafts) in routes(M).items():
         r = bundle_r(n, d)
         length = sum(np.linalg.norm(np.subtract(b, a)) for a, b in zip(pts, pts[1:]))
-        hits = blocked(M, pts, r, d)
+        hits = blocked(M, pts, r)
         ok &= not hits
         print(f"{name:22s} {n} x Ø {d:.1f}  Bündel Ø {2 * r:.1f}  Weg ca. {length:4.0f} mm  "
               + ("frei" if not hits else "BLOCKIERT"))

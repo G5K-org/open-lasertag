@@ -127,15 +127,15 @@ MOTOR_PATH = [(146.0, 175.0, 0), (104.0, 178.0, 0), (P.X0 + 25.5, P.Y0 + 58.5, 0
 MOTOR_WIRE = 3.0              # Motor, Drehgeber und Weste gemeinsam (13 Adern)
 
 # ---------------------------------------------------------------- Nachladetaste
-# Taster 6 x 6 links über dem Griff, vor dem Knopf des Sicherungshebels (Daumen). Der Taster liegt mit dem Körper
+# Taster 6 x 6 links über dem Griff am oberen Rand des Sicherungshebel-Knopfs (Daumen). Der Taster liegt mit dem Körper
 # auf der Teilungsfläche der rechten Hälfte (Beinchen in zwei Schlitzen), die gedruckte Kappe steckt mit Bund im
 # Loch der linken Hälfte und ist zwischen Taster und Schulter gefangen. Kabel in einer Nut an der Teilung in die
 # Tasche des Abzugsschalters, von dort wie das Abzugskabel zu SW2.
-RELOAD = (114.0, 155.0)       # X, Y; Achse Z nach links außen
+RELOAD = (114.0, 160.0)       # X, Y; Achse Z nach links außen (hinter der Zone für Motor- und Westenstecker)
 TACT = (6.0, 3.5, 5.0, 3.5)   # Taster: Kante, Körperhöhe, Höhe bis Stößel, Stößel Ø
 TACT_LEGS = (3.25, 2.0, 7.4, 3.5)   # Beinchen bei ±X: Abstand, Schlitzbreite, Schlitzlänge, Tiefe (rechte Hälfte)
 CAP_R = (10.0, 1.2, 8.0, 0.8, 0.2)  # Kappe: Bund Ø, Bund Dicke, Schaft Ø, Überstand außen, Spiel
-RELOAD_WIRE = [(117.0, 155.0, -0.5), (126.8, 152.0, -0.5)]   # Nut zur Tasche des Abzugsschalters
+RELOAD_WIRE = [(117.0, 160.0, -0.5), (126.8, 155.0, -0.5)]   # Nut zur Tasche des Abzugsschalters
 
 # ---------------------------------------------------------------- Magazin, Akku
 CELL = (18.8, 66.2)           # 18650 mit Spiel
