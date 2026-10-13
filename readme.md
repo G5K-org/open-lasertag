@@ -150,7 +150,8 @@ Im Handschutz sitzt ein Lautsprecher Ø 40 mit Basskammer, vorn unter dem Korn d
 (6 × M3) und die beiden Hälften des vorderen Handschutzes mit Schalldämpfer (5 × M3) sind mit
 Einschmelzmuttern verschraubt; die vorderen Hälften umschließen einen Zapfen am hinteren Handschutz
 und sind dort mit je 2 × M3 befestigt (ohne Kleber, lösbar). Das Sensorkabel der Weste steckt unten vorn
-am Schaft in einer GX16-7-Buchse (Stecker hängt hinter dem Griff nach unten). Alle Kabelwege sind geprüft:
+am Schaft in einer GX16-7-Buchse (Stecker hängt hinter dem Griff leicht schräg nach hinten unten). Links über
+dem Griff sitzt die Nachladetaste in Daumenreichweite. Alle Kabelwege sind geprüft:
 [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/README.md#kabelwege).
 Umgebaute und neue Druckteile: [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/). Alle Teile samt
 Platine zusammengesetzt: [gehaeuse/baugruppe/](gehaeuse/baugruppe/) (GLB/3MF).
@@ -183,8 +184,8 @@ hinteren Handschutzes, den die vorderen Hälften umschließen.
 <img src="gehaeuse/baugruppe/schnitt_lautsprecher.png" alt="Schnitt durch den Handschutz: Lautsprecher, Schallkammer mit Löchern, Basskammer, Kabelschacht" width="700">
 
 **Schnitt durch Gehäuse und Schaft:** GX16-7-Buchse für das Sensorkabel der Weste unten vorn am Schaft
-(gold, Mutter in einer Sechskanttasche), Stecker nach unten; der Westenschacht läuft schräg nach vorn
-durch das Gehäuse zur Platine (J2).
+(gold, Mutter in einer Sechskanttasche), Stecker 15° nach hinten unten; der Westenschacht läuft schräg nach
+vorn in den Motorschacht und zur Platine (J2).
 
 <img src="gehaeuse/baugruppe/schnitt_weste.png" alt="Schnitt: GX16-Buchse im Schaft mit Mutter und Stecker, Kabelschacht zur Platine" width="520">
 

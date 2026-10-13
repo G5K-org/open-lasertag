@@ -33,10 +33,16 @@ der Zapfen des hinteren Handschutzes:
 
 <img src="schnitt_lautsprecher.png" width="640">
 
-Schnitt durch Gehäuse und Schaft (rechte Hälfte): GX16-Buchse für die Weste (gold, Platzhalter) mit Mutter in der
-Sechskanttasche und Stecker, Westenschacht schräg nach vorn zur Platine; darüber OLED-Schacht und Steg hinten:
+Schnitt durch Gehäuse und Schaft (rechte Hälfte): GX16-Buchse für die Weste (gold, Platzhalter, 15° nach hinten) mit
+Mutter in der Sechskanttasche und Stecker, Westenschacht schräg nach vorn in den Motorschacht; darüber OLED-Schacht
+und Steg hinten:
 
 <img src="schnitt_weste.png" width="520">
+
+Schnitt durch die Nachladetaste (quer, Blick von vorn): Kappe (rot) im Loch der linken Hälfte, Taster 6 × 6
+(Platzhalter) auf der rechten Hälfte, Beinchen in deren Schlitzen:
+
+<img src="schnitt_nachladetaste.png" width="300">
 
 ## Teile
 
@@ -53,10 +59,11 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 | Steg vorn (Rundstab 96 mm) | Gehäuse 34 mm, Zwischenring 21 mm, Handschutz hinten 41 mm (bis vor den Zapfen) |
 | Korn | Ring auf dem Rohr vorn am Handschutz, Steg im Schlitz |
 | Spannhebel Stift, Spannhebel Knauf | Stift im schrägen Loch der linken Mulde, Knauf außen darauf |
-| Schaft links / rechts, OLED-Rahmen | an der Gehäuserückseite; Rahmen in der Stufe des OLED-Sockels; GX16-Buchse unten vorn (X = 114,4, Y = 232) |
+| Schaft links / rechts, OLED-Rahmen | an der Gehäuserückseite; Rahmen in der Stufe des OLED-Sockels; GX16-Buchse unten vorn (Y = 230, 15° nach hinten) |
 | Steg hinten (Rundstab 77 mm) | ab Anschlag Y = 164 bis in den Schaft |
 | Magazin, Magazin Unterteil | voll im Magazinschacht, 12° geneigt |
 | Abzug | auf der Achse X = 136 / Y = 129, Ruhelage |
+| Nachladetaste | links über dem Griff (X = 114, Y = 155), Bund am Anschlag |
 | Platine | KiCad-Export (`kicad-cli pcb export glb`), Tasche in der rechten Hälfte |
 
 `obj_12_11` (Sechskantstift 6 × 17,6 mm) ist nicht enthalten: keine passende Aufnahme gefunden.

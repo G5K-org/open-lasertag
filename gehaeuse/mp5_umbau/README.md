@@ -10,8 +10,8 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 | Datei | Teil | aus Original | Änderung |
 |---|---|---|---|
-| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite), Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Einschmelzmuttern |
-| `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Schraubensenkungen |
+| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite), Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Nachladetaste, Einschmelzmuttern |
+| `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Auflage der Nachladetaste, Schraubensenkungen |
 | `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht |
 | `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | einteilig, ab Y = −32; vorn Zapfen mit 4 Einschmelzmuttern, Kabelschacht |
 | `handschutz_vorn_links.stl` | Handschutz vorn mit Schalldämpfer links | `obj_10_2` | links/rechts geteilt (flach auf der Teilungsfläche), Einschmelzmuttern; Aufnahme für den Zapfen, Lautsprechertasche, Schallkammer mit Löchern, Basskammer, Kabelnut, TSOP-Aufnahme, Gewinde M24 × 1,5, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
@@ -30,6 +30,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | `magazin.stl` | Magazin | `obj_6_9` | Akkuhalter (3 Rippen), unteres Drittel abgetrennt, Öffnung oben |
 | `magazin_unterteil.stl` | Magazin Unterteil | `obj_6_9` | abnehmbar, Zapfen stützt den Akku |
 | `abzug.stl` | Abzug | `obj_1_3`/`obj_3_6` | aus dem Gehäuse gelöst, Nabe und Hebel (flach drucken) |
+| `nachladetaste.stl` | Nachladetaste | neu | Kappe mit Bund für den Taster 6 × 6 (Bund unten drucken) |
 | `lage.json` | – | – | Lage der neuen Teile in der Waffe (für `baugruppe.py`) |
 
 `obj_12_11` (Sechskantstift 6 × 17,6 mm) aus dem Originalsatz hat keine erkennbare Aufnahme und ist nicht enthalten.
@@ -48,6 +49,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | OLED | 0,96″ SSD1306 I²C 128 × 64 (Platine 27,3 × 27,8), Kabel direkt angelötet, ohne Stiftleiste |
 | Drehgeber | EC11 mit Taster, Welle Ø 6, 20 mm |
 | Vibrationsmotor | Ø 10 × 20 mm mit Unwucht |
+| Nachladetaste | Taster 6 × 6 × 5 mm THT (Stößel rund Ø 3,5, Höhe bis Stößel 5,0) |
 | Platine | M2 × 8 ISO 7380 (2 ×) |
 | Gehäusehälften | 6 × M3 × 10 ISO 4762, 6 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
 | Handschutz vorn | 5 × M3 × 10 ISO 4762, 5 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
@@ -100,13 +102,22 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
   schräg durch das Gehäuse und im Handschutz oben im Rohr um den Lautsprecher herum. Dieses Stück liegt
   als offene Nut an der Teilungsfläche der rechten Hälfte: Kabel einlegen, dann durch die Bohrung im
   Zapfen in den hinteren Handschutz
-- **Weste:** GX16-7 Buchse unten vorn am Schaft, senkrecht nach unten; der Stecker hängt hinter dem
-  Griff (ca. 30 mm Abstand zur Griffrückseite, 50 mm vor der Schaftkappe), weg von Schießhand und Wange.
+- **Weste:** GX16-7 Buchse unten vorn am Schaft, 15° schräg nach hinten unten; der Stecker hängt hinter dem
+  Griff (ca. 35 mm Abstand zur Griffrückseite, 40 mm vor der Schaftkappe), weg von Schießhand und Wange.
   Mutter vor dem Zusammensetzen der Schafthälften in die Sechskanttasche legen, Buchse später von außen
   eindrehen (Flansch auf der Planfläche). Litzen an die Lötkelche, durch den Schacht schräg nach vorn
-  durch das Gehäuse in die Zone unter der Platine zu J2. Belegung: [Sensorkabel](../../readme.md#3-sensorkabel-zwischen-weste-und-waffe)
+  in den Motorschacht (Ø 6, gemeinsam mit Motor und Drehgeber), in die VIB-Zone und flach unter der
+  Platine zu J2. Belegung: [Sensorkabel](../../readme.md#3-sensorkabel-zwischen-weste-und-waffe)
 
 <img src="../baugruppe/schnitt_weste.png" alt="Schnitt: GX16-Buchse im Schaft, Mutter, Stecker, Kabelschacht zur Platine" width="520">
+
+- **Nachladetaste** links über dem Griff, vor dem Knopf des Sicherungshebels (Daumen der Schießhand):
+  Kappe von innen in das Loch der linken Hälfte stecken (Bund innen), Taster 6 × 6 mit dem Stößel auf die
+  Kappe setzen, Beinchen nach unten in die zwei Schlitze der rechten Hälfte biegen, Litzen anlöten und in die
+  Nut an der Teilung zur Tasche des Abzugsschalters legen, von dort wie das Abzugskabel zu SW2. Beim
+  Verschrauben der Hälften liegt der Taster auf der rechten Hälfte, die Kappe ist gefangen (0,8 mm Überstand)
+
+<img src="../baugruppe/schnitt_nachladetaste.png" alt="Schnitt durch die Nachladetaste: Kappe, Taster, Beinchen in der rechten Hälfte" width="360">
 
 ## Kabelwege
 
@@ -123,13 +134,12 @@ Alle Wege sind frei. Zwischen den Zonen am Platinenrand laufen die Kabel flach i
 | Ringlicht | J1 (JST-PH 3) | 3 | untere Zone → unter der Platine → Hauptschacht → Bohrung → Kanal unten im Schalldämpfer → Frontkappe | 445 mm |
 | Lautsprecher | SP1 (JST-PH 2) | 2 | untere Zone → unter der Platine → Hauptschacht → Kabelnut → Bohrung in die Basskammer | 355 mm |
 | Abzug | SW1 (JST-SH 2) | 2 | linke Zone → unter der Platine → untere Zone → Schaltertasche | 85 mm |
-| Weste | J2 (JST-SH 7) | 7 | untere Zone → Westenschacht → GX16-Buchse im Schaft | 120 mm |
+| Nachladen | SW2 (JST-SH 2) | 2 | wie Abzug bis zur Schaltertasche → Nut an der Teilung → Taster | 95 mm |
+| Weste | J2 (JST-SH 7) | 7 | untere Zone → flach unter der Platine (um den Dom H2) → VIB-Zone → Motorschacht → Westenschacht → GX16-Buchse | 125 mm |
 | OLED | J4 (JST-SH 4) | 4 | Zone rechts oben → OLED-Schacht → OLED im Schaft | 95 mm |
-| Drehgeber | J5 (JST-SH 4) | 4 | Zone rechts oben → VIB-Zone → Motorschacht → Motorraum → Drehgeber | 130 mm |
-| Vibrationsmotor | M1 (JST-SH 2) | 2 | VIB-Zone → Motorschacht → Motor | 70 mm |
+| Drehgeber | J5 (JST-SH 4) | 4 | Zone rechts oben → VIB-Zone → Motorschacht → Motorraum → Drehgeber | 145 mm |
+| Vibrationsmotor | M1 (JST-SH 2) | 2 | VIB-Zone → Motorschacht → Motor | 85 mm |
 
 Füllung der Schächte (Querschnitt der Adern / Schacht): Hauptschacht im Gehäuse 46 % (12 Adern inkl. Akku,
-dünne Silikonlitze verwenden), im Handschutz 33 %, Westenschacht 23 %, Motor-/Drehgeberschacht 19 %,
-OLED-Schacht 16 %. Längen ohne Zugabe; je Leitung ca. 30 mm Reserve lassen.
-
-**Offen:** SW2 (Nachladen, JST-SH 2) hat auf der Platine einen Stecker, im Gehäuse aber noch keinen Taster.
+dünne Silikonlitze verwenden), im Handschutz 32 %, Motorschacht 29 % (Motor, Drehgeber, Weste: 13 Adern),
+Westenschacht 23 %, OLED-Schacht 16 %. Längen ohne Zugabe; je Leitung ca. 30 mm Reserve lassen.

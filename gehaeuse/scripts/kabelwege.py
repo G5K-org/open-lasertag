@@ -5,7 +5,7 @@ Aufruf: python kabelwege.py   (mp5_umbau/ muss mit umbau.py erzeugt sein; Platin
 Jede Leitung ist eine Kette gerader Stücke (Gun-Rahmen, siehe platine_einbau.py). Entlang des Wegs wird ein
 Zylinder mit dem Radius des Kabelbündels gegen alle Teile der Baugruppe geprüft (Platine eingeschlossen).
 Am Steckermaul (erste 3 mm) wird nicht geprüft, dort sitzt der Stecker selbst. Zwischen den Zonen am
-Platinenrand laufen die Kabel im Spalt unter der Platine (Dome, 2,5 mm).
+Platinenrand laufen die Kabel im Spalt unter der Platine (Dome, 2,5 mm), dort flach nebeneinander (je Ader geprüft).
 Ausgabe: Länge, Bündelradius, frei/blockiert und die Füllung der gemeinsam genutzten Schächte.
 """
 import os
@@ -63,7 +63,8 @@ def routes(M):
     hg = [(81, 12, 0), (81, -40.5, 0), (U.LOBE[0], -44, U.LOBE[1]), (U.LOBE[0], -103, U.LOBE[1]),
           (81, -116, 0), (81, -156, 0)]
     under = [(100, 91, zu), (100, 90, 0)]                            # unter der Platine in die linke Zone
-    xb = U.GX[0] - U.GX_SPOT[1] - U.GX_HOLE[1] - U.GX_NUT[1] - U.GX_BODY[1]
+    seat, a, inner = U.gx_axis()
+    motor = [tuple(p) for p in U.MOTOR_PATH[::-1]]                 # VIB-Zone -> Motor
     spk = (ax - U.BASS[0] / 2 + 1, U.SPK_Y - U.SPK[1] - 4, U.LOBE[1])
     # Name: (Adern, Ader-Ø, Weg ab Steckermaul auf der Platine, gemeinsame Schächte)
     return {
@@ -81,32 +82,38 @@ def routes(M):
                                ["Hauptschacht Gehäuse", "Hauptschacht Handschutz"]),
         "Abzug (SW1)": (2, AWG28, [(103, 96, 2), (103, 89.5, 2), (103, 90, zu), (120, 100, zu), (125, 135, zu),
                                    (125, 145, 0), (128.7, 152, 0)], []),
-        "Weste (J2)": (7, AWG28, [(118.9, 127.9, 2), (125, 127.9, 2), (125.5, 144, 0)]
-                       + [tuple(p) for p in U.GX_PATH[::-1][1:]] + [(xb + 2, U.GX[1], 0), (xb + 6, U.GX[1], 0)],
-                       ["Westenschacht"]),
+        "Nachladen (SW2)": (2, AWG28, [(109, 96, 2), (109, 89.5, 2), (109, 90, zu), (120, 100, zu), (125, 135, zu),
+                                       (125, 145, 0), (128.7, 152, 0)] + [tuple(p) for p in U.RELOAD_WIRE[::-1]]
+                            + [(U.RELOAD[0] + U.TACT_LEGS[0], U.RELOAD[1], -1.5)], []),
+        "Weste (J2)": (7, AWG28, [(118.9, 127.9, 2), (125, 127.9, 2), (125, 127.9, zu), (110, 130, zu), (100, 148.5, zu)]
+                       + motor[:2] + [tuple(p) for p in U.GX_PATH[::-1]] + [tuple(inner + a * 2), tuple(inner + a * 4)],
+                       ["Motorschacht", "Westenschacht"]),
         "OLED (J4)": (4, AWG28, [(81.5, 149.4, 2), (81.5, 156, 2), (P.X0 + 1, 156, 0), (68, 170, 0), tuple(oled)],
                       ["OLED-Schacht"]),
         "Drehgeber (J5)": (4, AWG28, [(89.5, 149.4, 2), (89.5, 156, 2), (97.5, 156, 0), (100, 152, 0),
-                                      (101.5, 151.4, 0), (115, 170, 0), (146, 175, 0), (152, 183, 0), tuple(enc)],
-                           ["Motor-/Drehgeberschacht"]),
-        "Vibrationsmotor (M1)": (2, AWG28, [(100.8, 143.8, 2), (100.8, 150, 2), (101.5, 151.4, 0), (115, 170, 0),
-                                            (146, 175, 0), (149, 170, 0)], ["Motor-/Drehgeberschacht"]),
+                                      (101.5, 151.4, 0)] + motor[1:] + [(152, 183, 0), tuple(enc)],
+                           ["Motorschacht"]),
+        "Vibrationsmotor (M1)": (2, AWG28, [(100.8, 143.8, 2), (100.8, 150, 2)] + motor + [(149, 170, 0)],
+                                 ["Motorschacht"]),
     }
 
 
 SHAFTS = {"Hauptschacht Gehäuse": U.TRUNK[1], "Hauptschacht Handschutz": U.TRUNK[1], "Westenschacht": U.GX_WIRE,
-          "OLED-Schacht": 2.25, "Motor-/Drehgeberschacht": 2.5}
+          "OLED-Schacht": 2.25, "Motorschacht": U.MOTOR_WIRE}
 
 
 def bundle_r(n, d):
     return 0.5 * d * np.sqrt(n) * 1.15
 
 
-def blocked(M, pts, r, step=0.5):
+def blocked(M, pts, r, wire_d, step=0.5):
     hits = []
     p0 = np.array(pts[0], float)
+    zu = -(P.STANDOFF / 2 + P.T_PCB)
+    r0 = r
     for a, b in zip(pts, pts[1:]):
         a, b = np.array(a, float), np.array(b, float)
+        r = wire_d * 0.6 if abs(a[2] - zu) < 1e-6 and abs(b[2] - zu) < 1e-6 else r0   # unter der Platine flach
         L = np.linalg.norm(b - a)
         if L < 1e-6:
             continue
@@ -138,7 +145,7 @@ def main():
     for name, (n, d, pts, shafts) in routes(M).items():
         r = bundle_r(n, d)
         length = sum(np.linalg.norm(np.subtract(b, a)) for a, b in zip(pts, pts[1:]))
-        hits = blocked(M, pts, r)
+        hits = blocked(M, pts, r, d)
         ok &= not hits
         print(f"{name:22s} {n} x Ø {d:.1f}  Bündel Ø {2 * r:.1f}  Weg ca. {length:4.0f} mm  "
               + ("frei" if not hits else "BLOCKIERT"))

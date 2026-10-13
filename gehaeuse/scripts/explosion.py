@@ -31,7 +31,7 @@ th=np.radians(12.0); ag=np.array([-np.cos(th),np.sin(th),0])   # Magazinachse (o
 # Versatz im Gun-Rahmen (X unten, Y hinten, Z links)
 OFF={
  'Gehäuse links':(0,0,100),'Gehäuse rechts':(0,0,-75),'Platine':(0,0,-38),
- 'Abzug':(75,0,45),'Zwischenring':(0,-40,0),'Steg vorn (Rundstab 96 mm)':(-55,-30,0),
+ 'Abzug':(75,0,45),'Nachladetaste':(0,0,135),'Zwischenring':(0,-40,0),'Steg vorn (Rundstab 96 mm)':(-55,-30,0),
  'Handschutz hinten':(0,-70,0),'Handschutz vorn mit Schalldämpfer links':(25,-150,60),
  'Handschutz vorn mit Schalldämpfer rechts':(-30,-150,-60),
  'Spannhebel Stift':(-25,-100,75),'Spannhebel Knauf':(-25,-100,100),

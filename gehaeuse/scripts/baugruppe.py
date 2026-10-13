@@ -132,7 +132,8 @@ NAMES = {
     "spannhebel_stift": "Spannhebel Stift", "spannhebel_knauf": "Spannhebel Knauf",
     "schaft_links": "Schaft links", "schaft_rechts": "Schaft rechts", "oled_rahmen": "OLED-Rahmen",
     "steg_vorn_96mm": "Steg vorn (Rundstab 96 mm)", "steg_hinten_77mm": "Steg hinten (Rundstab 77 mm)",
-    "magazin": "Magazin", "magazin_unterteil": "Magazin Unterteil", "abzug": "Abzug", "platine": "Platine",
+    "magazin": "Magazin", "magazin_unterteil": "Magazin Unterteil", "abzug": "Abzug", "nachladetaste": "Nachladetaste",
+    "platine": "Platine",
 }
 # Herkunft im Originalsatz (mp5_toygun_stls)
 ORIGINAL = {"gehaeuse_links": "obj_1_3", "gehaeuse_rechts": "obj_3_6", "zwischenring": "obj_5_5",
@@ -191,7 +192,7 @@ def mod(key, fallback=""):
     return ORIGINAL.get(key) if fallback == "" else fallback
 
 
-NEW = {"abzug": DARK, "handschutz_vorn_links": BLACK, "handschutz_vorn_rechts": BLACK, "linsenhuelse": STEEL, "frontkappe": BLACK, "magazin_unterteil": BLACK,
+NEW = {"abzug": DARK, "nachladetaste": DARK, "handschutz_vorn_links": BLACK, "handschutz_vorn_rechts": BLACK, "linsenhuelse": STEEL, "frontkappe": BLACK, "magazin_unterteil": BLACK,
        "oled_rahmen": BLACK, "tsop_einsatz": BLACK}
 
 

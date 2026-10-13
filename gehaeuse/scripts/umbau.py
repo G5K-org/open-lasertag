@@ -18,7 +18,8 @@ Einbauten:
   - OLED 0,96" 128 x 64 angewinkelt in der Schrägfläche vorn oben am Schaft, Kabelschacht zur Platine
     (Kimme und Korn bleiben)
   - Gehäusehälften mit 6 x M3 x 10 und Einschmelzmuttern verschraubt
-  - GX16-7 Buchse für das Sensorkabel der Weste unten vorn am Schaft, Kabelschacht zur Platine (J2)
+  - GX16-7 Buchse für das Sensorkabel der Weste unten vorn am Schaft (15° nach hinten), Kabelschacht zur Platine (J2)
+  - Nachladetaste (Taster 6 x 6 mit gedruckter Kappe) links über dem Griff
   - Drehgeber EC11 unten im Griff (Welle nach unten), Vibrationsmotor 10 x 20 über dem Griff,
     Kabelschacht Drehgeber -> Motor -> Platine
 
@@ -110,16 +111,31 @@ TRUNK = (81.0, 2.5)           # Hauptschacht X, Radius (Mündung -> Platinentasc
 DROP_R = 3.0                  # Abzweig in den Magazinschacht
 
 # ---------------------------------------------------------------- Sensorkabel zur Weste
-# GX16-7 Einbaubuchse unten vorn am Schaft, senkrecht nach unten: der Stecker hängt hinter dem Griff, frei von der
-# Schießhand. Mutter in einer Sechskanttasche (Schlüsselweite quer zur Teilung), Buchse von außen eindrehen.
-# Kabelschacht schräg durch das Gehäuse in die Zone unter der Platine (J2, 7 Adern).
-GX = (114.4, 232.0)           # Mitte der Auflage: X Unterseite Schaft, Y
-GX_SPOT = (21.0, 0.5)         # Planfläche für den Flansch: Ø, Tiefe
+# GX16-7 Einbaubuchse unten vorn am Schaft, leicht schräg nach hinten unten: der Stecker hängt hinter dem Griff,
+# frei von der Schießhand. Mutter in einer Sechskanttasche (Schlüsselweite quer zur Teilung), Buchse von außen
+# eindrehen. Kabelschacht schräg durch das Gehäuse, gemeinsam mit dem Motorschacht in die VIB-Zone, unter der
+# Platine zu J2 (7 Adern).
+GX = (111.4, 230.0)           # Mitte der Auflage des Flanschs (X, Y); Unterseite des Schafts bei X = 114,4
+GX_TILT = 15.0                # Achse gegen die Senkrechte nach hinten geneigt (Grad)
+GX_SPOT = (21.0, 25.0)        # Planfläche für den Flansch: Ø, Freiraum nach außen
 GX_HOLE = (16.3, 2.9)         # Durchgang M16 x 1, Wandstärke
 GX_NUT = (19.4, 3.4)          # Mutter SW 19 (mit Spiel), Höhe
-GX_BODY = (16.6, 14.0)        # Raum für Gewinde und Lötkelche: Ø, Länge
-GX_PATH = [(104.0, 186.0, 0), (116.0, 160.0, 0), (125.5, 144.0, 0)]   # nach der Buchse, bis in die Zone unten
+GX_BODY = (16.6, 12.0)        # Raum für Gewinde und Lötkelche: Ø, Länge
+GX_PATH = [(104.0, 186.0, 0), (104.0, 178.0, 0)]   # nach der Buchse bis in den Motorschacht
 GX_WIRE = 2.5                 # Radius Kabelschacht (7 x AWG 28)
+MOTOR_PATH = [(146.0, 175.0, 0), (104.0, 178.0, 0), (P.X0 + 25.5, P.Y0 + 58.5, 0)]   # Motor -> VIB-Zone
+MOTOR_WIRE = 3.0              # Motor, Drehgeber und Weste gemeinsam (13 Adern)
+
+# ---------------------------------------------------------------- Nachladetaste
+# Taster 6 x 6 links über dem Griff, vor dem Knopf des Sicherungshebels (Daumen). Der Taster liegt mit dem Körper
+# auf der Teilungsfläche der rechten Hälfte (Beinchen in zwei Schlitzen), die gedruckte Kappe steckt mit Bund im
+# Loch der linken Hälfte und ist zwischen Taster und Schulter gefangen. Kabel in einer Nut an der Teilung in die
+# Tasche des Abzugsschalters, von dort wie das Abzugskabel zu SW2.
+RELOAD = (114.0, 155.0)       # X, Y; Achse Z nach links außen
+TACT = (6.0, 3.5, 5.0, 3.5)   # Taster: Kante, Körperhöhe, Höhe bis Stößel, Stößel Ø
+TACT_LEGS = (3.25, 2.0, 7.4, 3.5)   # Beinchen bei ±X: Abstand, Schlitzbreite, Schlitzlänge, Tiefe (rechte Hälfte)
+CAP_R = (10.0, 1.2, 8.0, 0.8, 0.2)  # Kappe: Bund Ø, Bund Dicke, Schaft Ø, Überstand außen, Spiel
+RELOAD_WIRE = [(117.0, 155.0, -0.5), (126.8, 152.0, -0.5)]   # Nut zur Tasche des Abzugsschalters
 
 # ---------------------------------------------------------------- Magazin, Akku
 CELL = (18.8, 66.2)           # 18650 mit Spiel
@@ -403,8 +419,8 @@ def housing_cuts(tip, yw, mag_top):
     add(ebox.transform(frame(n, f - n * (bl + (h + back) / 2), (-n[1], n[0], 0))))
     e_back = f - n * (bl + h + back - 1.0)
     add(path([e_back, (152.0, 183.0, 0)], 2.5))
-    # Motor -> Platine (Feld VIB)
-    add(path([(146.0, 175.0, 0), (115.0, 170.0, 0), (P.X0 + 25.5, P.Y0 + 58.5, 0)], 2.5))
+    # Motor -> Platine (Feld VIB), oben um die Nachladetaste herum; auch Drehgeber und Weste
+    add(path(MOTOR_PATH, MOTOR_WIRE))
     # OLED: Rahmen der Schrägfläche (sv entlang nach unten hinten, nv nach außen, Z quer)
     sv = np.array([OLED_S[0], OLED_S[1], 0.0]); sv /= np.linalg.norm(sv)
     nv = np.array([-sv[1], sv[0], 0.0])
@@ -523,20 +539,54 @@ def joint():
     return spigot - nut, pocket + hole
 
 
+def gx_axis():
+    """GX16-Buchse: Mitte der Auflage, Achse nach außen, innerer Punkt am Ende des Buchsenraums."""
+    t = np.radians(GX_TILT)
+    a = np.array([np.cos(t), np.sin(t), 0.0])
+    seat = np.array([GX[0], GX[1], 0.0])
+    inner = seat - a * (GX_HOLE[1] + GX_NUT[1] + GX_BODY[1])
+    return seat, a, inner
+
+
 def vest():
     """Aufnahme der GX16-Buchse im Schaft und Kabelschacht zur Platine (Gun-Rahmen, beide Hälften)."""
-    x0, y = GX
-    xs = x0 - GX_SPOT[1]
-    cut = cyl((xs, y, 0), (x0 + 20.0, y, 0), GX_SPOT[0] / 2, 64)
-    xw = xs - GX_HOLE[1]
-    cut = cut + cyl((xw - 0.01, y, 0), (xs + 0.01, y, 0), GX_HOLE[0] / 2, 64)
-    xn = xw - GX_NUT[1]
+    seat, a, inner = gx_axis()
+    cut = cyl(seat, seat + a * GX_SPOT[1], GX_SPOT[0] / 2, 64)
+    w = seat - a * GX_HOLE[1]
+    cut = cut + cyl(w - a * 0.01, seat + a * 0.01, GX_HOLE[0] / 2, 64)
+    n = w - a * GX_NUT[1]
     hexa = m3.CrossSection.circle(GX_NUT[0] / np.sqrt(3), 6).extrude(GX_NUT[1])     # Flächen bei ±Z (SW quer)
-    cut = cut + hexa.rotate((0, 0, 30)).transform(frame((1, 0, 0), (xn, y, 0), (0, 0, 1)))
-    xb = xn - GX_BODY[1]
-    cut = cut + cyl((xb, y, 0), (xn + 0.01, y, 0), GX_BODY[0] / 2, 64)
-    cut = cut + path([(xb + 2.0, y, 0)] + GX_PATH, GX_WIRE)
+    cut = cut + hexa.rotate((0, 0, 30)).transform(frame(a, n, (0, 0, 1)))
+    cut = cut + cyl(inner, n + a * 0.01, GX_BODY[0] / 2, 64)
+    cut = cut + path([tuple(inner + a * 2.0)] + GX_PATH, GX_WIRE)
     return cut
+
+
+def reload_button(left):
+    """Nachladetaste: (Schnitt links, Schnitt rechts, Nut an der Teilung, Kappe) im Gun-Rahmen."""
+    x, y = RELOAD
+    e, hb, hp, dp = TACT
+    lx, lw, ll, ld = TACT_LEGS
+    cd, ct, sd, proud, clr = CAP_R
+    tm = to_tm(left)
+    rays = [(x + dx, y + dy) for dx in (-sd / 2, 0, sd / 2) for dy in (-sd / 2, 0, sd / 2)]
+    loc, _, _ = tm.ray.intersects_location([(px, py, 60.0) for px, py in rays], [(0, 0, -1.0)] * len(rays))
+    z_out = loc[:, 2].max()                                 # höchster Punkt der Außenfläche unter der Kappe
+    z_cap = hp                                              # Unterseite der Kappe liegt auf dem Stößel
+    z_sh = z_cap + ct + 0.05                                # Schulter: Bund liegt in Ruhe an
+    cl = box(x - e / 2 - 0.2, x + e / 2 + 0.2, y - e / 2 - 0.2, y + e / 2 + 0.2, -0.01, hb + 0.1)       # Körper
+    cl = cl + box(x - lx - lw / 2, x + lx + lw / 2, y - e / 2 - 0.2, y + e / 2 + 0.2, -0.01, 1.2)      # Beinchen
+    cl = cl + cyl((x, y, hb), (x, y, z_sh), cd / 2 + clr * 2, 64)                                        # Bund
+    cl = cl + cyl((x, y, z_sh - 0.01), (x, y, 60.0), sd / 2 + clr, 64)                                   # Schaft
+    cr = None
+    for sx in (-1, 1):
+        s = box(x + sx * lx - lw / 2, x + sx * lx + lw / 2, y - ll / 2, y + ll / 2, -ld, 0.01)
+        cr = s if cr is None else cr + s
+    groove = path(RELOAD_WIRE, 1.5)
+    cr = cr + capsule((x + lx, y, -1.5), RELOAD_WIRE[0], 1.2)
+    cap = cyl((x, y, z_cap), (x, y, z_cap + ct), cd / 2, 64) + cyl((x, y, z_cap + ct - 0.01), (x, y, z_out + proud), sd / 2, 64)
+    cap = cap - cyl((x, y, z_cap - 0.01), (x, y, z_cap + 0.6), dp / 2 + 0.2, 32)                         # Stößel
+    return cl, cr, groove, cap
 
 
 def screws(points=None):
@@ -567,9 +617,10 @@ def build():
     pcut, bosses, pilots, stop = P.pocket_shapes()
     vcut = vest()
 
+    rl, rr, rgroove, rcap = reload_button(L)
     halves = []
-    for H, side in ((L, P.HALF_L), (R, P.HALF_R)):
-        H = H - pcut - trig_cut - hcut - screws() - vcut + (stop ^ side)
+    for H, side in ((L - rl, P.HALF_L), (R - rr, P.HALF_R)):
+        H = H - pcut - trig_cut - hcut - screws() - vcut - rgroove + (stop ^ side)
         if side is P.HALF_R:
             H = H + bosses - pilots
         halves.append(H)
@@ -623,6 +674,7 @@ def build():
 
     flat = np.eye(4)[:3]                                   # Abzug liegt flach (Z oben)
     new_part("abzug", trig, flat)
+    new_part("nachladetaste", rcap, flat)                                     # Bund unten
     new_part("handschutz_vorn_links", hg_front_l, flat)                       # Teilungsfläche unten
     new_part("handschutz_vorn_rechts", hg_front_r,
              np.array([[-1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0]], float))   # gedreht, Teilungsfläche unten
