@@ -10,10 +10,10 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 | Datei | Teil | aus Original | Änderung |
 |---|---|---|---|
-| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite) mit Zonen für die Stecker, USB-C bündig in einer Mulde, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Nachladetaste, Einschmelzmuttern |
-| `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Auflage der Nachladetaste, Schraubensenkungen |
-| `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht |
-| `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | einteilig, ab Y = −32; vorn Zapfen mit 4 Einschmelzmuttern, Kabelschacht |
+| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite) mit Zonen für die Stecker, USB-C bündig in einer Mulde, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Nachladetaste, Einschmelzmuttern, Zentrierbund vorn, Zuganker mit Mutternischen |
+| `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Auflage der Nachladetaste, Schraubensenkungen, Zentrierbund vorn, Zuganker mit Mutternischen |
+| `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht, Nut hinten, Zentrierbund vorn, 2 Bohrungen für die Zuganker (Nut unten drucken) |
+| `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | einteilig, ab Y = −32; vorn Zapfen mit 4 Einschmelzmuttern und 2 gefangenen Muttern M4 (Zuganker), Nut hinten, Kabelschacht (Rückseite unten drucken, Stützen unter dem Zapfenkopf) |
 | `handschutz_vorn_links.stl` | Handschutz vorn mit Schalldämpfer links | `obj_10_2` | links/rechts geteilt (flach auf der Teilungsfläche), Einschmelzmuttern; Aufnahme für den Zapfen, Lautsprechertasche, Schallkammer mit Löchern, Basskammer, Kabelnut, TSOP-Aufnahme, Gewinde M24 × 1,5, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
 | `handschutz_vorn_rechts.stl` | Handschutz vorn mit Schalldämpfer rechts | `obj_10_2` | Gegenstück, Schraubensenkungen (auch für den Zapfen) |
 | `frontkappe.stl` | Frontkappe | neu | 12 Fenster für das Ringlicht (Front unten drucken) |
@@ -22,11 +22,11 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | `korn.stl` | Korn | `obj_7_1` | unverändert |
 | `spannhebel_stift.stl` | Spannhebel Stift | `obj_11_12` | unverändert |
 | `spannhebel_knauf.stl` | Spannhebel Knauf | `obj_9_10` | unverändert |
-| `schaft_links.stl` | Schaft links | `obj_4_7` | OLED-Sockel, Kabelschacht, Aufnahme der GX16-Buchse (Weste) |
-| `schaft_rechts.stl` | Schaft rechts | `obj_2_4` | OLED-Sockel, Kabelschacht, Aufnahme der GX16-Buchse (Weste) |
+| `schaft_links.stl` | Schaft links | `obj_4_7` | OLED-Sockel, Kabelschacht, Aufnahme der GX16-Buchse (Weste), Zuganker mit gefangener Mutter |
+| `schaft_rechts.stl` | Schaft rechts | `obj_2_4` | OLED-Sockel, Kabelschacht, Aufnahme der GX16-Buchse (Weste), Zuganker mit gefangener Mutter |
 | `oled_rahmen.stl` | OLED-Rahmen | neu | Fenster 24 × 14 mit Fase (Außenseite oben drucken) |
-| `steg_vorn_96mm.stl` | Steg vorn (Rundstab 96 mm) | `obj_8_8` | auf 96 mm gekürzt (endet vor dem Zapfen) |
-| `steg_hinten_77mm.stl` | Steg hinten (Rundstab 77 mm) | `obj_8_8` | auf 77 mm gekürzt |
+| `steg_vorn_96mm.stl` | Steg vorn (Rundstab 96 mm) | `obj_8_8` | auf 96 mm gekürzt (endet vor dem Zapfen); nur Lehre/Ersatz, eingebaut wird Stahl |
+| `steg_hinten_77mm.stl` | Steg hinten (Rundstab 77 mm) | `obj_8_8` | auf 77 mm gekürzt; nur Lehre/Ersatz, eingebaut wird Stahl |
 | `magazin.stl` | Magazin | `obj_6_9` | Akkuhalter (3 Rippen), unteres Drittel abgetrennt, Öffnung oben |
 | `magazin_unterteil.stl` | Magazin Unterteil | `obj_6_9` | abnehmbar, Zapfen stützt den Akku |
 | `abzug.stl` | Abzug | `obj_1_3`/`obj_3_6` | aus dem Gehäuse gelöst, Nabe und Hebel (flach drucken) |
@@ -39,6 +39,9 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 | Teil | Typ |
 |---|---|
+| Stege | Stahl-Rundstab Ø 10 h9 (Silberstahl oder Edelstahl), 96 mm und 77 mm |
+| Zuganker vorn | 2 × Gewindestange M4 × 130 (Stahl 8.8 oder A2), 2 Muttern M4 (gefangen im Zapfen), 2 Muttern M4 + 2 Scheiben |
+| Zuganker hinten | 2 × Gewindestange M4 × 95, 2 Muttern M4 (gefangen im Schaft), 2 Muttern M4 + 2 Scheiben |
 | Achse Abzug | Stahlstift Ø 3 × 25 mm |
 | Abzugsfeder | Druckfeder Ø 5 × 15 mm, Draht 0,5–0,6 mm (härter/weicher tauschbar) |
 | Abzugsschalter | Omron D2F-01 (Stößel unten, Grundfläche oben) |
@@ -60,6 +63,25 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | TSOP 6 | TSOP34838 (6 × 6,95 × 5,6 mm) |
 
 ## Einbau
+
+- **Verstärkung** (vor Platine und Zusammenschrauben der Hälften):
+  1. Stege aus Stahl einsetzen: vorn 96 mm (Gehäuse 34 mm, Zwischenring, Handschutz hinten), hinten 77 mm
+     (Anschlag im Gehäuse bis in den Schaft)
+  2. Zwischenring mit seiner Nut auf den Zentrierbund der Gehäusefront, Handschutz hinten mit seiner Nut auf
+     den Bund des Zwischenrings
+  3. Zuganker vorn: Mutter M4 in die Sechskanttasche der Stirnfläche am Zapfenkopf drücken, Gewindestange
+     M4 × 130 von vorn durch Handschutz hinten und Zwischenring bis in die Gehäusehälfte eindrehen; in der
+     Nische vor der Platinentasche (offen zur Teilung) Scheibe und Mutter aufsetzen und mit Schlüssel SW 7
+     anziehen. Je Hälfte ein Anker (Z ±6,6)
+  4. Zuganker hinten: Mutter M4 von der Teilungsfläche in den Schlitz im Schaft schieben, Gewindestange
+     M4 × 95 durch das Gehäuse in die Mutter drehen, in der Nische hinter der Platinentasche Scheibe und Mutter
+     anziehen. Je Hälfte ein Anker (Z ±9)
+  5. Gehäuse, Zwischenring, Handschutz hinten und Schaft bilden damit einen vorgespannten Block; danach Platine
+     einsetzen und die Hälften mit M3 verschrauben
+- **Druck der tragenden Teile** (Gehäusehälften, Zwischenring, Handschutz hinten, Schaft): PETG oder ASA,
+  6 Wände, 50 % Gyroid, Zwischenring 100 %
+
+<img src="../baugruppe/schnitt_zuganker.png" alt="Schnitt: Zuganker M4 vorn durch Handschutz hinten, Zwischenring und Gehäuse, hinten durch Gehäuse und Schaft" width="640">
 
 - **Platine** in der rechten Hälfte, Oberkante X = 76 (4 mm höher als zuvor, Platz für den Abzug)
 - **USB-C** (Buchse 10,5 mm hoch) reicht durch die linke Seitenwand (Durchbruch 9,3 × 3,5) und schließt bündig

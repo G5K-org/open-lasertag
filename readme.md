@@ -151,7 +151,9 @@ Im Handschutz sitzt ein Lautsprecher Ø 40 mit Basskammer, vorn unter dem Korn d
 Einschmelzmuttern verschraubt; die vorderen Hälften umschließen einen Zapfen am hinteren Handschutz
 und sind dort mit je 2 × M3 befestigt (ohne Kleber, lösbar). Das Sensorkabel der Weste steckt unten vorn
 am Schaft in einer GX16-7-Buchse (Stecker hängt hinter dem Griff leicht schräg nach hinten unten). Links über
-dem Griff sitzt die Nachladetaste in Daumenreichweite. Alle Kabelwege sind geprüft:
+dem Griff sitzt die Nachladetaste in Daumenreichweite. Gehäuse, Zwischenring, Handschutz und Schaft sind
+mit Stahlstegen und je zwei Zugankern M4 vorn und hinten verspannt, der Zwischenring ist beidseitig
+zentriert. Alle Kabelwege sind geprüft:
 [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/README.md#kabelwege).
 Umgebaute und neue Druckteile: [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/). Alle Teile samt
 Platine zusammengesetzt: [gehaeuse/baugruppe/](gehaeuse/baugruppe/) (GLB/3MF).

@@ -20,6 +20,8 @@ Einbauten:
   - Gehäusehälften mit 6 x M3 x 10 und Einschmelzmuttern verschraubt
   - GX16-7 Buchse für das Sensorkabel der Weste unten vorn am Schaft (15° nach hinten), Kabelschacht zur Platine (J2)
   - Nachladetaste (Taster 6 x 6 mit gedruckter Kappe) links über dem Griff
+  - Verstärkung: Stege aus Stahl, je 2 Zuganker M4 vorn (Zapfen bis Gehäuse) und hinten (Gehäuse bis Schaft),
+    Zwischenring mit Zentrierbund und Nut
   - Drehgeber EC11 unten im Griff (Welle nach unten), Vibrationsmotor 10 x 20 über dem Griff,
     Kabelschacht Drehgeber -> Motor -> Platine
 
@@ -136,6 +138,24 @@ TACT = (6.0, 3.5, 5.0, 3.5)   # Taster: Kante, Körperhöhe, Höhe bis Stößel,
 TACT_LEGS = (3.25, 2.0, 7.4, 3.5)   # Beinchen bei ±X: Abstand, Schlitzbreite, Schlitzlänge, Tiefe (rechte Hälfte)
 CAP_R = (10.0, 1.2, 8.0, 0.8, 0.2)  # Kappe: Bund Ø, Bund Dicke, Schaft Ø, Überstand außen, Spiel
 RELOAD_WIRE = [(117.0, 160.0, -0.5), (126.8, 155.0, -0.5)]   # Nut zur Tasche des Abzugsschalters
+
+# ---------------------------------------------------------------- Verstärkung
+# Die Stege (Rundstab Ø 10) werden aus Stahl eingesetzt. Dazu je zwei Zuganker M4 (Gewindestange):
+# vorn vom Kopf des Zapfens (Mutter gefangen in der Stirnfläche) durch Handschutz hinten, Zwischenring und
+# Gehäuse bis in eine Mutternische vor der Platinentasche; hinten von einer Mutternische hinter der
+# Platinentasche durch das Gehäuse bis in den Schaft (Mutter gefangen, Schlitz von der Teilung).
+# Die Nischen im Gehäuse sind von der Teilungsfläche aus offen (Mutter vor dem Zusammensetzen anziehen).
+# Zentrierbunde nach vorn: Bund am Gehäuse in der Nut des Zwischenrings, Bund am Zwischenring in der Nut des
+# Handschutzes hinten.
+TIE_FRONT = [(78.0, 6.6), (78.0, -6.6)]   # X, Z
+TIE_REAR = [(72.0, 9.0), (72.0, -9.0)]
+TIE_HOLE = 4.5                # Durchgang M4
+TIE_NUT = (7.2, 3.5)          # Mutter M4: Schlüsselweite mit Spiel, Höhe
+TIE_FRONT_Y = (-43.0, 87.0)   # Gewindestange vorn: Stirnfläche Zapfenkopf .. Ende in der Nische
+TIE_FRONT_NICHE = (5.0, 82.5, 87.5, 11.0)   # halbe Breite X, Y0, Y1, Tiefe ab Teilung
+TIE_REAR_Y = (149.5, 242.5)   # Gewindestange hinten: Nische im Gehäuse .. Mutter im Schaft
+TIE_REAR_NICHE = (5.0, 149.5, 154.5, 12.5)
+COLLAR = (18.0, 21.0, 2.0, 0.15)   # Zentrierbund: Radius innen, außen, Höhe, Spiel
 
 # ---------------------------------------------------------------- Magazin, Akku
 CELL = (18.8, 66.2)           # 18650 mit Spiel
@@ -589,6 +609,52 @@ def reload_button(left):
     return cl, cr, groove, cap
 
 
+def reinforcement():
+    """Zuganker, Nischen, gefangene Muttern und Zentrierbunde (Gun-Rahmen).
+
+    Liefert Schnitte für Gehäuse (beide Hälften), Zwischenring, Handschutz hinten und Schaft sowie die Bunde
+    für Zwischenring und Handschutz hinten."""
+    ax, az = AX
+    hexa = m3.CrossSection.circle(TIE_NUT[0] / np.sqrt(3), 6)                  # Flächen bei ±Z
+
+    def nut(x, z, y0, y1, slot=False):
+        """Sechskant entlang Y; slot: Flächen bei ±X (von der Teilung eingeschoben)."""
+        h = hexa.rotate(30) if slot else hexa
+        return h.extrude(y1 - y0).transform(frame((0, 1, 0), (x, y0, z), (1, 0, 0)))
+
+    front = rear = stock = None
+    for x, z in TIE_FRONT:
+        sz = 1 if z > 0 else -1
+        c = cyl((x, TIE_FRONT_Y[0] - 0.01, z), (x, TIE_FRONT_Y[1], z), TIE_HOLE / 2, 32)
+        c = c + nut(x, z, TIE_FRONT_Y[0] - 0.01, TIE_FRONT_Y[0] + TIE_NUT[1])
+        hx, y0, y1, d = TIE_FRONT_NICHE
+        c = c + box(x - hx, x + hx, y0, y1, min(0, sz * d), max(0, sz * d))
+        front = c if front is None else front + c
+    for x, z in TIE_REAR:
+        sz = 1 if z > 0 else -1
+        c = cyl((x, TIE_REAR_Y[0], z), (x, TIE_REAR_Y[1], z), TIE_HOLE / 2, 32)
+        hx, y0, y1, d = TIE_REAR_NICHE
+        c = c + box(x - hx, x + hx, y0, y1, min(0, sz * d), max(0, sz * d))
+        yn = TIE_REAR_Y[1] - TIE_NUT[1]
+        n = nut(x, z, yn, TIE_REAR_Y[1], slot=True) + box(x - TIE_NUT[0] / 2, x + TIE_NUT[0] / 2, yn, TIE_REAR_Y[1],
+                                                 min(0, z), max(0, z))
+        rear = c if rear is None else rear + c
+        stock = n if stock is None else stock + n
+    ri, ro, h, clr = COLLAR
+
+    def annulus(y0, y1, r0, r1):
+        return cyl((ax, y0, az), (ax, y1, az), r1, 96) - cyl((ax, y0 - 1, az), (ax, y1 + 1, az), r0, 96)
+    # Bunde zeigen nach vorn (-Y): Gehäuse -> Nut im Zwischenring, Zwischenring -> Nut im Handschutz hinten;
+    # so liegen Zwischenring (Nut unten) und Handschutz hinten (Nut unten) beim Druck flach auf
+    y_ring_back, y_ring_front = B.Y_FRONT, B.Y_FRONT - B.RING_L
+    housing_collar = annulus(y_ring_back - h, y_ring_back + 0.01, ri, ro)
+    ring_groove = annulus(y_ring_back - h - 0.2, y_ring_back + 0.01, ri - clr, ro + clr)
+    ring_collar = annulus(y_ring_front - h, y_ring_front + 0.01, ri, ro)
+    hg_groove = annulus(y_ring_front - h - 0.2, y_ring_front + 0.01, ri - clr, ro + clr)
+    return dict(front=front, rear=rear, stock=stock, housing_collar=housing_collar, ring_groove=ring_groove,
+                ring_collar=ring_collar, hg_groove=hg_groove)
+
+
 def screws(points=None):
     """Bohrungen für eine Verschraubung über die Teilungsebene Z = 0 (beide Hälften, Gun-Rahmen)."""
     cut = None
@@ -618,9 +684,10 @@ def build():
     vcut = vest()
 
     rl, rr, rgroove, rcap = reload_button(L)
+    rf = reinforcement()
     halves = []
     for H, side in ((L - rl, P.HALF_L), (R - rr, P.HALF_R)):
-        H = H - pcut - trig_cut - hcut - screws() - vcut - rgroove + (stop ^ side)
+        H = H - pcut - trig_cut - hcut - screws() - vcut - rgroove - rf["front"] - rf["rear"] + (rf["housing_collar"] ^ side) + (stop ^ side)
         if side is P.HALF_R:
             H = H + bosses - pilots
         halves.append(H)
@@ -632,14 +699,15 @@ def build():
     hg = hg + (add ^ hg.hull()) - ocut - scut - strunk - tcut
     split = box(-500, 500, JOINT_Y, 500, -500, 500)
     spigot, pocket = joint()
-    hg_rear = (hg ^ split) + (spigot - strunk)
+    hg_rear = (hg ^ split) + (spigot - strunk) - rf["hg_groove"] - rf["front"]
     hg_front = hg - split - pocket - screws(HG_SCREWS)
     hg_front_l, hg_front_r = hg_front ^ P.HALF_L, hg_front ^ P.HALF_R
-    ring = load_gun("obj_5_5", ring_mat) - capsule((TRUNK[0], 5.0, 0), (TRUNK[0], 35.0, 0), TRUNK[1])
+    ring = load_gun("obj_5_5", ring_mat) + rf["ring_collar"] - rf["ring_groove"]
+    ring = ring - capsule((TRUNK[0], 5.0, 0), (TRUNK[0], 35.0, 0), TRUNK[1]) - rf["front"]
     stocks = {}
     for key, orig, side in (("schaft_links", "obj_4_7", P.HALF_L), ("schaft_rechts", "obj_2_4", P.HALF_R)):
         mat = parts[B.NAMES[key]][1]
-        stocks[key] = (load_gun(orig, mat) + (pod ^ side) - pod_cut - vcut, mat)
+        stocks[key] = (load_gun(orig, mat) + (pod ^ side) - pod_cut - vcut - rf["rear"] - rf["stock"], mat)
 
     os.makedirs(OUT, exist_ok=True)
     for f in os.listdir(OUT):                               # alter Stand (auch frühere Dateinamen)

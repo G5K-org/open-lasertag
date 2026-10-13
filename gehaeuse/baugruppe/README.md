@@ -43,6 +43,12 @@ und Steg hinten:
 
 <img src="schnitt_weste.png" width="520">
 
+Verstärkung (Schnitt gestuft bei Z = −6,6 vorn und −9 hinten): Zuganker M4 (gold) vorn vom Zapfenkopf durch
+Handschutz hinten und Zwischenring bis in das Gehäuse, hinten vom Gehäuse bis in den Schaft, Muttern in Nischen
+bzw. gefangen; dazu Stege aus Stahl und Zentrierbunde am Zwischenring:
+
+<img src="schnitt_zuganker.png" width="640">
+
 Schnitt durch die Nachladetaste (quer, Blick von vorn): Kappe (rot) im Loch der linken Hälfte, Taster 6 × 6
 (Platzhalter) auf der rechten Hälfte, Beinchen in deren Schlitzen:
 
@@ -60,11 +66,11 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 | Handschutz hinten, Handschutz vorn mit Schalldämpfer links / rechts | vor dem Zwischenring, geteilt bei Y = −32; vorderer Teil links/rechts geteilt (Z = 0), 5 × M3 verschraubt, umschließt den Zapfen des hinteren Teils (4 × M3) |
 | Linsenhülse, Frontkappe | vorn im bzw. auf dem Schalldämpfer |
 | TSOP-Einsatz | vorn an der Rundung unter dem Korn, über dem Schalldämpfer |
-| Steg vorn (Rundstab 96 mm) | Gehäuse 34 mm, Zwischenring 21 mm, Handschutz hinten 41 mm (bis vor den Zapfen) |
+| Steg vorn (Rundstab 96 mm) | Stahl; Gehäuse 34 mm, Zwischenring 21 mm, Handschutz hinten 41 mm (bis vor den Zapfen) |
 | Korn | Ring auf dem Rohr vorn am Handschutz, Steg im Schlitz |
 | Spannhebel Stift, Spannhebel Knauf | Stift im schrägen Loch der linken Mulde, Knauf außen darauf |
 | Schaft links / rechts, OLED-Rahmen | an der Gehäuserückseite; Rahmen in der Stufe des OLED-Sockels; GX16-Buchse unten vorn (Y = 230, 15° nach hinten) |
-| Steg hinten (Rundstab 77 mm) | ab Anschlag Y = 164 bis in den Schaft |
+| Steg hinten (Rundstab 77 mm) | Stahl; ab Anschlag Y = 164 bis in den Schaft |
 | Magazin, Magazin Unterteil | voll im Magazinschacht, 12° geneigt |
 | Abzug | auf der Achse X = 136 / Y = 129, Ruhelage |
 | Nachladetaste | links über dem Griff (X = 114, Y = 160), Bund am Anschlag |
