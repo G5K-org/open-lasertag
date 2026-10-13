@@ -37,6 +37,9 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 ## Kaufteile
 
+Elektrische Teile außerhalb der Platine mit LCSC-Nummer: [`waffe_lose_teile.csv`](../../kicad/waffe_elektronik/fertigung/lcsc/waffe_lose_teile.csv)
+(zusammen mit der Platine bei LCSC bestellbar, nicht Teil der JLCPCB-Bestückung).
+
 | Teil | Typ |
 |---|---|
 | Stege | Stahl-Rundstab Ø 10 h9 (Silberstahl oder Edelstahl), 96 mm und 77 mm |
@@ -44,7 +47,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | Zuganker hinten | 2 × Gewindestange M4 × 95, 2 Muttern M4 (gefangen im Schaft), 2 Muttern M4 + 2 Scheiben |
 | Achse Abzug | Stahlstift Ø 3 × 25 mm |
 | Abzugsfeder | Druckfeder Ø 5 × 15 mm, Draht 0,5–0,6 mm (härter/weicher tauschbar) |
-| Abzugsschalter | Omron D2F-01 (Stößel unten, Grundfläche oben) |
+| Abzugsschalter | Omron D2F-01 (LCSC C397278; Stößel unten, Grundfläche oben) |
 | Linse | Ø 20 mm, bis 7 mm dick, in die Hülse geklebt |
 | IR-LED | 5 mm (z. B. TSAL6100), von vorn in den Sitz gesteckt |
 | Ringlicht | 12 × WS2812/SK6812, Ø 36,8/23,3 mm (Adafruit #1643 o. ä.) |
@@ -52,7 +55,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | OLED | 0,96″ SSD1306 I²C 128 × 64 (Platine 27,3 × 27,8), Kabel direkt angelötet, ohne Stiftleiste |
 | Drehgeber | EC11 mit Taster, Welle Ø 6, 20 mm |
 | Vibrationsmotor | Ø 10 × 20 mm mit Unwucht |
-| Nachladehebel | Taster 6 × 6 × 5 mm THT (Stößel rund Ø 3,5), 2 × Zylinderstift Ø 3 × 8 (Stahl), Druckfeder Ø 3 × 6 (weich), Linsenkopfschraube M3 × 10 ISO 7380 + Scheibe M3 DIN 125 |
+| Nachladehebel | Taster 6 × 6 × 5 mm THT, runder Stößel: Korean Hroparts K2-1102DP-C4SW-04 (LCSC C110153), 2 × Zylinderstift Ø 3 × 8 (Stahl), Druckfeder Ø 3 × 6 (weich), Linsenkopfschraube M3 × 10 ISO 7380 + Scheibe M3 DIN 125 |
 | Platine | M2 × 8 ISO 7380 (2 ×) |
 | Gehäusehälften | 6 × M3 × 10 ISO 4762, 6 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
 | Handschutz vorn | 5 × M3 × 10 ISO 4762, 5 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |

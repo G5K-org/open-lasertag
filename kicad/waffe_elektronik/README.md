@@ -140,6 +140,9 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 [`fertigung/jlcpcb/`](fertigung/jlcpcb/): `waffe_elektronik_gerber.zip` (Gerber + Bohrdaten),
 `waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. Alle Bauteile mit LCSC-Nummer (Feld `LCSC`),
 geprüft auf Lagerbestand bei JLCPCB.
+Lose Teile in der Waffe, die an die Platine angeschlossen werden (nicht bestückt):
+[`fertigung/lcsc/waffe_lose_teile.csv`](fertigung/lcsc/waffe_lose_teile.csv) – Nachladetaster
+K2-1102DP-C4SW-04 (C110153) an SW2, Abzugsschalter Omron D2F-01 (C397278) an SW1.
 
 - Leiterplatte: 4 Lagen, 1,6 mm, Impedanz-Stackup JLC04161H-7628, ENIG
 - Bestückung: Top Side, BOM + CPL hochladen, Platzierungsvorschau prüfen
