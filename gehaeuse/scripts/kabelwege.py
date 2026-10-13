@@ -68,6 +68,7 @@ def routes(M):
     seat, a, inner = U.gx_axis()
     motor = [tuple(p) for p in U.MOTOR_PATH[::-1]]                 # VIB-Zone -> Motor
     spk = (ax - U.BASS[0] / 2 + 1, U.SPK_Y - U.SPK[1] - 4, U.LOBE[1])
+    LEVER = U.reload_lever()[3]
     # Name: (Adern, Ader-Ø, Weg ab Steckermaul auf der Platine, gemeinsame Schächte)
     return {
         "Akku (BT1)": (2, AWG24, [(81.2, 97.8, 2), (81.2, 89.5, 2)] + trunk_in
@@ -83,9 +84,8 @@ def routes(M):
                                + hg[:4] + [(U.LOBE[0], spk[1], U.LOBE[1]), spk],
                                ["Hauptschacht Gehäuse", "Hauptschacht Handschutz"]),
         "Abzug (SW1)": (2, AWG28, [g(13.0, 46.5), (125.5, P.Y0 + 13.0, 2), (125.5, 145, 0), (128.7, 152, 0)], []),
-        "Nachladen (SW2)": (2, AWG28, [g(18.9, 46.5), (124.5, P.Y0 + 18.9, 2), (125.5, 145, 0), (128.7, 152, 0), (127.8, 155, -0.5)]
-                            + [tuple(p) for p in U.RELOAD_WIRE[::-1]]
-                            + [(U.RELOAD[0] + U.TACT_LEGS[0], U.RELOAD[1], -1.5)], []),
+        "Nachladen (SW2)": (2, AWG28, [g(18.9, 46.5), (124.5, P.Y0 + 18.9, 2), (125.5, 145, 0), (128.7, 152, 0)]
+                            + [tuple(p) for p in U.RELOAD_WIRE[::-1]] + [LEVER["wire0"]], []),
         "Weste (J2)": (7, AWG28, [g(54.5, 34.2), (P.X0 + 34.2, 150.5, 2), (P.X0 + 30.0, 150.5, 1)] + motor[:2] + [tuple(p) for p in U.GX_PATH[::-1]] + [tuple(inner + a * 2), tuple(inner + a * 4)],
                        ["Motorschacht", "Westenschacht"]),
         "OLED (J4)": (4, AWG28, [(81.5, 149.4, 2), (81.5, 156, 2), (P.X0 + 1, 156, 0), (68, 170, 0), tuple(oled)],

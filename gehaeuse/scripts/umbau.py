@@ -19,7 +19,7 @@ Einbauten:
     (Kimme und Korn bleiben)
   - Gehäusehälften mit 6 x M3 x 10 und Einschmelzmuttern verschraubt
   - GX16-7 Buchse für das Sensorkabel der Weste unten vorn am Schaft (15° nach hinten), Kabelschacht zur Platine (J2)
-  - Nachladetaste (Taster 6 x 6 mit gedruckter Kappe) links über dem Griff
+  - Nachladehebel (Wippe aus dem Sicherungshebel, Taster 6 x 6 verdeckt darunter) links über dem Griff
   - Verstärkung: Stege aus Stahl, je 2 Zuganker M4 vorn (Zapfen bis Gehäuse) und hinten (Gehäuse bis Schaft),
     Zwischenring mit Zentrierbund und Nut
   - Drehgeber EC11 unten im Griff (Welle nach unten), Vibrationsmotor 10 x 20 über dem Griff,
@@ -128,16 +128,25 @@ GX_WIRE = 2.5                 # Radius Kabelschacht (7 x AWG 28)
 MOTOR_PATH = [(146.0, 175.0, 0), (104.0, 178.0, 0), (P.X0 + 25.5, P.Y0 + 58.5, 0)]   # Motor -> VIB-Zone
 MOTOR_WIRE = 3.0              # Motor, Drehgeber und Weste gemeinsam (13 Adern)
 
-# ---------------------------------------------------------------- Nachladetaste
-# Taster 6 x 6 links über dem Griff am oberen Rand des Sicherungshebel-Knopfs (Daumen). Der Taster liegt mit dem Körper
-# auf der Teilungsfläche der rechten Hälfte (Beinchen in zwei Schlitzen), die gedruckte Kappe steckt mit Bund im
-# Loch der linken Hälfte und ist zwischen Taster und Schulter gefangen. Kabel in einer Nut an der Teilung in die
-# Tasche des Abzugsschalters, von dort wie das Abzugskabel zu SW2.
-RELOAD = (114.0, 160.0)       # X, Y; Achse Z nach links außen (hinter der Zone für Motor- und Westenstecker)
-TACT = (6.0, 3.5, 5.0, 3.5)   # Taster: Kante, Körperhöhe, Höhe bis Stößel, Stößel Ø
-TACT_LEGS = (3.25, 2.0, 7.4, 3.5)   # Beinchen bei ±X: Abstand, Schlitzbreite, Schlitzlänge, Tiefe (rechte Hälfte)
-CAP_R = (10.0, 1.2, 8.0, 0.8, 0.2)  # Kappe: Bund Ø, Bund Dicke, Schaft Ø, Überstand außen, Spiel
-RELOAD_WIRE = [(117.0, 160.0, -0.5), (126.8, 155.0, -0.5)]   # Nut zur Tasche des Abzugsschalters
+# ---------------------------------------------------------------- Nachladehebel
+# Der Sicherungshebel links über dem Griff wird zum beweglichen Nachladehebel (Wippe): das Relief wird aus der
+# linken Hälfte gelöst, der Hebel dreht um die vorhandene Kreismarke auf einem Lagerbund (M3-Linsenkopfschraube
+# mit Scheibe, selbstschneidend in den Bund). Daumen drückt den Arm nach unten (ca. 4,5°): ein Stahlstift im
+# Hebelboden drückt seitlich auf einen Taster 6 x 6, der verdeckt unter dem Hebel liegt; ein zweiter Stift liegt
+# an einer Druckfeder (Rückstellung). Kabel durch einen Kanal über der Abzugsfeder in die Tasche des
+# Abzugsschalters, von dort wie das Abzugskabel zu SW2.
+LEVER_C = (121.17, 158.09)    # Drehpunkt = Mittelpunkt der Kreismarke (X, Y), Achse Z
+LEVER_LEVEL = 12.6            # Umriss des Reliefs (Höhe über der Teilung)
+LEVER_FLOOR = 10.0            # Unterseite des Hebels = Boden der Tasche
+LEVER_ROT = 4.6               # Schwenkwinkel nach unten (Grad), Anschlag am Taster
+LEVER_CLR = 0.25              # Spiel um den Hebel in der Tasche
+LEVER_BOSS = (5.0, 5.3, 2.5)  # Lagerbund Ø, Bohrung im Hebel Ø, Kernloch M3
+LEVER_HEAD = (7.6, 2.25)      # Senkung für Scheibe (Ø 7) und Linsenkopf: Ø, Tiefe
+LEVER_PINS = ((6.0, -3.5), (11.0, -3.0), 3.0, 4.5)   # Stift Taster, Stift Feder (r entlang Arm, t quer); Ø, Überstand
+TACT = (6.0, 3.5, 1.5, 3.5)   # Taster: Kante, Körpertiefe, Stößellänge, Stößel Ø
+LEVER_GAP = 0.3               # Luft Stift -> Stößel in Ruhe
+SPRING_R = (3.3, 6.0)         # Federbohrung Ø, Länge (Druckfeder Ø 3 x 6)
+RELOAD_WIRE = [(128.0, 157.0, 4.6), (128.7, 156.0, 2.0)]   # Kanal über der Abzugsfeder bis in die Schaltertasche
 
 # ---------------------------------------------------------------- Verstärkung
 # Die Stege (Rundstab Ø 10) werden aus Stahl eingesetzt. Dazu je zwei Zuganker M4 (Gewindestange):
@@ -284,7 +293,7 @@ def axis_frame(y_back):
 def trigger(halves):
     """Abzug aus dem Original lösen, Nabe und Hebel ergänzen; liefert (Abzug, Freiraum)."""
     b1 = box(136.3, 140.6, 125.6, 142.4, -TRIG_T - 0.05, TRIG_T + 0.05)
-    b2 = box(140.6, 168.0, 118.0, 141.5, -TRIG_T - 0.05, TRIG_T + 0.05)   # nur das Abzugsblatt, nicht der Bügel
+    b2 = box(140.6, 168.0, 118.0, 141.5, -30.0, 30.0)   # nur das Abzugsblatt (volle Dicke), nicht der Bügel
     blade = halves ^ (b1 + b2)
     px, py = PIVOT
 
@@ -439,7 +448,7 @@ def housing_cuts(tip, yw, mag_top):
     add(ebox.transform(frame(n, f - n * (bl + (h + back) / 2), (-n[1], n[0], 0))))
     e_back = f - n * (bl + h + back - 1.0)
     add(path([e_back, (152.0, 183.0, 0)], 2.5))
-    # Motor -> Platine (Feld VIB), oben um die Nachladetaste herum; auch Drehgeber und Weste
+    # Motor -> Platine (Feld VIB), oben um den Nachladehebel herum; auch Drehgeber und Weste
     add(path(MOTOR_PATH, MOTOR_WIRE))
     # OLED: Rahmen der Schrägfläche (sv entlang nach unten hinten, nv nach außen, Z quer)
     sv = np.array([OLED_S[0], OLED_S[1], 0.0]); sv /= np.linalg.norm(sv)
@@ -582,31 +591,79 @@ def vest():
     return cut
 
 
-def reload_button(left):
-    """Nachladetaste: (Schnitt links, Schnitt rechts, Nut an der Teilung, Kappe) im Gun-Rahmen."""
-    x, y = RELOAD
-    e, hb, hp, dp = TACT
-    lx, lw, ll, ld = TACT_LEGS
-    cd, ct, sd, proud, clr = CAP_R
-    tm = to_tm(left)
-    rays = [(x + dx, y + dy) for dx in (-sd / 2, 0, sd / 2) for dy in (-sd / 2, 0, sd / 2)]
-    loc, _, _ = tm.ray.intersects_location([(px, py, 60.0) for px, py in rays], [(0, 0, -1.0)] * len(rays))
-    z_out = loc[:, 2].max()                                 # höchster Punkt der Außenfläche unter der Kappe
-    z_cap = hp                                              # Unterseite der Kappe liegt auf dem Stößel
-    z_sh = z_cap + ct + 0.05                                # Schulter: Bund liegt in Ruhe an
-    cl = box(x - e / 2 - 0.2, x + e / 2 + 0.2, y - e / 2 - 0.2, y + e / 2 + 0.2, -0.01, hb + 0.1)       # Körper
-    cl = cl + box(x - lx - lw / 2, x + lx + lw / 2, y - e / 2 - 0.2, y + e / 2 + 0.2, -0.01, 1.2)      # Beinchen
-    cl = cl + cyl((x, y, hb), (x, y, z_sh), cd / 2 + clr * 2, 64)                                        # Bund
-    cl = cl + cyl((x, y, z_sh - 0.01), (x, y, 60.0), sd / 2 + clr, 64)                                   # Schaft
-    cr = None
-    for sx in (-1, 1):
-        s = box(x + sx * lx - lw / 2, x + sx * lx + lw / 2, y - ll / 2, y + ll / 2, -ld, 0.01)
-        cr = s if cr is None else cr + s
-    groove = path(RELOAD_WIRE, 1.5)
-    cr = cr + capsule((x + lx, y, -1.5), RELOAD_WIRE[0], 1.2)
-    cap = cyl((x, y, z_cap), (x, y, z_cap + ct), cd / 2, 64) + cyl((x, y, z_cap + ct - 0.01), (x, y, z_out + proud), sd / 2, 64)
-    cap = cap - cyl((x, y, z_cap - 0.01), (x, y, z_cap + 0.6), dp / 2 + 0.2, 32)                         # Stößel
-    return cl, cr, groove, cap
+def reload_lever():
+    """Nachladehebel: (Schnitt linke Hälfte, Lagerbund, Hebel, Lage der Stifte/Taster) im Gun-Rahmen."""
+    import contourpy
+    from shapely.geometry import Point, Polygon
+    cx, cy = LEVER_C
+    tm = trimesh.load(os.path.join(P.SRC, "obj_1_3.stl"))
+    X, Y = np.mgrid[cx - 26:cx + 8:0.15, cy - 10:cy + 22:0.15]
+    org = np.column_stack([X.ravel(), Y.ravel(), np.full(X.size, 60.0)])
+    loc, ri, _ = tm.ray.intersects_location(org, np.tile([0, 0, -1.0], (X.size, 1)))
+    zz = np.zeros(X.size)
+    np.maximum.at(zz, ri, loc[:, 2])
+    Z = zz.reshape(X.shape)
+    poly = None
+    for line in contourpy.contour_generator(X, Y, Z).lines(LEVER_LEVEL):
+        if len(line) > 20 and Polygon(line).is_valid and Polygon(line).contains(Point(cx, cy)):
+            poly = Polygon(line).simplify(0.03)
+    pts = np.array(poly.exterior.coords)[:-1]
+    if Polygon(pts).exterior.is_ccw is False:
+        pts = pts[::-1]
+    outline = m3.CrossSection([pts.tolist()])
+    hub_top = Z[int(round((cx - X[0, 0]) / 0.15)), int(round((cy - Y[0, 0]) / 0.15))]
+    tip = pts[np.argmax(np.linalg.norm(pts - (cx, cy), axis=1))]
+    a = (tip - (cx, cy)) / np.linalg.norm(tip - (cx, cy))     # Armrichtung
+    v = np.array([a[1], -a[0]])                                # Bewegung beim Drücken (nach unten hinten)
+
+    def turned(cs, deg):
+        return cs.translate((-cx, -cy)).rotate(deg).translate((cx, cy))
+    sweep = None
+    for deg in np.linspace(-LEVER_ROT - 0.3, 0.0, 9):
+        t = turned(outline, deg)
+        sweep = t if sweep is None else sweep + t
+    H = 40.0
+    cut = sweep.offset(LEVER_CLR, m3.JoinType.Round).extrude(H).translate((0, 0, LEVER_FLOOR))
+    lever = P.load("obj_1_3") ^ outline.extrude(H).translate((0, 0, LEVER_FLOOR))
+    bd, hd, pd = LEVER_BOSS
+    cbd, cbt = LEVER_HEAD
+    cb_floor = hub_top - cbt
+    lever = lever - cyl((cx, cy, LEVER_FLOOR - 1), (cx, cy, H), hd / 2, 48)
+    lever = lever - cyl((cx, cy, cb_floor), (cx, cy, H), cbd / 2, 48)
+    boss = cyl((cx, cy, LEVER_FLOOR - 0.01), (cx, cy, cb_floor + 0.15), bd / 2, 48)
+    boss = boss - cyl((cx, cy, cb_floor - 9.0), (cx, cy, cb_floor + 1), pd / 2, 24)
+    # Stifte (Ø 3, im Hebelboden eingepresst) und ihre Bahnen in der Hälfte
+    (r1, t1), (r2, t2), pdia, plen = LEVER_PINS
+    pins = []
+    for r, tq in ((r1, t1), (r2, t2)):
+        q = np.array([cx, cy]) + a * r + v * tq
+        pins.append(q)
+        lever = lever - cyl((q[0], q[1], LEVER_FLOOR - 0.01), (q[0], q[1], LEVER_FLOOR + 3.5), pdia / 2 - 0.03, 24)
+        path_ = None
+        for deg in np.linspace(-LEVER_ROT - 0.3, 0.3, 9):
+            ang = np.radians(deg)
+            rr = q - (cx, cy)
+            p2 = (cx + rr[0] * np.cos(ang) - rr[1] * np.sin(ang), cy + rr[0] * np.sin(ang) + rr[1] * np.cos(ang))
+            c = cyl((p2[0], p2[1], LEVER_FLOOR - plen - 0.4), (p2[0], p2[1], LEVER_FLOOR + 0.01), pdia / 2 + 0.3, 24)
+            path_ = c if path_ is None else path_ + c
+        cut = cut + path_
+    # Taster: liegt auf der Seite, Stößel gegen v zum Stift 1; Beinchen nach unten gebogen
+    e, tb, tp, tpd = TACT
+    zc = LEVER_FLOOR - 0.2 - e / 2                              # Mitte des Tasters
+    q1 = pins[0] + v * (pdia / 2 + LEVER_GAP)                   # Stößelspitze
+    loc_ = frame((v[0], v[1], 0), (q1[0], q1[1], zc), (a[0], a[1], 0))   # lokal z = v, x = a
+    sw = box(-e / 2 - 0.2, e / 2 + 0.2, -e / 2 - 0.2, e / 2 + 0.2, tp, tp + tb + 0.2).transform(loc_)
+    sw = sw + cyl((q1[0], q1[1], zc), (q1[0] + v[0] * (tp + 0.1), q1[1] + v[1] * (tp + 0.1), zc), tpd / 2 + 0.25, 24)
+    legs = box(-e / 2, e / 2, -e / 2 - 2.5, -e / 2 + 0.01, tp + 0.3, tp + tb).transform(loc_)      # Beinchen unten
+    cut = cut + sw + legs
+    # Rückstellfeder gegen Stift 2
+    q2 = pins[1] + v * (pdia / 2 + 0.1)
+    cut = cut + cyl((q2[0], q2[1], zc), (q2[0] + v[0] * SPRING_R[1], q2[1] + v[1] * SPRING_R[1], zc), SPRING_R[0] / 2, 24)
+    # Kabel: von den Beinchen über der Abzugsfeder in die Schaltertasche
+    base = q1 + v * (tp + tb / 2)
+    wire0 = (base[0], base[1], zc - e / 2 + 0.8)            # über der Bohrung der Abzugsfeder
+    cut = cut + path([wire0] + RELOAD_WIRE, 1.1)
+    return cut, boss, lever, dict(pins=pins, a=a, v=v, hub_top=hub_top, zc=zc, q1=q1, wire0=wire0)
 
 
 def reinforcement():
@@ -683,11 +740,11 @@ def build():
     pcut, bosses, pilots, stop = P.pocket_shapes()
     vcut = vest()
 
-    rl, rr, rgroove, rcap = reload_button(L)
+    lcut, lboss, lever, _ = reload_lever()
     rf = reinforcement()
     halves = []
-    for H, side in ((L - rl, P.HALF_L), (R - rr, P.HALF_R)):
-        H = H - pcut - trig_cut - hcut - screws() - vcut - rgroove - rf["front"] - rf["rear"] + (rf["housing_collar"] ^ side) + (stop ^ side)
+    for H, side in ((L - lcut + lboss, P.HALF_L), (R, P.HALF_R)):
+        H = H - pcut - trig_cut - hcut - screws() - vcut - rf["front"] - rf["rear"] + (rf["housing_collar"] ^ side) + (stop ^ side)
         if side is P.HALF_R:
             H = H + bosses - pilots
         halves.append(H)
@@ -742,7 +799,7 @@ def build():
 
     flat = np.eye(4)[:3]                                   # Abzug liegt flach (Z oben)
     new_part("abzug", trig, flat)
-    new_part("nachladetaste", rcap, flat)                                     # Bund unten
+    new_part("nachladehebel", lever, np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, -LEVER_FLOOR]], float))   # Boden unten
     new_part("handschutz_vorn_links", hg_front_l, flat)                       # Teilungsfläche unten
     new_part("handschutz_vorn_rechts", hg_front_r,
              np.array([[-1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0]], float))   # gedreht, Teilungsfläche unten

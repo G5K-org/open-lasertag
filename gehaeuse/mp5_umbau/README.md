@@ -10,8 +10,8 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 | Datei | Teil | aus Original | Änderung |
 |---|---|---|---|
-| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite) mit Zonen für die Stecker, USB-C bündig in einer Mulde, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Nachladetaste, Einschmelzmuttern, Zentrierbund vorn, Zuganker mit Mutternischen |
-| `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Auflage der Nachladetaste, Schraubensenkungen, Zentrierbund vorn, Zuganker mit Mutternischen |
+| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite) mit Zonen für die Stecker, USB-C bündig in einer Mulde, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Tasche und Lagerbund des Nachladehebels (Sicherungshebel-Relief entfernt), Einschmelzmuttern, Zentrierbund vorn, Zuganker mit Mutternischen |
+| `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Schraubensenkungen, Zentrierbund vorn, Zuganker mit Mutternischen |
 | `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht, Nut hinten, Zentrierbund vorn, 2 Bohrungen für die Zuganker (Nut unten drucken) |
 | `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | einteilig, ab Y = −32; vorn Zapfen mit 4 Einschmelzmuttern und 2 gefangenen Muttern M4 (Zuganker), Nut hinten, Kabelschacht (Rückseite unten drucken, Stützen unter dem Zapfenkopf) |
 | `handschutz_vorn_links.stl` | Handschutz vorn mit Schalldämpfer links | `obj_10_2` | links/rechts geteilt (flach auf der Teilungsfläche), Einschmelzmuttern; Aufnahme für den Zapfen, Lautsprechertasche, Schallkammer mit Löchern, Basskammer, Kabelnut, TSOP-Aufnahme, Gewinde M24 × 1,5, LED-Sitz, Kabelkanäle, Zapfen für die Frontkappe |
@@ -29,8 +29,8 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | `steg_hinten_77mm.stl` | Steg hinten (Rundstab 77 mm) | `obj_8_8` | auf 77 mm gekürzt; nur Lehre/Ersatz, eingebaut wird Stahl |
 | `magazin.stl` | Magazin | `obj_6_9` | Akkuhalter (3 Rippen), unteres Drittel abgetrennt, Öffnung oben |
 | `magazin_unterteil.stl` | Magazin Unterteil | `obj_6_9` | abnehmbar, Zapfen stützt den Akku |
-| `abzug.stl` | Abzug | `obj_1_3`/`obj_3_6` | aus dem Gehäuse gelöst, Nabe und Hebel (flach drucken) |
-| `nachladetaste.stl` | Nachladetaste | neu | Kappe mit Bund für den Taster 6 × 6 (Bund unten drucken) |
+| `abzug.stl` | Abzug | `obj_1_3`/`obj_3_6` | Abzugsblatt in voller Dicke aus beiden Hälften gelöst (kein fester Rest), Nabe und Hebel (flach drucken) |
+| `nachladehebel.stl` | Nachladehebel | `obj_1_3` | Sicherungshebel-Relief als bewegliche Wippe, Lagerbohrung in der Kreismarke, 2 Bohrungen für Stifte Ø 3 (Boden unten drucken) |
 | `lage.json` | – | – | Lage der neuen Teile in der Waffe (für `baugruppe.py`) |
 
 `obj_12_11` (Sechskantstift 6 × 17,6 mm) aus dem Originalsatz hat keine erkennbare Aufnahme und ist nicht enthalten.
@@ -52,7 +52,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 | OLED | 0,96″ SSD1306 I²C 128 × 64 (Platine 27,3 × 27,8), Kabel direkt angelötet, ohne Stiftleiste |
 | Drehgeber | EC11 mit Taster, Welle Ø 6, 20 mm |
 | Vibrationsmotor | Ø 10 × 20 mm mit Unwucht |
-| Nachladetaste | Taster 6 × 6 × 5 mm THT (Stößel rund Ø 3,5, Höhe bis Stößel 5,0) |
+| Nachladehebel | Taster 6 × 6 × 5 mm THT (Stößel rund Ø 3,5), 2 × Zylinderstift Ø 3 × 8 (Stahl), Druckfeder Ø 3 × 6 (weich), Linsenkopfschraube M3 × 10 ISO 7380 + Scheibe M3 DIN 125 |
 | Platine | M2 × 8 ISO 7380 (2 ×) |
 | Gehäusehälften | 6 × M3 × 10 ISO 4762, 6 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
 | Handschutz vorn | 5 × M3 × 10 ISO 4762, 5 × Einschmelzmutter M3 × 5,7 (Loch Ø 4,0) |
@@ -137,13 +137,18 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 <img src="../baugruppe/schnitt_weste.png" alt="Schnitt: GX16-Buchse im Schaft, Mutter, Stecker, Kabelschacht zur Platine" width="520">
 
-- **Nachladetaste** links über dem Griff am oberen Rand des Sicherungshebel-Knopfs (Daumen der Schießhand):
-  Kappe von innen in das Loch der linken Hälfte stecken (Bund innen), Taster 6 × 6 mit dem Stößel auf die
-  Kappe setzen, Beinchen nach unten in die zwei Schlitze der rechten Hälfte biegen, Litzen anlöten und in die
-  Nut an der Teilung zur Tasche des Abzugsschalters legen, von dort wie das Abzugskabel zu SW2. Beim
-  Verschrauben der Hälften liegt der Taster auf der rechten Hälfte, die Kappe ist gefangen (0,8 mm Überstand)
+- **Nachladehebel** (Wippe) links über dem Griff: der Sicherungshebel ist ein eigenes Teil und dreht um die
+  Kreismarke (Daumen drückt den Arm ca. 4,5° nach unten)
+  1. Taster 6 × 6 liegend in die Tasche unter dem Hebel (Stößel zum Drehpunkt hin), Beinchen nach unten biegen,
+     Litzen anlöten und durch den Kanal über der Abzugsfeder in die Tasche des Abzugsschalters führen, von dort
+     wie das Abzugskabel zu SW2
+  2. Druckfeder Ø 3 × 6 in die Bohrung neben dem Taster legen
+  3. Zwei Zylinderstifte Ø 3 × 8 in die Bohrungen im Hebelboden drücken (4,5 mm Überstand)
+  4. Hebel mit den Stiften in die Bahnen setzen, Linsenkopfschraube M3 × 10 mit Scheibe in den Lagerbund drehen
+     (selbstschneidend); Schraubenkopf liegt versenkt in der Kreismarke. Feder hält den Hebel oben, beim Drücken
+     löst der Taster aus, der Taster ist zugleich der Anschlag
 
-<img src="../baugruppe/schnitt_nachladetaste.png" alt="Schnitt durch die Nachladetaste: Kappe, Taster, Beinchen in der rechten Hälfte" width="360">
+<img src="../baugruppe/schnitt_nachladehebel.png" alt="Nachladehebel abgehoben: Lagerbund mit Schraube, Stifte, Taster und Feder in der Tasche" width="420">
 
 ## Kabelwege
 

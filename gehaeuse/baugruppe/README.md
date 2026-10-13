@@ -16,7 +16,7 @@ Alle Teile der Waffe an ihrem Platz in einer Datei, erzeugt mit
 |---|---|---|
 | <img src="baugruppe_rechts.png" width="280"> | <img src="baugruppe_vorn.png" width="280"> | <img src="baugruppe_hinten.png" width="200"> |
 
-USB-C-Buchse (10,5 mm hoch) bündig in der Mulde der linken Seitenwand, darüber rechts die Nachladetaste:
+USB-C-Buchse (10,5 mm hoch) bündig in der Mulde der linken Seitenwand, rechts der Nachladehebel (rot, beweglich):
 
 <img src="usb_buendig.png" width="420">
 
@@ -49,10 +49,10 @@ bzw. gefangen; dazu Stege aus Stahl und Zentrierbunde am Zwischenring:
 
 <img src="schnitt_zuganker.png" width="640">
 
-Schnitt durch die Nachladetaste (quer, Blick von vorn): Kappe (rot) im Loch der linken Hälfte, Taster 6 × 6
-(Platzhalter) auf der rechten Hälfte, Beinchen in deren Schlitzen:
+Nachladehebel (rot) abgehoben: Lagerbund mit Schraube in der Kreismarke, Stifte im Hebelboden, Taster 6 × 6
+(liegend) und Rückstellfeder in der Tasche:
 
-<img src="schnitt_nachladetaste.png" width="300">
+<img src="schnitt_nachladehebel.png" width="420">
 
 ## Teile
 
@@ -73,7 +73,7 @@ Die Knoten in GLB/3MF tragen die Namen aus [`../mp5_umbau/`](../mp5_umbau/README
 | Steg hinten (Rundstab 77 mm) | Stahl; ab Anschlag Y = 164 bis in den Schaft |
 | Magazin, Magazin Unterteil | voll im Magazinschacht, 12° geneigt |
 | Abzug | auf der Achse X = 136 / Y = 129, Ruhelage |
-| Nachladetaste | links über dem Griff (X = 114, Y = 160), Bund am Anschlag |
+| Nachladehebel | Sicherungshebel links über dem Griff, dreht um die Kreismarke (X = 121,17, Y = 158,09), Ruhelage |
 | Platine | KiCad-Export (`kicad-cli pcb export glb`), Tasche in der rechten Hälfte |
 
 `obj_12_11` (Sechskantstift 6 × 17,6 mm) ist nicht enthalten: keine passende Aufnahme gefunden.
