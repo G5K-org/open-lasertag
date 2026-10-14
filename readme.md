@@ -106,7 +106,7 @@ flowchart LR
 
 ## Hardware
 
-Eine Platine für die ganze Waffe: 59,6 × 46 mm (L-förmig), 4 Lagen, nur SMD-Bauteile, von
+Eine Platine für die ganze Waffe: 59,6 × 51 mm, 4 Lagen, nur SMD-Bauteile, von
 Hand geroutet und für die Bestückung bei JLCPCB vorbereitet. Alle Peripherie
 hängt an Steckern: Akku, IR-LED, Taster, Motoren, Lautsprecher, WS2812, ein Sensor an der Waffe und
 das Sensorkabel der Weste.
@@ -118,9 +118,10 @@ das Sensorkabel der Weste.
 **Auf der Platine:** ESP32-S3-WROOM-1 (16 MB Flash, 8 MB PSRAM), USB-C mit
 ESD-Schutz zum Flashen und Laden, Lader MCP73831, 5-V-Boost MT3608,
 3,3-V-Regler, MOSFETs für IR-LED und Vibrationsmotor, Pegelwandler für
-WS2812, I²S-Verstärker MAX98357A, GX16-Buchse für das Sensorkabel der Weste.
+WS2812, I²S-Verstärker MAX98357A, SPI-NAND-Flash 128 MB und microSD-Slot für Audio-Dateien,
+GX16-Buchse für das Sensorkabel der Weste.
 
-<a href="kicad/waffe_elektronik/renders/schaltplan.png"><img src="kicad/waffe_elektronik/renders/schaltplan.png" alt="Schaltplan der Waffen-Elektronik"></a>
+<a href="kicad/waffe_elektronik/renders/schaltplan.png"><img src="kicad/waffe_elektronik/renders/schaltplan.png" alt="Schaltplan der Waffen-Elektronik, fünf Seiten"></a>
 
 Schaltplan, Layout, Fertigungsdaten und Design-Entscheidungen:
 [kicad/waffe_elektronik/](kicad/waffe_elektronik/) · Pinbelegung:
@@ -325,7 +326,10 @@ Stand der Planung: 08.10.2026
   74HCT125) zwischen 3,3-V-GPIO und Datenleitung.
 - I²S-Verstärker (MAX98357A) + Lautsprecher, nutzt denselben 5-V-Boost wie der
   WS2812-Strip
-- 1S-LiPo oder geschützte 18650, Akkuspannung per ADC, im Waffengehäuse
+- SPI-NAND-Flash GD5F1GQ5UEYIGR (128 MB) für Audio-Dateien, an IO7/IO15/IO3/IO46
+- microSD-Slot (Push-Pull, TF-018) am selben SPI-Bus, /CS an IO48; Karte nur bei geöffnetem Gehäuse
+  erreichbar
+- 1S-LiPo oder 18650, Akkuschutz (DW01A + FS8205A) auf der Platine, Akkuspannung per ADC, im Waffengehäuse
 - ESP32-S3-WROOM-1 direkt auf der Platine, eigene USB-C-Buchse am nativen USB
   (IO19/IO20) zum Flashen, Debuggen und Laden – Auto-Flash über den
   eingebauten USB-Serial-JTAG, BOOT- und RESET-Taster als Rückfallebene

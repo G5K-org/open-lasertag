@@ -73,16 +73,16 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
 - **Befestigung:** 2 × M2 nach ISO 7380 (Linsenkopf 3,5 mm), `HOLES` in build_board.py, Footprint
   `MountingHole_2.2mm_M2_ISO7380`, nicht durchkontaktiert, board-only (nicht in Schaltplan/BOM/CPL).
   Courtyard = Kopfradius `HOLE_HEAD` 1,75 mm, Kupfer-Sperrfläche `HOLE_KEEPOUT` 1,85 mm auf allen Lagen
-  (keine Bahnen, Vias, Füllung). Lage diagonal: H1 (20,4/14,8) neben U2, H2 (42,2/42,5) unten rechts neben U6
-  (Lautsprecherleitungen laufen links daran vorbei).
+  (keine Bahnen, Vias, Füllung). Lage diagonal: H1 (20,4/14,8) neben U2, H2 (37,0/42,5) unten zwischen J3 und J7
+  (Lautsprecherleitungen laufen rechts daran vorbei, x 39,4/40,0).
   Freie Stellen suchen: größte freie Kreise gegen Pads, Körper, Bahnen, Vias mit Bahn und Texte.
   Mehr Löcher oder größere Schrauben nur mit größerer Platine.
 - ESP32-S3-WROOM-1: Antenne ragt über die Oberkante (`MX, MY`), 100 nF + 10 µF und EN-RC direkt an den Pins.
 - Randstecker: Body bündig, aber Befestigungspads ≥ 0,3 mm vom Rand (`SH_IN = 3.1`, `PH_IN = 4.9`).
-- **Kontur L-förmig:** `W0` = 54 (Hauptplatine; Modul `MX = W0 − 11,5`, M1 an `W0`), `W` = 59,6 nur für
-  y < `Y1` = 18,5 (Streifen für J4 OLED oben, J5 Drehgeber darunter, Öffnung nach rechts). Masseflächen und
-  Stitching folgen der L-Kontur. Neue Teile an der Kante: `W` bzw. `W0` je nach Höhe verwenden, nie
-  Modul/Bestand an `W` koppeln.
+- **Kontur (`OUTLINE` in build_board.py, alle Ecken R 1 mm):** Grundfläche `W` = 59,6 × `H` = 46, rechts eine
+  Aussparung x > `W0` = 54 für `Y1` = 18,5 < y < `Y2` = 26,5 (M1 an `W0`, Motorkabel), oben links eine Lasche
+  x < `XT` = 17, −`YT` = −5 < y < 0 (Akkuschutz). Modul `MX = W0 − 11,5`; J4/J5/J2 an `W`. Masseflächen und
+  Stitching (`on_board()`) folgen der Kontur. Neue Teile an der Kante: `W` bzw. `W0` je nach Höhe.
 - **TSOP 6 (J6, links unter LED1, JST-SH 3 = ZX-SH1.0-3PWT):** 1 VS (3V3 über Via + In2-Abzweig der
   3V3-Diagonale), 2 GND (Via rechts), 3 OUT von IO16: B.Cu-Kanal Diagonale x + y = 38,0 (zwischen
   H1-Sperrfläche und R2-3V3-Via, H1 dafür auf 20,4/14,8, U2-GND-Via auf (−1,2/0,3)), letztes Stück
@@ -93,14 +93,43 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   Hauptschacht) BT1, LED1, J6, J1 (WS2812), SP1 (Lautsprecher); unten (Kanal zum Abzugsschalter) SW1, SW2
   mit R9/C8, R10/C9 waagerecht darüber; rechts (hinten, Motorschacht) M1, darunter J2 (Weste); rechts oben
   J4/J5. SW3 (RESET) sitzt auf der EN-Diagonale oben links. Abzug/Nachladen laufen im B.Cu-Bündel die linke
-  Spalte (x 7,8/8,6) hinunter und unter 45° zu Vias über den Tastern; Lautsprecher OUTP/OUTN von Vias links
+  Spalte (x 7,8/8,6) hinunter und unter 45° zu Vias über den Tastern; Lautsprecher OUTP/OUTN von Vias rechts
   von H2 auf B.Cu entlang der Unterkante (y 44,95/45,5) zu Vias neben SP1; TSOP 1–5 von Vias unter den
-  Modul-Pads unter 45° auf B.Cu in Spalten x 45,0–47,4, Vias, F.Cu in J2; 3V3 für J2 über In2 rechts neben
-  dem Modul (x 51,6).
-- **Vibration:** ein Motor M1 (Rückstoß + Treffer) an IO47 über Q2/R11/R12/D1; IO48 frei. I²S läuft
+  Modul-Pads unter 45° auf B.Cu in Spalten x 45,0–47,4; TSOP 1–3 über Vias links der J2-Pads, TSOP 4/5 auf
+  B.Cu unter den Pads durch zu Vias rechts davon (x 50,4, unter dem J2-Körper; links wären sie zu nah an den
+  I²S-Diagonalen); J2 bei y 32,7; 3V3 für J2 über In2 rechts neben dem Modul (x 51,6) zum Via (50,4/35,7).
+- **Vibration:** ein Motor M1 (Rückstoß + Treffer) an IO47 über Q2/R11/R12/D1. I²S läuft
   neben dem Modul nach unten (Spalte beim Modul c = 70,9 / 71,6 / 72,3, an M1 vorbei) und dann mit einer
   45°-Diagonale (x + y = 75,55 / 76,3 / 77,05) über J2 hinweg zu U6, BCLK/LRCLK zuletzt senkrecht (x 43,9 /
   44,5) von rechts in U6.
+- **Flash U14 (SPI-NAND, WSON-8 8×6, 38,6/28,7):** unter dem Modul zwischen C1 und R12/D1, C25 (100 n)
+  und R27 (/CS-Pull-up) darüber auf y 24,6. SPI über IO7 (/CS, Pad 7), IO15 (MISO, Pad 8), IO3 (MOSI,
+  Pad 15), IO46 (CLK, Pad 16): Vias neben den Pads (x 35,0 bzw. y 18,0), B.Cu-Bündel x 34,0 / 34,6 /
+  35,2 / 35,8 links am IO0-Via (36,7/20,75) vorbei; /CS und MISO über Vias bei x 34,0 von links in
+  Pin 1/2, MOSI/CLK unter U14 als 45°-Diagonalen zu Vias bei x 43,65 rechts von Pin 5/6 (x 43,65 hält
+  die In2-5V-Diagonale x + y = 71,9 frei). 3V3: In2-Abzweig von x 51,6 auf y 23,7 zu den Vias über
+  C25.1 und R27.1, von dort In2-Diagonale zum /WP-Via (34,0/29,3); /HOLD direkt an VCC (Pin 7–8);
+  GND über Pin 4 → EP → Via im EP (37,4/30,0).
+- **microSD J7 (TF-018, Push-Pull, Projektbibliothek, 47,45/42,0, 180°):** Öffnung bündig mit der
+  Unterkante, Kontaktreihe oben bei y 38,9 (rechts von U6, links unter J2), Schirm-Pads „SH“ mit GND-Vias.
+  x 47,45 ist das Maximum (rechtes SH-Pad ≥ 0,3 mm von der Eckrundung). Bus: Vias unter der Kontaktreihe bei
+  y 40,0 (MOSI, VDD, CLK, GND, MISO; unter dem Körper); MOSI/CLK von den U14-Vias (43,65) senkrecht runter
+  (x 43,65 / 44,3) und unter 45° von oben in ihre Vias; MISO vom U14-MISO-Via auf B.Cu als Diagonale
+  x − y = 6,6 unter U14/U6 durch, senkrecht x 42,4, unter dem Slot y 41,5, von unten ins Via; SD_CS von
+  IO48 (Pad 25, Via 20,6) auf B.Cu x 51,0 rechts an den TSOP-4/5-Vias vorbei, Diagonale x + y = 83,4 zum
+  Via (46,5/36,9), letztes Stück F.Cu von oben in Pin 2. VDD über In2 vom J2-3V3-Via (Diagonale
+  x + y = 86,9), C26 (0402) direkt über VDD (47,6/36,9). DAT1/DAT2 über Vias unter Pin 1/8 und In2 unter dem
+  Slot (y 42,6) verbunden, R37 (10 k) über Pin 8 mit 3V3-Via auf der In2-Leitung. U6/C23 sitzen 0,3 mm höher
+  (Courtyard über der Kontaktreihe).
+- **Akkuschutz (Lasche):** Q3 FS8205A (4,2/−2,4) und U15 DW01A (10,8/−2,4) mit zueinander zeigenden Gates
+  (OD–G1 oben, OC–G2 unten, gerade), R29 (CS, 1 k) dazwischen mit GND-Via, Q3.2–Q3.5 unter dem Körper,
+  S2 = GND mit zwei Vias. B− (`BAT_N`): BT1.2 → zwei Vias → B.Cu x 5,4 (0,8 mm) → zwei Vias über Q3.1;
+  F.Cu-Leitung y −4,3 verbindet C27 (VSS), U15.6 (45°-Abzweig) und Q3.1. VCC über C27/R28 (y −2,4), R28 vom
+  U1-EN-Pin (BAT_P). D4 (VBUS → 5 V) waagerecht bei (24,4/27,0): Anode an Via auf der VBUS-B.Cu-Leitung,
+  Kathode zu C21.1. D5 (STAT) senkrecht über U3.1 (21,36/19,1), Kathode unten; U4.11 und R2.2 enden an der
+  Anode. C7.2 = GND (Via unter C7), LED-Kathode direkt zu Q1.3.
+- **TSOP-Serienwiderstände:** R30–R34 (0402, 100 Ω) bei x 52,0 auf y 33,7 … 29,7 zwischen den Vias und den
+  J2-Pads (J2 bei x 56,5); J2.1-3V3-Via (52,8/35,7), J2.2-GND-Via (52,8/34,7).
 - **Bedienteil-Routing:** SCL/SDA (IO1/IO2) auf F.Cu direkt in J4; 3V3 für J4 über In2 von einem Via an
   Modul-Pin 2 (35,0/2,76) waagerecht nach rechts; ENC_A (IO42) auf F.Cu von oben in J5.4; ENC_B (IO41)
   und ENC_SW (IO9, unten am Modul) über B.Cu zu Vias hinter den J5-Pads (unter dem Steckerkörper). Die
@@ -139,7 +168,9 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
    - `python3 tools/detour.py w.kicad_pcb [--layers=F,2,B] [--min=0.5]` → Umwege: jeder Lauf zwischen
      Vias/Pads/Abzweigen gegen den kürzesten 0/45/90°-Weg. Jeder Fund ist entweder behoben oder hat einen
      Grund (Hindernis, Bündelreihenfolge, Paar-Längenausgleich). Stand (begründet): F.Cu CHRG_STAT (U2-Pins
-     + BAT_P-Via an R3), I²S (Modul-Padreihe, Motortreiber; Rückseite bräuchte 6 Vias), USB D+ (Mäander),
+     + BAT_P-Via an R3), I²S (Modul-Padreihe, Motortreiber; Rückseite bräuchte 6 Vias), B.Cu SPI_CLK/SPI_MOSI (links um das
+     IO0-Via und dessen B.Cu-Diagonale), B.Cu SD_CS (rechts um die TSOP-4/5-Vias), B.Cu SPI_MISO (von unten
+     unter J7 durch, Reihenfolge der Kontakte), B.Cu TSOP4/5 (Vias rechts von J2), USB D+ (Mäander),
      USB D− (außen um U12.4/VBUS-Via), 5V an U6 (um unbelegte IC-Pins), OUTP/OUTN (verschachtelt),
      J1→C10 (GND-Via J1.3), R15 (U5-Padreihe), GND-Stiche an U5, BAT_P-Ende (Abzweig); In2 5V am
      U6-Abzweig (+0,2); B.Cu EN/TRIGGER/RELOAD (Bündel), VBUS-Ring (um die USB-Pads)
@@ -164,8 +195,8 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
 - Teardrop-Generator von KiCad ist in Python nicht erreichbar → `teardrops()` erzeugt Zonen
   `$teardrop_padvia$`, das Attribut `(attr (teardrop (type padvia)))` wird nach dem Speichern in die Datei
   geschrieben. Prüfen: `z.IsTeardropArea()` nach `LoadBoard`.
-- Schaltplan-Parität braucht `SetFPID(LIB_ID(lib, name))`, `SetPath(KIID_PATH("/" + uuid))` und volle Netznamen
-  (`/TRIGGER`); der Routing-Code nutzt die Kurznamen ohne `/`.
+- Schaltplan-Parität braucht `SetFPID(LIB_ID(lib, name))`, `SetPath(KIID_PATH("/<Blatt>/<Symbol>"))` und die
+  Netznamen der Netzliste (globale Labels: ohne `/`); der Routing-Code nutzt die Kurznamen.
 - `PCB_VIA.GetWidth()` braucht einen Layer (`GetWidth(pcbnew.F_Cu)`).
 - **Projekt-Footprints:** `footprints/<lib>.pretty` + `fp-lib-table`; build_board.py lädt eine Bibliothek von dort,
   wenn es den Ordner gibt, sonst aus `FPLIB`. Kein `Datasheet`-Feld im Footprint (sonst Paritätsfehler).
@@ -177,6 +208,12 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
   „missing models: []“ (alle Modellpfade auflösen) und `kicad-cli pcb export step --subst-models` ohne Warnung.
   Fehlt künftig ein Modell: erst KiCad-Bibliothek/`kicad-packages3D`, sonst eigenes Modell nach diesem Muster.
 - pcbnew-Python: `for m in fp.Models()` liefert Kopien → Änderungen nur per Index (`models[i].m_Filename = ...`).
+- Schaltplan hierarchisch: `build_clean.py` schreibt das Übersichtsblatt nach `OUT_SCH` und die fünf Unterblätter
+  (`PAGES`) daneben; Labels sind global, Symbol-Instanzpfade `/<Blatt-UUID>`, `build_board.py` setzt den
+  Footprint-Pfad aus `sheetpath`-tstamps + Symbol-UUID der Netzliste. Blattsymbole in einer Spalte (KiCad
+  nummeriert die Seiten nach Lage). Zum Testen in den Scratchpad schreiben: alle Seiten landen im selben Ordner.
+- Schaltplan: `build_clean.py` schreibt die Projekt-Symbolbibliothek `symbols/lasertag.kicad_sym` (FS8205A,
+  angepasste Pin-Typen) aus dem erzeugten Schaltplan; Ziel ist `kicad-cli sch erc --severity-all` mit 0 Meldungen.
 - `kicad-cli` schreibt beim Export KiCads Standard-ERC-Abschnitt in die `.kicad_pro` → vor dem Commit
   `git checkout` der `.kicad_pro`, wenn sonst nichts geändert wurde.
 - TQFN-16 EP1.23 wird beim Speichern auf das EP1.6-Modell umgebogen.
@@ -186,13 +223,13 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
   Für Texte zählt die Strichkontur (`GetEffectiveTextShape().BBox()`, bei 0,8 mm ≈ 0,92 mm hoch), nicht
   `GetBoundingBox()` (≈ 1,36 mm mit Zeilenabstand) – sonst findet die Suche viele echte Lücken nicht.
 - Label-Stand: linke Spalte x = 4,2 (LED1 unter LED1, TSOP über J6), WS2812 rechts neben J1, LAUTSPR. unter
-  SP1, ABZUG/NACHL. auf y = 39,43 über SW1/SW2, „VIB“ unter M1, SENSOR über J2, „1“ an J2-Pin 1 (unten),
+  SP1, ABZUG/NACHL. auf y = 39,43 über SW1/SW2, „VIB“ unter M1, SENSOR unter J2 (56,5/39,3), „1“ unter J2-Pin 1 (54,1/36,95),
+  „SD“ links über J7 (40,9/40,13),
   USB über J3, AKKU rechts neben BT1, RESET über SW3,
-  BOOT links neben SW4 auf Mittelhöhe, Titel „open-lasertag v1“ frei in der Mitte (19,5/17,9),
+  BOOT links neben SW4 auf Mittelhöhe, U14 ohne Label, Titel „open-lasertag v1“ auf der Rückseite unter der URL,
   „OLED“/„GEBER“ unter J4/J5 auf gemeinsamer Achse x = 56,95 („DREHGEBER“ zu lang für den Streifen).
 - Wegpunkte, die auf einem Via enden sollen, exakt auf die Via-Koordinate legen (z. B. 31,39 statt 31,4);
   sonst hängt die Verbindung nur über Kupfer-Überlappung und `detour.py` erkennt das Via nicht als Halt.
 - Verzweigungen: der Abzweig darf nicht am Knickpunkt des Stamms beginnen (sonst 90° zum weiterlaufenden
   Stamm) → Abzweigpunkt auf das gerade Stück davor legen.
 - `pkill -f <muster>` trifft die eigene Shell, wenn das Muster im Befehl steht → `pgrep -f "name[s]"`.
-- Offener Schaltplanpunkt: C7 hängt zwischen BAT und LED-Kathode statt an GND (User informiert, unverändert).

@@ -17,7 +17,7 @@ am nativen USB (Flashen, Debuggen, Laden).
 Zuordnung layoutgetrieben: Reihenfolge der Modul-Pads entspricht der Lage der Ziele auf
 der Platine (kreuzungsfreies Routing).
 
-**Gesperrte Pins** (nicht verwenden): `GPIO0, 3, 19, 20, 43, 44, 45, 46`.
+**Gesperrte Pins** (nicht verwenden): `GPIO0, 19, 20, 43, 44, 45`.
 `GPIO33–37` ebenfalls freilassen.
 
 | Funktion | GPIO | Hinweis |
@@ -32,21 +32,29 @@ der Platine (kreuzungsfreies Routing).
 | Drehgeber B | GPIO41 | J5 Pin 3, interner Pull-up |
 | Drehgeber Taster | GPIO9 | J5 Pin 2, interner Pull-up |
 | Vibrationsmotor (Rückstoß + Treffer) | GPIO47 | PWM/LEDC, MOSFET + Freilaufdiode, Stecker M1 |
-| TSOP 1 – Stirnband vorn | GPIO10 | RMT-Eingang, über Sensorkabel |
+| TSOP 1 – Stirnband vorn | GPIO10 | RMT-Eingang, über Sensorkabel; TSOP 1–5 je über 100 Ω (R30–R34) an J2 |
 | TSOP 2 – Stirnband hinten | GPIO11 | RMT-Eingang |
 | TSOP 3 – Brust | GPIO12 | RMT-Eingang |
 | TSOP 4 – Rücken | GPIO13 | RMT-Eingang |
 | TSOP 5 – Schultern (optional) | GPIO14 | RMT-Eingang |
 | TSOP 6 – an der Waffe | GPIO16 | J6 (1 VS, 2 GND, 3 OUT), Filter 100 Ω + 4,7 µF am Sensor; GPIO-Interrupt |
 | WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, 74HCT125) + 330 Ω; VDD über kleinen 5-V-Boost-Converter vom 1S-LiPo |
-| USB-C Lade-Status | GPIO18 | Eingang vom CHRG/STAT-Pin des Lade-ICs (TP4056/MCP73831), interner Pullup |
+| USB-C Lade-Status | GPIO18 | STAT des MCP73831 über Schottky BAT54WS (D5, sperrt 5 V), 10 kΩ Pull-up R2 auf 3V3; low = lädt |
 | I²S DOUT | GPIO38 | zu MAX98357A |
 | I²S BCLK | GPIO39 | zu MAX98357A |
 | I²S LRCLK/WS | GPIO40 | zu MAX98357A |
+| Flash /CS | GPIO7 | SPI-NAND U14 (GD5F1GQ5UEYIGR, 128 MB), SPI2 über GPIO-Matrix, 10 kΩ Pull-up |
+| microSD /CS | GPIO48 | Slot J7 (TF-018) am selben Bus, interner Pull-up |
+| SPI MISO | GPIO15 | U14 DO, J7 DAT0 (interner Pull-up) |
+| SPI MOSI | GPIO3 | U14 DI, J7 CMD (Strapping-Pin, JTAG-eFuse bleibt ungebrannt) |
+| SPI CLK | GPIO46 | U14 CLK, J7 CLK (Strapping-Pin, beim Booten low über internen Pull-down) |
 | USB D− / D+ | GPIO19 / GPIO20 | nativer USB (USB-Serial-JTAG), über ESD-Schutz an die USB-C-Buchse |
 | BOOT-Taster | GPIO0 | Download-Modus, nur als Rückfallebene nötig |
 | RESET | EN | 10 kΩ Pull-up + 1 µF, RESET-Taster |
-| — frei für Erweiterungen — | GPIO7, 15, 21, 48 | |
+| — frei für Erweiterungen — | GPIO21 | |
+
+Firmware am SPI-Bus: die microSD-Karte zuerst initialisieren (CMD0 mit /CS low → SPI-Modus), erst danach
+den Flash ansprechen; interne Pull-ups an GPIO48 (SD /CS) und GPIO15 (MISO) einschalten.
 
 ---
 

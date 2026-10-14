@@ -11,5 +11,6 @@
 	(lib (name "Battery_Management") (type "KiCad") (uri "${KICAD10_SYMBOL_DIR}/Battery_Management.kicad_sym") (options "") (descr "Battery charge/management ICs"))
 	(lib (name "Regulator_Linear") (type "KiCad") (uri "${KICAD10_SYMBOL_DIR}/Regulator_Linear.kicad_sym") (options "") (descr "Linear regulators"))
 	(lib (name "74xx") (type "KiCad") (uri "${KICAD10_SYMBOL_DIR}/74xx.kicad_sym") (options "") (descr "74xx logic"))
+	(lib (name "lasertag") (type "KiCad") (uri "${KIPRJMOD}/symbols/lasertag.kicad_sym") (options "") (descr "Project symbols: FS8205A, adapted pin types"))
 	(lib (name "power") (type "KiCad") (uri "${KICAD10_SYMBOL_DIR}/power.kicad_sym") (options "") (descr "Power symbols / power flags"))
 )

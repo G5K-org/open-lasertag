@@ -29,8 +29,9 @@ STANDOFF = 2.5           # Luft unter der Platine (Dome)
 DEPTH_R = STANDOFF + T_PCB   # Tasche rechte Hälfte (Platinenrückseite)
 DEPTH_L = 6.0            # Tasche linke Hälfte (Bauteile bis 4,85 über der Platine)
 CLR = 0.3                # Spiel um die Platinenkontur
-BOARD = [(0, 0), (59.6, 0), (59.6, 18.5), (54.0, 18.5), (54.0, 46.0), (0, 46.0)]
-HOLES = [(20.4, 14.8), (42.2, 42.5)]   # M2, ISO 7380
+BOARD = [(0, -5.0), (17.0, -5.0), (17.0, 0), (59.6, 0), (59.6, 18.5), (54.0, 18.5), (54.0, 26.5), (59.6, 26.5),
+         (59.6, 46.0), (0, 46.0)]   # Lasche oben links: Akkuschutz; Aussparung rechts nur noch für VIB
+HOLES = [(20.4, 14.8), (37.0, 42.5)]   # M2, ISO 7380
 BOSS_D = 3.6             # innerhalb der Kupfer-Sperrfläche (Ø 3,7)
 PILOT_D = 1.6            # M2 selbstformend in PLA/PETG
 PILOT_DEPTH = 6.0        # unter der Platinenrückseite
@@ -39,8 +40,10 @@ ZONES = [
     (33.5 - 1, -6.0 - 1, 51.5 + 1, 0),   # Antenne des ESP32-S3
     (-6.4, -1.0, 0, 45.5),              # links (vorn, zum Hauptschacht): AKKU, LED1, TSOP, WS2812, LAUTSPR.
     (59.6, -1.0, 67.6, 23.0),           # rechts oben: OLED, GEBER (offen zur VIB-Zone: Drehgeberkabel)
-    (52.0, 20.5, 60.0, 40.5),           # rechts (hinten, zum Motorschacht): VIB, SENSOR (Weste), Drehgeber
+    (52.0, 20.5, 67.6, 26.5),           # rechts (hinten, zum Motorschacht): VIB, Drehgeber
+    (59.6, 26.5, 67.6, 40.5),           # rechts: SENSOR (Weste), Kabel nach oben in die VIB-Zone
     (6.0, 46.0, 55.0, 54.0),            # unten (Kanal zum Abzugsschalter): ABZUG, NACHL.
+    (41.5, 45.5, 53.5, 55.0),           # microSD-Karte (J7), steht ~8,6 mm über die Unterkante
 ]
 # USB-C steht senkrecht auf der Platine (hanxia HX-TYPE-C 16P 180 LT H10.5, 10,5 mm hoch) und reicht durch
 # die linke Seitenwand bis außen: Durchbruch eng um das Blechgehäuse, außen eine flache Mulde auf Höhe der

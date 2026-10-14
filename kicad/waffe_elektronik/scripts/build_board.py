@@ -25,7 +25,19 @@ MM = pcbnew.FromMM
 
 # ------------------------------------------------------------------ board size
 W0, H = 54.0, 46.0  # main board; the strip top right carries the OLED and encoder connectors
-W, Y1 = 59.6, 18.5   # L shape: width W for y < Y1, W0 below
+W, Y1 = 59.6, 18.5   # width W except the notch x > W0, Y1 < y < Y2 (M1 cable)
+Y2 = 26.5            # below the notch the board is W wide again (J2 at the edge, TSOP resistors)
+XT, YT = 17.0, 5.0   # tab top left (x < XT, -YT < y < 0): battery protection next to BT1
+OUTLINE = [(0, -YT), (XT, -YT), (XT, 0), (W, 0), (W, Y1), (W0, Y1), (W0, Y2), (W, Y2), (W, H), (0, H)]
+
+
+def on_board(x, y, m):
+    """point at least m inside the outline (rectangles, ignoring the corner radii)"""
+    if m <= x <= XT - m and -YT + m <= y <= H - m:
+        return True
+    if not (m <= y <= H - m and m <= x <= W - m):
+        return False
+    return not (x > W0 - m and Y1 - m < y < Y2 + m)
 MX, MY = W0 - 11.5, 6.75  # ESP32 module origin; board top edge = antenna keep-out line
 SH_IN = 3.1     # JST-SH horizontal: body front this far from origin -> flush with board edge
 PH_IN = 4.9     # JST-PH SM4 horizontal
@@ -56,7 +68,7 @@ PLACE = {
     "SW1": (13.0, H - SH_IN, 0), "SW2": (18.9, H - SH_IN, 0), "J3": (JX, JY, 0),
     "R9": (11.675, 37.0, 0), "C8": (13.9, 37.0, 90), "R10": (17.575, 37.0, 0), "C9": (19.8, 37.0, 90),
     # --- right edge: motor, sensor cable below it (both cables run back into the motor channel)
-    "M1": (W0 - SH_IN, 23.2, 90), "J2": (W0 - SH_IN, 34.2, 90),
+    "M1": (W0 - SH_IN, 23.2, 90), "J2": (W - SH_IN, 32.7, 90),
     # --- right strip: OLED (I2C, Qwiic) above, rotary encoder below
     "J4": (W - SH_IN, 5.5, 90), "J5": (W - SH_IN, 13.5, 90),
     # --- WS2812 level shifter
@@ -72,7 +84,18 @@ PLACE = {
     # --- vibration drivers: top channel HIT (pad 24) -> M2, bottom channel RECOIL (pad 25) -> M1
     "R11": (46.13, 21.05, 180), "Q2": (45.55, 23.95, 0), "R12": (42.75, 23.5, 270), "D1": (45.3, 26.95, 0),
     # --- audio
-    "U6": (41.8, 36.3, 270), "C22": (32.3, 34.5, 90), "C23": (38.75, 36.8, 90),
+    "U6": (41.8, 36.0, 270), "C22": (32.3, 34.5, 90), "C23": (38.75, 36.5, 90),
+    # --- SPI-NAND (audio files): below the module between C1 and the vibration driver
+    "U14": (38.6, 28.7, 0), "C25": (40.3, 24.6, 180), "R27": (36.6, 24.6, 180),
+    # --- microSD slot (push-pull), card enters from the bottom edge; 100n left of it
+    "J7": (47.45, 42.0, 180), "C26": (47.6, 36.9, 90), "R37": (50.95, 37.1, 90),
+    # --- battery protection in the tab above BT1: FS8205A, DW01A (gates face each other), CS resistor between
+    "Q3": (4.2, -2.4, 0), "U15": (10.8, -2.4, 0), "R29": (7.78, -2.4, 180), "C27": (13.8, -2.88, 90),
+    "R28": (15.1, -1.92, 90),
+    # --- charger status through a Schottky, USB feed into 5 V
+    "D5": (21.36, 19.1, 90), "D4": (24.4, 27.0, 0),
+    # --- series resistors in the sensor cable lines, right before J2
+    "R30": (52.0, 33.7, 0), "R31": (52.0, 32.7, 0), "R32": (52.0, 31.7, 0), "R33": (52.0, 30.7, 0), "R34": (52.0, 29.7, 0),
 }
 
 
@@ -83,7 +106,8 @@ def parse_netlist(path):
         ref = re.search(r'\(ref "([^"]+)"\)', block).group(1)
         val = re.search(r'\(value "([^"]*)"\)', block).group(1)
         fp = re.search(r'\(footprint "([^"]*)"\)', block)
-        ts = re.findall(r'\(tstamps "([^"]*)"\)', block)[-1]  # symbol UUID -> footprint path
+        ts = re.findall(r'\(tstamps "([^"]*)"\)', block)  # [sheet path, symbol UUID] -> footprint path
+        ts = (ts[0].rstrip("/") + "/" + ts[-1]).lstrip("/") if len(ts) > 1 else ts[-1]
         lcsc = re.search(r'\(name "LCSC"\) "([^"]*)"', block)
         if fp and fp.group(1):
             comps[ref] = (val, fp.group(1), ts, lcsc.group(1) if lcsc else "")
@@ -327,7 +351,7 @@ def zone(board, netinfo, layer, net, pts, prio=0, clearance=0.2, minw=0.2, therm
     return z
 
 
-HOLES = [(20.4, 14.8), (42.2, 42.5)]  # 2x M2 ISO 7380 (button head 3.5 mm), diagonal
+HOLES = [(20.4, 14.8), (37.0, 42.5)]  # 2x M2 ISO 7380 (button head 3.5 mm), diagonal
 HOLE_HEAD = 1.75     # courtyard radius = screw head
 HOLE_KEEPOUT = 1.85  # radius without copper on all layers
 
@@ -335,17 +359,18 @@ USB_TUNE = 2.262  # mm added to D+ between module and U12 (D- runs around the ou
 USB_TUNE2 = 3.53  # mm added to D+ between U12 and J3 (D- bridge is longer than the D+ diagonal)
 
 OWN_MODELS = {"JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
-              "JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal"}
+              "JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
+              "WSON-8-1EP_8x6mm_P1.27mm_EP3.4x4.3mm"}  # scripts/gen_3d_wson8_8x6.py
 
 LABELS = [  # front silk, horizontal, next to the connector, clear of pads and bodies (tools/silk.py): (x, y, text, height, angle)
     (11.2, 5.35, "AKKU", 0.8, 0), (4.2, 15.59, "LED1", 0.8, 0), (4.2, 17.04, "TSOP", 0.8, 0),
     (12.35, 39.43, "ABZUG", 0.8, 0), (18.5, 39.43, "NACHL.", 0.8, 0), (17.85, 11.53, "RESET", 0.8, 0),
-    (10.65, 32.98, "WS2812", 0.8, 0), (30.2, 37.83, "USB", 0.8, 0), (46.93, 28.93, "SENSOR", 0.8, 0),
-    (2.98, 44.98, "LAUTSPR.", 0.8, 0), (49.7, 26.03, "VIB", 0.8, 0), (47.0, 37.9, "1", 0.8, 0),
-    (31.1, 22.1, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0), (19.5, 17.9, "open-lasertag v1", 0.8, 0),
+    (10.65, 32.98, "WS2812", 0.8, 0), (30.2, 37.83, "USB", 0.8, 0), (56.5, 39.3, "SENSOR", 0.8, 0),
+    (2.98, 44.98, "LAUTSPR.", 0.8, 0), (49.7, 26.03, "VIB", 0.8, 0), (54.1, 36.95, "1", 0.8, 0), (40.9, 40.13, "SD", 0.8, 0),
+    (31.1, 22.1, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0),
 ]
 BACK_LABELS = [  # no room on the front
-    (41.5, 16.0, "github.com/G5K-org/open-lasertag", 0.8, 0),
+    (41.5, 16.0, "github.com/G5K-org/open-lasertag", 0.8, 0), (41.5, 14.6, "open-lasertag v1", 0.8, 0),
 ]
 
 
@@ -378,11 +403,11 @@ def stitch(board, netinfo, pitch=2.0, d=0.5, cl=0.25):
         u = 0 if L == 0 else max(0, min(1, ((px - x1) * dx + (py - y1) * dy) / L))
         return math.hypot(px - x1 - u * dx, py - y1 - u * dy)
     n = 0
-    y = 1.2
+    y = -YT + 1.2
     while y < H - 1.0:
         x = 1.2
         while x < W - 1.0:
-            ok = not (x > W0 - 1.0 and y > Y1 - 1.0) and all(not (bx0 - r0 < x < bx1 + r0 and by0 - r0 < y < by1 + r0) for bx0, by0, bx1, by1 in boxes)
+            ok = on_board(x, y, 1.0) and all(not (bx0 - r0 < x < bx1 + r0 and by0 - r0 < y < by1 + r0) for bx0, by0, bx1, by1 in boxes)
             if ok:
                 for kind, g, hw in obst:
                     dist = math.hypot(x - g[0], y - g[1]) if kind == "c" else segd(x, y, *g)
@@ -493,7 +518,8 @@ def route(r):
     r.t(F, 0.6, "C19.1", ("U1.5", -0.3, 0), "U1.5")
     r.t(F, 0.4, "U1.5", "U1.4")
     r.t(F, 0.8, "C19.1", (11.2, 4.9), ("L1.1", 0, -1.2))
-    r.gnd("C19.2", -1.0, -0.6); r.gnd("BT1.2", -1.55, 0); r.v((5.4, 6.2), net="GND")
+    r.gnd("C19.2", -1.0, -0.6); r.t(F, 0.8, "BT1.2", (5.4, 6.2), net="BAT_N")
+    r.v((6.2, 6.2), net="BAT_N", d=0.6); r.v((5.4, 6.2), net="BAT_N", d=0.6)
     # switch node: U1 SW -> D3 anode and L1 (short and wide)
     r.t(F, 1.0, "U1.1", ("D3.2", -0.6, 0))
     r.t(F, 1.0, "U1.1", (15.3, 4.9), ("L1.2", 0, -1.2))
@@ -550,8 +576,8 @@ def route(r):
     # LED1 cathode hops under its own anode trace on B.Cu
     r.t(F, 0.6, "LED1.1", (5.3, 12.3), (6.0, 11.6)); r.v((6.0, 11.6), net=K, d=0.6)
     r.t(B, 0.6, (6.0, 11.6), (6.0, 15.65), net=K); r.v((6.0, 15.65), net=K, d=0.6)
-    r.t(F, 0.8, (6.0, 15.65), "C7.2")
-    r.t(F, 0.8, "Q1.3", "C7.2")
+    r.t(F, 0.8, (6.0, 15.65), (6.0, 17.44), "Q1.3", net=K)
+    r.gnd("C7.2", 1.47, 0)
     r.t(F, 0.3, "Q1.1", "R5.2"); r.t(F, 0.3, "R6.1", (11.95, 20.05))
     r.gnd("Q1.2", 0.65, -0.55); r.gnd("R6.2", 0, -0.85)
     # BAT: L1 -> R7 -> C7, bus on the right down to R8 and on to the charger
@@ -588,8 +614,10 @@ def route(r):
     r.drop("C10.1", 0.2, 1.6)
 
     # ================= charger (MCP73831) + battery divider =================
-    r.t(F, 0.25, "U4.11", (31.7, 14.19), (30.2, 15.69), (25.6, 15.69), (21.363, 19.927), "U3.1")
-    r.t(F, 0.25, "R2.2", ("R2.2", 0.32, 0), ("R2.2", 0.645, 0.325), "U3.1")
+    ya = r.pt("D5.2")[1]
+    r.t(F, 0.25, "U4.11", (31.7, 14.19), (30.2, 15.69), (25.6, 15.69), (25.6 - (ya - 15.69), ya), "D5.2")
+    r.t(F, 0.25, "D5.1", "U3.1")
+    r.t(F, 0.25, "R2.2", (20.5, 20.83), (20.5, ya + 0.86), "D5.2")
     r.drop("R2.1", 0, -0.87)
     r.t(F, 0.25, "U3.5", "R1.1")
     r.t(F, 0.4, "R1.2", (26.35, 21.2), "R4.2"); r.v((26.35, 21.2), net="GND")
@@ -656,11 +684,17 @@ def route(r):
         x0 = r.pt(pin)[0]
         yt = r.pt(f"J2.{k + 3}")[1]
         r.t(F, 0.2, pin, (x0, 20.75)); r.v((x0, 20.75))
-        r.t(B, 0.2, (x0, 20.75), (X, 20.75 + X - x0), (X, yt)); r.v((X, yt))
-        r.t(F, 0.2, (X, yt), f"J2.{k + 3}")
+        rs = f"R{30 + k}"
+        if k < 3:
+            r.t(B, 0.2, (x0, 20.75), (X, 20.75 + X - x0), (X, yt)); r.v((X, yt))
+            r.t(F, 0.2, (X, yt), f"{rs}.1")
+        else:  # left of the pad the I2S diagonals pass too close
+            r.t(B, 0.2, (x0, 20.75), (X, 20.75 + X - x0), (X, yt - 0.6), (X + 0.6, yt), (50.4, yt)); r.v((50.4, yt))
+            r.t(F, 0.2, (50.4, yt), f"{rs}.1")
+        r.t(F, 0.2, f"{rs}.2", f"J2.{k + 3}")
     r.gnd("J2.2", -1.7, 0)
     # sensor 3V3 from In2 (branch of the module 3V3 line down the right edge)
-    r.v((50.4, 37.2), net="3V3_MCU", d=0.6); r.t(F, 0.4, (50.4, 37.2), "J2.1")
+    r.v((52.8, 35.7), net="3V3_MCU", d=0.6); r.t(F, 0.4, (52.8, 35.7), "J2.1")
 
     # ================= vibration drivers =================
     # one motor for recoil and hit feedback (IO47)
@@ -674,25 +708,25 @@ def route(r):
     # ================= I2S: three lines beside the module, then diagonal to the amp =================
     # down the column beside the module, then one 45 deg run straight into the amp (x + y = const)
     for pin, col, c, ycol, d, tail in (("U4.31", 52.45, 70.9, 50.15, 75.55, [(42.55, 33.0), "U6.1"]),
-                                       ("U4.32", 52.95, 71.6, 50.65, 76.3, [(43.9, 32.4), (43.9, 35.55), "U6.16"]),
-                                       ("U4.33", 53.45, 72.3, 51.15, 77.05, [(44.5, 32.55), (44.5, 36.55), "U6.14"])):
+                                       ("U4.32", 52.95, 71.6, 50.65, 76.3, [(43.9, 32.4), (43.9, 35.25), "U6.16"]),
+                                       ("U4.33", 53.45, 72.3, 51.15, 77.05, [(44.5, 32.55), (44.5, 36.25), "U6.14"])):
         y0 = r.pt(pin)[1]
         r.t(F, 0.2, pin, (col, y0), (col, c - col), (ycol, c - ycol), (ycol, d - ycol), *tail)
 
     # ================= audio amp =================
-    for pp, to in (("U6.3", (41.55, 35.7)), ("U6.2", (42.05, 35.7)), ("U6.15", (42.4, 36.05)), ("U6.11", (42.05, 36.9))):
+    for pp, to in (("U6.3", (41.55, 35.4)), ("U6.2", (42.05, 35.4)), ("U6.15", (42.4, 35.75)), ("U6.11", (42.05, 36.6))):
         r.t(F, 0.25, pp, to)
     r.v("U6.17", net="GND")
     r.t(F, 0.4, "U6.7", "U6.8", "C23.1")
-    r.t(F, 0.25, "U6.4", (41.05, 34.25), (39.6, 34.25), (39.6, 36.3), (39.95, 36.65))
+    r.t(F, 0.25, "U6.4", (41.05, 33.95), (39.6, 33.95), (39.6, 36.0), (39.95, 36.35))
     r.gnd("C23.2", 0, -0.82)
     r.drop("C23.1", 0, 0.92)
     ON, OP = "Net-(U6-OUTN)", "Net-(U6-OUTP)"
-    r.t(F, 0.25, "U6.9", (41.05, 38.0), (40.65, 38.4)); r.t(F, 0.4, (40.65, 38.4), (40.2, 38.85), (40.2, 39.4), net=OP)
-    r.v((40.2, 39.4), net=OP, d=0.6)
-    r.t(F, 0.25, "U6.10", (41.55, 38.2)); r.t(F, 0.4, (41.55, 38.2), (41.55, 39.05), (41.2, 39.4), net=ON); r.v((41.2, 39.4), net=ON, d=0.6)
-    r.t(B, 0.4, (40.2, 39.4), (39.4, 40.2), (39.4, 44.95), (10.75, 44.95), (10.75, 40.0), (9.95, 39.2), net=OP)
-    r.t(B, 0.4, (41.2, 39.4), (40.0, 40.6), (40.0, 45.5), (9.95, 45.5), (9.95, 41.2), net=ON)
+    r.t(F, 0.25, "U6.9", (41.05, 37.7), (40.65, 38.1)); r.t(F, 0.4, (40.65, 38.1), (40.2, 38.55), (40.2, 39.1), net=OP)
+    r.v((40.2, 39.1), net=OP, d=0.6)
+    r.t(F, 0.25, "U6.10", (41.55, 37.9)); r.t(F, 0.4, (41.55, 37.9), (41.55, 38.75), (41.2, 39.1), net=ON); r.v((41.2, 39.1), net=ON, d=0.6)
+    r.t(B, 0.4, (40.2, 39.1), (39.4, 39.9), (39.4, 44.95), (10.75, 44.95), (10.75, 40.0), (9.95, 39.2), net=OP)
+    r.t(B, 0.4, (41.2, 39.1), (40.0, 40.3), (40.0, 45.5), (9.95, 45.5), (9.95, 41.2), net=ON)
     r.v((9.95, 39.2), net=OP, d=0.6); r.t(F, 0.4, (9.95, 39.2), "SP1.1")
     r.v((9.95, 41.2), net=ON, d=0.6); r.t(F, 0.4, (9.95, 41.2), "SP1.2")
     r.gnd("C22.2", 1.0, 0); r.drop("C22.1", 0, 0.95)
@@ -706,7 +740,7 @@ def route(r):
     r.t(I2, 0.8, (21.3, 5.95), (23.85, 5.95), (29.9, 12.0), (30.2, 12.3), (30.2, 29.39), (32.2, 31.39), net=P5)
     r.t(I2, 0.6, (30.2, 27.4), (29.6, 28.0), (22.28, 28.0), (21.8, 28.48), (20.05, 28.48), (14.83, 33.7), ("C10.1", 0.2, 1.6), net=P5)
     r.t(I2, 0.6, (32.2, 31.39), (40.51, 31.39), (46.7, 25.2), (48.3, 25.2), net=P5)  # through the D1 via to the motor
-    r.t(I2, 0.6, (34.0, 31.39), (34.51, 31.9), (34.51, 34.95), (38.06, 38.5), (38.9, 38.5), net=P5)
+    r.t(I2, 0.6, (34.0, 31.39), (34.51, 31.9), (34.51, 34.95), (37.75, 38.19), (38.75, 38.19), net=P5)
     r.t(I2, 0.6, (34.51, 34.6), (32.71, 36.4), (32.3, 36.4), net=P5)
     # ================= OLED (J4, Qwiic: GND 3V3 SDA SCL) and rotary encoder (J5: GND SW B A) =================
     r.t(F, 0.2, "U4.39", (52.15, 2.76), (53.39, 4.0), "J4.4")          # I2C_SCL
@@ -725,9 +759,89 @@ def route(r):
     r.t(F, 0.2, (56.2, 14.0), "J5.2")
     r.gnd("J5.1", 1.7, 0)
 
+    # ================= SPI-NAND U14: four lines over B.Cu down the left of SW4 =================
+    # order left->right = CS (pad 7), MISO (pad 8), MOSI (pad 15), CLK (pad 16); CS/MISO surface left of
+    # U14, MOSI/CLK run under it to vias right of pins 5/6
+    for pin in ("U4.7", "U4.8"):
+        r.t(F, 0.2, pin, (35.0, r.pt(pin)[1])); r.v((35.0, r.pt(pin)[1]))
+    for pin in ("U4.15", "U4.16"):
+        r.t(F, 0.2, pin, (r.pt(pin)[0], 18.0)); r.v((r.pt(pin)[0], 18.0))
+    y1, y2, y5, y6 = (r.pt(f"U14.{n}")[1] for n in (1, 2, 5, 6))
+    x7, x8 = r.pt("U4.7")[1], r.pt("U4.8")[1]
+    x15, x16 = r.pt("U4.15")[0], r.pt("U4.16")[0]
+    r.t(B, 0.2, (35.0, x7), (34.0, x7 + 1.0), (34.0, y1), net="FLASH_CS"); r.v((34.0, y1))
+    r.t(F, 0.2, (34.0, y1), "U14.1", net="FLASH_CS")
+    r.t(B, 0.2, (35.0, x8), (34.6, x8 + 0.4), (34.6, y2 - 0.6), (34.0, y2), net="SPI_MISO"); r.v((34.0, y2))
+    r.t(F, 0.2, (34.0, y2), "U14.2", net="SPI_MISO")
+    r.t(B, 0.2, (x15, 18.0), (35.2, 18.0 + x15 - 35.2), (35.2, 25.2), (35.2 + y5 - 25.2, y5), (43.65, y5), net="SPI_MOSI")
+    r.v((43.65, y5)); r.t(F, 0.2, (43.65, y5), "U14.5", net="SPI_MOSI")
+    r.t(B, 0.2, (x16, 18.0), (35.8, 18.0 + x16 - 35.8), (35.8, 24.9), (35.8 + y6 - 24.9, y6), (43.65, y6), net="SPI_CLK")
+    r.v((43.65, y6)); r.t(F, 0.2, (43.65, y6), "U14.6", net="SPI_CLK")
+    # /CS pull-up R27, 100n C25 at VCC; 3V3 for both from In2, /HOLD straight to VCC, /WP over In2
+    r.t(F, 0.2, "R27.2", (35.825 - 0.975, 25.575), "U14.1")
+    r.t(F, 0.4, "C25.1", (r.pt("U14.8")[0], 24.6 + r.pt("U14.8")[0] - r.pt("C25.1")[0]), "U14.8")
+    r.t(F, 0.25, "U14.8", "U14.7")
+    r.drop("C25.1", 0, -0.9); r.drop("R27.1", 0, -0.9)
+    r.gnd("C25.2", 0, 0.9)
+    r.t(F, 0.25, "U14.3", (34.0, r.pt("U14.3")[1])); r.v((34.0, r.pt("U14.3")[1]), net="3V3_MCU")
+    r.t(F, 0.4, "U14.4", (37.2, r.pt("U14.4")[1]))
+    r.v((37.4, 30.0), net="GND")
+    # ================= microSD J7 on the same bus: vias under the contact row (y 40), CS from above on F.Cu =================
+    yv = 40.0
+    for n in ("1", "3", "4", "5", "6", "7", "8"):
+        x = r.pt(f"J7.{n}")[0]
+        r.t(F, 0.25 if n in ("4", "6") else 0.2, f"J7.{n}", (x, yv))
+        r.v((x, yv), net={"4": "3V3_MCU", "6": "GND"}.get(n))
+    xd2, xd1 = r.pt("J7.1")[0], r.pt("J7.8")[0]
+    r.t(I2, 0.2, (xd2, yv), (xd2 + 0.6, yv + 0.6), (xd2 + 0.6, 42.6), (xd1, 42.6), (xd1, yv), net="SD_DAT12")
+    r.t(F, 0.2, "R37.1", "J7.8")
+    r.t(F, 0.25, "R37.2", (xd1 + 0.65, r.pt("R37.2")[1] - 0.65), (xd1 + 0.65, 35.7)); r.v((xd1 + 0.65, 35.7), net="3V3_MCU")
+    r.t(F, 0.25, "C26.1", (r.pt("J7.4")[0], r.pt("C26.1")[1] + 0.7), "J7.4")
+    r.gnd("C26.2", 0.9, 0)
+    xm, xc, xo = r.pt("J7.3")[0], r.pt("J7.5")[0], r.pt("J7.7")[0]
+    r.t(B, 0.2, (43.65, y5), (43.65, yv - (xm - 43.65)), (xm, yv), net="SPI_MOSI")
+    r.t(B, 0.2, (43.65, y6), (44.3, y6 + 0.65), (44.3, yv - (xc - 44.3)), (xc, yv), net="SPI_CLK")
+    r.t(B, 0.2, (34.0, y2), (34.665, y2), (42.4, y2 + 42.4 - 34.665), (42.4, 41.5), (xo, 41.5), (xo, yv), net="SPI_MISO")
+    x25 = r.pt("U4.25")[0]
+    r.t(F, 0.2, "U4.25", (x25, 20.6)); r.v((x25, 20.6))
+    r.t(B, 0.2, (x25, 20.6), (51.0, 20.6 + 51.0 - x25), (51.0, 32.4), (46.5, 36.9), net="SD_CS"); r.v((46.5, 36.9))
+    xs = r.pt("J7.2")[0]
+    r.t(F, 0.2, (46.5, 36.9), (xs, 36.9 + 46.5 - xs), "J7.2", net="SD_CS")
+    xl, xr = r.pt("J7.1")[0] - 1.25, r.pt("J7.9")[0] + 0.9  # shell pads at +-5.1
+    # (upper-left shell via kept clear of the DAT2 via: 0.95 right of the pad)
+    for pad, dx, dy in (((xl, 40.65), 0.95, 0), ((xl, 45.1), 0.95, 0), ((xr, 40.65), 0, -1.1), ((xr, 45.1), -0.95, 0)):
+        r.t(F, 0.4, pad, (pad[0] + dx, pad[1] + dy), net="GND"); r.v((pad[0] + dx, pad[1] + dy), net="GND")
     P3 = "3V3_MCU"
+    xv = r.pt("J7.4")[0]
+    r.t(I2, 0.4, (52.8, 35.7), (xv + yv - 35.7, 35.7), (xv, yv), net=P3)
+
+    # ================= battery protection (tab above BT1) =================
+    BN = "BAT_N"
+    r.t(F, 0.25, "U15.1", "Q3.6"); r.t(F, 0.25, "U15.3", "Q3.4")       # OD -> discharge FET, OC -> charge FET
+    r.t(F, 0.25, "Q3.2", "Q3.5")                                          # common drain under the body
+    r.t(F, 0.2, "R29.1", "U15.2"); r.gnd("R29.2", -0.7, 0)                 # CS -> 1k -> P- (GND)
+    r.gnd("Q3.3", 0, 1.0, w=0.6, d=0.6); r.gnd("Q3.3", -1.15, 0, w=0.6, d=0.6)  # S2 = P- = GND, full battery current
+    yb = -4.3
+    r.t(F, 0.6, "Q3.1", (r.pt("Q3.1")[0], yb), net=BN)
+    r.v((r.pt("Q3.1")[0], yb), net=BN, d=0.6); r.v((r.pt("Q3.1")[0] - 0.9, yb), net=BN, d=0.6)
+    r.t(F, 0.6, (r.pt("Q3.1")[0] - 0.9, yb), (r.pt("Q3.1")[0], yb), net=BN)
+    r.t(B, 0.8, (6.2, 6.2), (5.4, 6.2), (5.4, yb + 0.7), (4.7, yb), (r.pt("Q3.1")[0] - 0.9, yb), net=BN)
+    # B- along the top: C27 (VSS side) -> DW01A VSS (45 deg branch) -> FET source S1
+    xc = r.pt("C27.2")[0]; u6 = r.pt("U15.6")
+    r.t(F, 0.3, "C27.2", (xc, yb + 0.7), (xc - 0.7, yb), (r.pt("Q3.1")[0], yb), net=BN)
+    r.t(F, 0.3, "U15.6", (u6[0], yb + 0.55), (u6[0] - 0.55, yb), net=BN)
+    r.t(F, 0.25, "U15.5", "C27.1"); r.t(F, 0.25, "C27.1", "R28.2")
+    u14 = r.pt("U1.4")
+    r.t(F, 0.3, "R28.1", (r.pt("R28.1")[0], u14[1] - 0.6 - (r.pt("R28.1")[0] - u14[0])), (u14[0], u14[1] - 0.6), "U1.4")
+
+    # ================= USB -> 5 V (D4) =================
+    r.t(F, 0.5, "D4.2", (25.2, 26.0)); r.v((25.2, 26.0), net="VBUS_NATIVE", d=0.6)
+    r.t(F, 0.5, "D4.1", (22.02, 27.98), "C21.1")
+    r.t(I2, 0.5, (51.6, 23.0), (50.9, 23.7), (r.pt("R27.1")[0], 23.7), net=P3)
+    w3 = r.pt("U14.3")[1]
+    r.t(I2, 0.4, (34.0, w3), (r.pt("R27.1")[0], w3 + 34.0 - r.pt("R27.1")[0]), (r.pt("R27.1")[0], 23.7), net=P3)
     r.t(I2, 0.5, (26.3, 15.0), (19.6, 19.205), (9.425, 27.45), (9.425, 37.0), (10.375, 37.95), ("R10.1", 0, 0.95), net=P3)
-    r.t(I2, 0.5, (51.0, 2.76), (51.6, 3.36), (51.6, 36.0), (50.4, 37.2), net=P3)
+    r.t(I2, 0.5, (51.0, 2.76), (51.6, 3.36), (51.6, 34.5), (52.8, 35.7), net=P3)
     r.t(I2, 0.6, ("R3.1", 0, -0.85), (25.38, 18.2), (18.6, 24.98), net="BAT_P"); r.v((18.6, 24.98), net="BAT_P", d=0.6)
 
 
@@ -753,7 +867,7 @@ def build():
         m = pcbnew.FootprintLoad(f"{libdir}/{lib}.pretty", name)
         assert m is not None, fpid
         m.SetFPID(pcbnew.LIB_ID(lib, name))
-        if name in OWN_MODELS:  # KiCad has no model for these: own ones (scripts/gen_3d_jst_ph_sm4.py)
+        if name in OWN_MODELS:  # KiCad has no model for these: own ones (scripts/gen_3d_*.py)
             models = m.Models()  # iterating yields copies, indexing edits in place
             for i in range(len(models)):
                 models[i].m_Filename = f"${{KIPRJMOD}}/3dmodels/{name}.wrl"
@@ -822,13 +936,20 @@ def build():
         s.SetCenter(pcbnew.VECTOR2I(MM(c[0]), MM(c[1])))
         s.SetStart(pcbnew.VECTOR2I(MM(start[0]), MM(start[1]))); s.SetEnd(pcbnew.VECTOR2I(MM(end[0]), MM(end[1])))
         s.SetLayer(pcbnew.Edge_Cuts); s.SetWidth(MM(0.1)); board.Add(s)
-    # L shape, clockwise; arcs run clockwise from start to end
-    seg((r, 0), (W - r, 0)); arc((W - r, r), (W - r, 0), (W, r))
-    seg((W, r), (W, Y1 - r)); arc((W - r, Y1 - r), (W, Y1 - r), (W - r, Y1))
-    seg((W - r, Y1), (W0 + r, Y1)); arc((W0 + r, Y1 + r), (W0, Y1 + r), (W0 + r, Y1))  # inner corner
-    seg((W0, Y1 + r), (W0, H - r)); arc((W0 - r, H - r), (W0, H - r), (W0 - r, H))
-    seg((W0 - r, H), (r, H)); arc((r, H - r), (r, H), (0, H - r))
-    seg((0, H - r), (0, r)); arc((r, r), (0, r), (r, 0))
+    # clockwise polygon; every corner rounded: tangent points P - a*r / P + b*r, centre P - a*r + b*r;
+    # KiCad draws the arc clockwise from start to end -> swap the ends on concave corners
+    n = len(OUTLINE)
+    ends = []
+    for i, p in enumerate(OUTLINE):
+        q0, q1 = OUTLINE[i - 1], OUTLINE[(i + 1) % n]
+        a = ((p[0] - q0[0]) / math.dist(p, q0), (p[1] - q0[1]) / math.dist(p, q0))
+        b = ((q1[0] - p[0]) / math.dist(p, q1), (q1[1] - p[1]) / math.dist(p, q1))
+        t1 = (p[0] - a[0] * r, p[1] - a[1] * r); t2 = (p[0] + b[0] * r, p[1] + b[1] * r)
+        c = (t1[0] + b[0] * r, t1[1] + b[1] * r)
+        arc(c, t1, t2) if a[0] * b[1] - a[1] * b[0] > 0 else arc(c, t2, t1)
+        ends.append((t1, t2))
+    for i in range(n):
+        seg(ends[i][1], ends[(i + 1) % n][0])
 
     rt = Router(board, fps, netinfo)
     route(rt)
@@ -840,7 +961,7 @@ def build():
             it.SetTeardropsEnabled(True)
     print("teardrops:", teardrops(board))
     # planes: In1 solid GND; GND fill on F/In2/B around the routing
-    edge = [(0, 0), (W, 0), (W, Y1), (W0, Y1), (W0, H), (0, H)]
+    edge = OUTLINE
     zone(board, netinfo, "1", "GND", edge, thermal=False)
     for L in ("F", "2", "B"):
         zone(board, netinfo, L, "GND", edge)

@@ -18,8 +18,9 @@ import uuid
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_sch import Sheet, get_symbol, resolve_units, rotate_lib_pin, snap  # noqa: E402
-from kiutils.items.common import Position, Property, Effects, Font, Justify, Stroke, TitleBlock  # noqa: E402
-from kiutils.items.schitems import (LocalLabel, Text, Connection, Junction, NoConnect,  # noqa: E402
+from kiutils.items.common import ColorRGBA, Position, Property, Effects, Font, Justify, Stroke, TitleBlock  # noqa: E402
+from kiutils.items.schitems import (GlobalLabel, HierarchicalSheet, HierarchicalSheetProjectInstance,  # noqa: E402
+                                    HierarchicalSheetProjectPath, Text, Connection, Junction, NoConnect,
                                     Rectangle)
 from kiutils.items.syitems import SyRect, Fill  # noqa: E402
 from kiutils.symbol import Symbol, SymbolPin  # noqa: E402
@@ -74,17 +75,29 @@ def _hidden_pins(path, entry):
         block)}
 
 
+# Symbols kept in the project library symbols/lasertag.kicad_sym (written from the generated schematic, so the
+# embedded copy and the library always match): pin types adapted where the stock symbol trips ERC.
+PROJECT_SYMS = {
+    ("Memory_Flash", "W25Q32JVZP"): {"3": "passive", "7": "passive"},  # /WP, /HOLD tied to 3V3
+    ("Audio", "MAX98357A"): {"17": "power_in"},                       # exposed pad = GND
+    ("74xx", "74AHCT125"): {},
+}
+PROJECT_LIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "symbols", "lasertag.kicad_sym")
+
+
 class Sch(Sheet):
-    def __init__(self):
+    pwr_n = 0  # shared by all pages: #PWR references stay unique in the hierarchy
+
+    def __init__(self, title="", path="/", paper="A3"):
         super().__init__()
-        self.sch.paper.paperSize = "A2"
+        self.sch.paper.paperSize = paper
         self.sch.paper.portrait = False
+        self.path = path  # instance path of this page ("/" root, "/<sheet uuid>" sub-sheet)
         self.sch.titleBlock = TitleBlock(
-            title="Lasertag - Waffen-Elektronik", date="2026-10-11", revision="1",
+            title="Lasertag - Waffen-Elektronik" + (f": {title}" if title else ""), date="2026-10-14", revision="2",
             company="open-lasertag",
             comments={1: "Ein ESP32-S3 in der Waffe, Weste nur Sensoren",
                       2: "ERC-geprüft, KiCad 10"})
-        self.pwr_n = 0
 
     # ---------------------------------------------------------------- symbols
     def _register(self, path, entry, nick):
@@ -99,9 +112,11 @@ class Sch(Sheet):
         sym.pinNamesOffset = off
         sym.pinNamesHide = hide_names
         hidden = _hidden_pins(path, entry)
+        types = next((v for (lib, e), v in PROJECT_SYMS.items() if e == entry and nick == "lasertag"), {})
         for u in sym.units:
             for p in u.pins:
                 p.hide = p.number in hidden
+                p.electricalType = types.get(p.number, p.electricalType)
 
     def _field(self, key, value, pos, just, hide, sym_angle):
         if pos is None:
@@ -135,16 +150,17 @@ class Sch(Sheet):
                 pins[p.number] = rotate_lib_pin(x, y, p.position.X, p.position.Y, angle)
         inst.instances = [SymbolProjectInstance(
             name="waffe_elektronik",
-            paths=[SymbolProjectPath(sheetInstancePath="/", reference=ref, unit=unit)])]
+            paths=[SymbolProjectPath(sheetInstancePath=self.path, reference=ref, unit=unit)])]
         self.sch.schematicSymbols.append(inst)
         return pins
 
     def part(self, lib, entry, ref, value, x, y, angle=0, unit=1, ref_at=None, val_at=None,
              just="left", hide_ref=False, hide_val=False):
         path = f"{LIB}/{lib}.kicad_sym"
-        self._register(path, entry, lib)
-        base = resolve_units(get_symbol(path, entry), path)
-        return self._instance(lib, entry, base.units, ref, value, x, y, angle, unit,
+        nick = "lasertag" if (lib, entry) in PROJECT_SYMS else lib
+        self._register(path, entry, nick)
+        base = next(s for s in self.sch.libSymbols if s.libraryNickname == nick and s.entryName == entry)
+        return self._instance(nick, entry, base.units, ref, value, x, y, angle, unit,
                               ref_at, val_at, just, hide_ref, hide_val)
 
     def box(self, entry, pins, half_w, half_h, ref, value, x, y, ref_at, val_at, just="center"):
@@ -169,8 +185,8 @@ class Sch(Sheet):
         u1 = Symbol(entryName=entry, unitId=1, styleId=1, pins=spins, graphicItems=[
             SyRect(start=Position(X=-half_w, Y=half_h), end=Position(X=half_w, Y=-half_h),
                    fill=Fill(type="background"))])
-        if ("Module", entry) not in self.registered_libs:
-            top = Symbol(libraryNickname="Module", entryName=entry)
+        if ("lasertag", entry) not in self.registered_libs:
+            top = Symbol(libraryNickname="lasertag", entryName=entry)
             top.units = [u0, u1]
             top.hidePinNumbers = True
             top.pinNames = True
@@ -185,8 +201,8 @@ class Sch(Sheet):
                          effects=Effects(font=Font(height=FONT, width=FONT), hide=True)),
             ]
             self.sch.libSymbols.append(top)
-            self.registered_libs.add(("Module", entry))
-        return self._instance("Module", entry, [u0, u1], ref, value, x, y, 0, 1, ref_at, val_at, just)
+            self.registered_libs.add(("lasertag", entry))
+        return self._instance("lasertag", entry, [u0, u1], ref, value, x, y, 0, 1, ref_at, val_at, just)
 
     # ------------------------------------------------------------ primitives
     def w(self, *pts):
@@ -205,16 +221,16 @@ class Sch(Sheet):
         self.sch.noConnects.append(NoConnect(position=Position(X=snap(p[0]), Y=snap(p[1])), uuid=self.uid()))
 
     def lbl(self, p, name, side):
-        """Local label; side 'L' = text runs to the left of p, 'R' = to the right."""
+        """Global label (the schematic spans several pages); side 'L' = text runs to the left of p, 'R' = right."""
         ang, h = (180, "right") if side == "L" else (0, "left")
-        self.sch.labels.append(LocalLabel(
-            text=name, position=Position(X=snap(p[0]), Y=snap(p[1]), angle=ang),
-            effects=Effects(font=Font(height=FONT, width=FONT), justify=Justify(horizontally=h, vertically="bottom")),
+        self.sch.globalLabels.append(GlobalLabel(
+            text=name, shape="passive", position=Position(X=snap(p[0]), Y=snap(p[1]), angle=ang),
+            effects=Effects(font=Font(height=FONT, width=FONT), justify=Justify(horizontally=h)),
             uuid=self.uid()))
 
     def _pwr(self, entry, name, p, angle, val_at, hide_val):
-        self.pwr_n += 1
-        self.part("power", entry, f"#PWR{self.pwr_n:02d}", name, p[0], p[1], angle=angle,
+        Sch.pwr_n += 1
+        self.part("power", entry, f"#PWR{Sch.pwr_n:02d}", name, p[0], p[1], angle=angle,
                   ref_at=None, val_at=val_at, just="center", hide_ref=True, hide_val=hide_val)
 
     def vcc(self, p, name, side="up"):
@@ -242,7 +258,7 @@ class Sch(Sheet):
         self.note((x1 + 2.54, y1 + 3.81), title, size=2.0)
 
 
-sh = Sch()
+sh = None  # current page, set in the page loop at the bottom
 G = 2.54
 
 
@@ -277,7 +293,7 @@ def block_power(ox, oy):
     sh.w(bt["1"], (ox + 10.16, rail), (ox + 10.16, oy + 12.7))
     sh.vcc((ox + 10.16, oy + 12.7), "BAT_P")
     sh.j((ox + 10.16, rail))
-    sh.w(bt["2"], (ox + 10.16, gy)); sh.gnd((ox + 10.16, gy))
+    sh.w(bt["2"], (ox + 10.16, gy), (ox + 7.62, gy)); sh.lbl((ox + 7.62, gy), "BAT_N", "L")
     sh.w((ox + 10.16, oy + 35.56), (ox + 5.08, oy + 35.56)); sh.j((ox + 10.16, oy + 35.56))
     sh.flag("#FLG1", (ox + 5.08, oy + 35.56))
     # MT3608 boost 3.7 V -> 5.1 V
@@ -343,7 +359,9 @@ def block_charger(ox, oy):
     c5 = C("C5", "1u", ox + 60.96, oy + 16.51)
     sh.j((ox + 60.96, oy + 12.7)); sh.w(c5["2"], (ox + 60.96, oy + 22.86)); sh.gnd((ox + 60.96, oy + 22.86))
     r2 = R("R2", "10k", ox + 76.2, oy + 24.13)
-    sh.w(u3["1"], (ox + 83.82, oy + 27.94)); sh.j((ox + 76.2, oy + 27.94))
+    d5 = sh.part("Device", "D_Schottky", "D5", "BAT54WS", ox + 68.58, oy + 27.94,
+                 ref_at=(ox + 68.58, oy + 31.75), val_at=(ox + 68.58, oy + 34.29), just="center")
+    sh.w(u3["1"], d5["1"]); sh.w(d5["2"], (ox + 83.82, oy + 27.94)); sh.j((ox + 76.2, oy + 27.94))
     sh.lbl((ox + 83.82, oy + 27.94), "CHRG_STAT", "R")
     sh.w(r2["1"], (ox + 76.2, oy + 17.78)); sh.vcc((ox + 76.2, oy + 17.78), "3V3_MCU")
     sh.frame(ox - 2.54, oy - 5.08, ox + 99.06, oy + 48.26, "Laden (USB-C)")
@@ -402,9 +420,12 @@ MCU_SIGNALS = {
     # OLED (I2C) and rotary encoder: connectors J4/J5 at the right edge next to these pads
     "39": "I2C_SCL", "38": "I2C_SDA", "35": "ENC_A", "34": "ENC_B", "17": "ENC_SW",
     "9": "TSOP6_OUT",  # TSOP 6 on the weapon itself, connector J6 (former second IR LED)
+    # SPI-NAND for audio files (SPI2 over the GPIO matrix): left pads 7/8 and bottom pads 15/16
+    "7": "FLASH_CS", "8": "SPI_MISO", "15": "SPI_MOSI", "16": "SPI_CLK",
+    "25": "SD_CS",  # microSD slot J7 on the same SPI bus
 }
-# unused: IO7, IO15, IO21, IO48, IO3/IO45/IO46 (strapping), TXD0/RXD0, IO35-37 (octal PSRAM on N16R8)
-MCU_UNUSED = ["15", "7", "8", "37", "36", "28", "29", "30", "23", "26", "16", "25"]
+# unused: IO21, IO45 (strapping), TXD0/RXD0, IO35-37 (octal PSRAM on N16R8)
+MCU_UNUSED = ["37", "36", "28", "29", "30", "23", "26"]
 
 
 def block_mcu(ox, oy):
@@ -442,7 +463,7 @@ def block_mcu(ox, oy):
             sh.w(p, (p[0] + 2.54, p[1])); sh.lbl((p[0] + 2.54, p[1]), net, "R")
     for num in MCU_UNUSED:
         sh.nc(u4[num])
-    sh.note((mx - 50.8, my + 35.56), "frei: IO7, IO15, IO21, IO48")
+    sh.note((mx - 50.8, my + 35.56), "frei: IO21")
     sh.frame(mx - 53.34, oy - 5.08, mx + 40.64, my + 43.18, "ESP32-S3-WROOM-1")
 
 
@@ -492,7 +513,7 @@ def block_ir(ox, oy):
         sh.w(r["2"], d["2"])
         sh.w(d["1"], (x, kline))
     c7 = C("C7", "100u", xc, oy + 26.67)
-    sh.w(c7["2"], (xc, kline), (xa, kline)); sh.j((xa, kline))
+    sh.w(c7["2"], (xc, oy + 33.02)); sh.gnd((xc, oy + 33.02))
     q = sh.part("Transistor_FET", "AO3400A", "Q1", "AO3400A", xa - 2.54, oy + 50.8,
                 ref_at=(xa + 2.54, oy + 49.53), val_at=(xa + 2.54, oy + 52.07))
     sh.w((xa, kline), q["3"])
@@ -637,7 +658,7 @@ def block_weste(ox, oy):
     sh.w(j2["2"], (ox + 12.7, j2["2"][1])); sh.gnd((ox + 12.7, j2["2"][1]), side="left")
     for k in range(5):
         p = j2[str(k + 3)]
-        sh.w(p, (ox + 10.16, p[1])); sh.lbl((ox + 10.16, p[1]), f"TSOP{k + 1}_OUT", "L")
+        sh.w(p, (ox + 10.16, p[1])); sh.lbl((ox + 10.16, p[1]), f"TSOP{k + 1}_J", "L")
     sh.note((ox + 2.54, oy + 40.64), "Sensorkabel zur Weste")
     names = ["Stirnband vorn", "Stirnband hinten", "Brust", "Rücken", "Schultern"]
     for k in range(5):
@@ -657,6 +678,105 @@ def block_weste(ox, oy):
         sh.w(u["2"], (cx + 25.4, cy + 5.08), (cx + 25.4, cy + 10.16)); sh.gnd((cx + 25.4, cy + 10.16))
         sh.note((cx + 12.7, cy + 15.24), names[k], just="center")
     sh.frame(ox - 10.16, oy - 5.08, ox + 264.16, oy + 50.8, "Weste (nur Sensoren, jenseits des Steckers)")
+
+
+def block_flash(ox, oy):
+    """SPI-NAND 1 Gbit (128 MB) for audio files, 1-bit SPI: /WP and /HOLD tied high, /CS pulled up."""
+    ux, uy = ox + 30.48, oy + 30.48
+    u = sh.part("Memory_Flash", "W25Q32JVZP", "U14", "GD5F1GQ5UEYIGR", ux, uy,
+                ref_at=(ux + 3.81, uy - 16.51), val_at=(ux + 6.35, uy + 16.51), just="left")
+    sh.w(u["8"], (ux, uy - 20.32)); sh.vcc((ux, uy - 20.32), "3V3_MCU")
+    sh.w((ux, uy - 17.78), (ux + 15.24, uy - 17.78)); sh.j((ux, uy - 17.78))
+    c = C("C25", "100n", ux + 15.24, uy - 13.97)
+    sh.w(c["2"], (ux + 15.24, uy - 7.62)); sh.gnd((ux + 15.24, uy - 7.62))
+    sh.w(u["4"], (ux, uy + 15.24)); sh.gnd((ux, uy + 15.24))
+    sh.w(u["9"], (ux + 2.54, uy + 15.24), (ux, uy + 15.24)); sh.j((ux, uy + 15.24))
+    for num, net in (("1", "FLASH_CS"), ("6", "SPI_CLK"), ("5", "SPI_MOSI"), ("2", "SPI_MISO")):
+        p = u[num]
+        sh.w(p, (ux - 20.32, p[1])); sh.lbl((ux - 20.32, p[1]), net, "L")
+    r = R("R27", "10k", ux - 15.24, uy - 11.43)
+    sh.j((ux - 15.24, uy - 7.62)); sh.w(r["1"], (ux - 15.24, uy - 20.32)); sh.vcc((ux - 15.24, uy - 20.32), "3V3_MCU")
+    wp, hold = u["3"], u["7"]
+    sh.w(wp, (ux - 12.7, wp[1])); sh.w(hold, (ux - 12.7, hold[1]), (ux - 12.7, wp[1]))
+    sh.j((ux - 12.7, wp[1])); sh.w((ux - 12.7, wp[1]), (ux - 15.24, wp[1])); sh.vcc((ux - 15.24, wp[1]), "3V3_MCU", side="left")
+    sh.note((ox + 2.54, oy + 50.8), "Audio-Dateien, SPI2 über GPIO-Matrix")
+    sh.frame(ox - 2.54, oy - 5.08, ox + 58.42, oy + 53.34, "Flash 128 MB (SPI-NAND)")
+
+
+def block_sd(ox, oy):
+    """microSD slot on the flash SPI bus (SPI mode): /CS and DAT0 on the ESP32 internal pull-ups, the unused
+    DAT1/DAT2 together on one 10k pull-up; card detect open."""
+    sx, sy = ox + 50.8, oy + 25.4
+    j = sh.part("Connector", "Micro_SD_Card_Det1", "J7", "TF-018", sx, sy,
+                ref_at=(sx - 5.08, sy - 22.86), val_at=(sx - 5.08, sy - 20.32), just="left")
+    for num, net in (("2", "SD_CS"), ("3", "SPI_MOSI"), ("5", "SPI_CLK"), ("7", "SPI_MISO")):
+        p = j[num]
+        sh.w(p, (ox + 7.62, p[1])); sh.lbl((ox + 7.62, p[1]), net, "L")
+    sh.nc(j["9"])
+    d2, d1 = j["1"], j["8"]
+    sh.w(d2, (ox + 20.32, d2[1])); sh.lbl((ox + 20.32, d2[1]), "SD_DAT12", "L")
+    sh.w(d1, (ox + 20.32, d1[1])); sh.lbl((ox + 20.32, d1[1]), "SD_DAT12", "L")
+    r = R("R37", "10k", ox + 15.24, d1[1] + 6.35, fields="left")
+    sh.w(r["1"], (ox + 15.24, d1[1] + 2.54), (ox + 20.32, d1[1] + 2.54), (ox + 20.32, d1[1])); sh.j((ox + 20.32, d1[1]))
+    sh.w(r["2"], (ox + 15.24, d1[1] + 12.7)); sh.vcc((ox + 15.24, d1[1] + 12.7), "3V3_MCU", side="left")
+    sh.vcc(j["4"], "3V3_MCU", side="left")
+    sh.gnd(j["6"], side="left")
+    sh_ = j["SH"]
+    sh.w(sh_, (sh_[0], sh_[1] + 5.08)); sh.gnd((sh_[0], sh_[1] + 5.08))
+    c = C("C26", "100n", ox + 91.44, oy + 10.16)
+    sh.w(c["1"], (ox + 91.44, oy + 3.81)); sh.vcc((ox + 91.44, oy + 3.81), "3V3_MCU")
+    sh.w(c["2"], (ox + 91.44, oy + 16.51)); sh.gnd((ox + 91.44, oy + 16.51))
+    sh.note((ox + 2.54, oy + 50.8), "SPI-Modus am Flash-Bus, Karte vor dem Flash initialisieren (CMD0), Kartenerkennung offen")
+    sh.frame(ox - 2.54, oy - 5.08, ox + 99.06, oy + 55.88, "microSD-Slot (SPI)")
+
+
+def block_protect(ox, oy):
+    """1S protection in the battery minus lead: DW01A + FS8205A (discharge FET at B-, charge FET at P- = GND).
+    D4 feeds 5V_PERIPH from USB, so the board runs (and flashes) without a battery."""
+    ux, uy = ox + 45.72, oy + 20.32
+    u = sh.part("Battery_Management", "DW01A", "U15", "DW01A", ux, uy,
+                ref_at=(ux, uy - 10.16), val_at=(ux, uy - 7.62), just="center")
+    vcc, gnd, od, oc, cs, td = u["5"], u["6"], u["1"], u["3"], u["2"], u["4"]
+    sh.nc(td)
+    r = R("R28", "100", ux - 25.4, vcc[1], horizontal=True, fields="above")
+    sh.w(vcc, r["2"]); sh.w(r["1"], (ux - 33.02, vcc[1]), (ux - 33.02, vcc[1] - 5.08)); sh.vcc((ux - 33.02, vcc[1] - 5.08), "BAT_P")
+    c = C("C27", "100n", ux - 17.78, vcc[1] + 3.81, fields="left")
+    sh.j((ux - 17.78, vcc[1])); sh.j((ux - 12.7, vcc[1])); sh.flag("#FLG11", (ux - 12.7, vcc[1]))
+    yb = uy + 10.16
+    sh.w(gnd, (ux - 12.7, gnd[1]), (ux - 12.7, yb), (ux - 33.02, yb)); sh.w(c["2"], (ux - 17.78, yb)); sh.j((ux - 17.78, yb))
+    sh.lbl((ux - 33.02, yb), "BAT_N", "L")
+    qx, qy = ux, uy + 33.02
+    q = sh.box("FS8205A", [("G1", "6", "L", -2.54), ("S1", "1", "L", 2.54), ("G2", "4", "R", -2.54), ("S2", "3", "R", 2.54),
+                           ("D", "2", "T", -2.54), ("D", "5", "T", 2.54)], 7.62, 7.62, "Q3", "FS8205A", qx, qy,
+               ref_at=(qx + 10.16, qy + 10.16), val_at=(qx + 10.16, qy + 12.7), just="left")
+    sh.w(od, (od[0], uy + 12.7), (ux - 12.7, uy + 12.7), (ux - 12.7, q["6"][1]), q["6"])
+    sh.w(oc, (oc[0], uy + 12.7), (ux + 12.7, uy + 12.7), (ux + 12.7, q["4"][1]), q["4"])
+    sh.w(q["2"], (q["2"][0], qy - 12.7), (q["5"][0], qy - 12.7), q["5"])
+    sh.w(q["1"], (ux - 17.78, q["1"][1])); sh.lbl((ux - 17.78, q["1"][1]), "BAT_N", "L")
+    s2 = q["3"]
+    sh.w(s2, (ux + 17.78, s2[1]), (ux + 17.78, s2[1] + 5.08)); sh.gnd((ux + 17.78, s2[1] + 5.08))
+    sh.j((ux + 15.24, s2[1])); sh.flag("#FLG10", (ux + 15.24, s2[1]))
+    r = R("R29", "1k", ux + 15.24, cs[1], horizontal=True, fields="above")
+    sh.w(cs, r["1"]); sh.w(r["2"], (ux + 22.86, cs[1]), (ux + 22.86, cs[1] + 5.08)); sh.gnd((ux + 22.86, cs[1] + 5.08))
+    sh.note((ox + 2.54, oy + 71.12), "Trennt bei ca. 4,3 V (Überladung), 2,4 V (Tiefentladung) und Überstrom")
+    # USB supply for the 5 V rail (D3 keeps it out of the battery, the boost wins when a battery is in)
+    dx, dy = ox + 88.9, oy + 15.24
+    d4 = sh.part("Diode", "SS14", "D4", "SS14", dx, dy, angle=180,
+                 ref_at=(dx, dy - 4.445), val_at=(dx, dy + 3.81), just="center")
+    sh.w(d4["2"], (dx - 7.62, dy), (dx - 7.62, dy - 5.08)); sh.vcc((dx - 7.62, dy - 5.08), "VBUS_NATIVE")
+    sh.w(d4["1"], (dx + 7.62, dy), (dx + 7.62, dy - 5.08)); sh.vcc((dx + 7.62, dy - 5.08), "5V_PERIPH")
+    sh.note((dx - 7.62, dy + 10.16), "5 V aus USB (ohne Akku)")
+    sh.frame(ox - 2.54, oy - 5.08, ox + 111.76, oy + 76.2, "Akkuschutz + USB-Versorgung")
+
+
+def block_tsop_r(ox, oy):
+    """Series resistors in the sensor cable lines (ESD/short protection of the GPIOs)."""
+    for k in range(5):
+        y = oy + 7.62 + k * 5.08
+        r = R(f"R{30 + k}", "100", ox + 25.4, y, horizontal=True, fields="above" if k == 0 else "right")
+        sh.w((ox + 10.16, y), r["1"]); sh.lbl((ox + 10.16, y), f"TSOP{k + 1}_OUT", "L")
+        sh.w(r["2"], (ox + 40.64, y)); sh.lbl((ox + 40.64, y), f"TSOP{k + 1}_J", "R")
+    sh.frame(ox - 12.7, oy - 5.08, ox + 58.42, oy + 35.56, "Sensorkabel: Serienwiderstände")
 
 
 # ================================================================== LAYOUT
@@ -690,6 +810,11 @@ FOOTPRINTS = {
     "M1": SH2, "LED1": SH2, "SW1": SH2, "SW2": SH2,
     "SW3": "Button_Switch_SMD:SW_SPST_B3U-1000P", "SW4": "Button_Switch_SMD:SW_SPST_B3U-1000P",
     "J4": SH4, "J5": SH4, "J6": "Connector_JST:JST_SH_SM03B-SRSS-TB_1x03-1MP_P1.00mm_Horizontal",
+    "U14": "Package_SON:WSON-8-1EP_8x6mm_P1.27mm_EP3.4x4.3mm",
+    "J7": "lasertag:microSD_TF-018_PushPull",  # project library
+    "U15": "Package_TO_SOT_SMD:SOT-23-6", "Q3": "Package_TO_SOT_SMD:SOT-23-6",
+    "D4": "Diode_SMD:D_SOD-123F", "D5": "Diode_SMD:D_SOD-323",
+    "C26": "Capacitor_SMD:C_0402_1005Metric", "C27": "Capacitor_SMD:C_0402_1005Metric",
 }
 # JLCPCB/LCSC part numbers (checked for stock 2026-10-11); by reference, fallback by value for 0603 R/C
 LCSC = {
@@ -702,17 +827,23 @@ LCSC = {
     "J1": "C225234", "J2": "C160406", "J3": "C49261570", "BT1": "C225233", "SP1": "C225233",
     "M1": "C160402", "LED1": "C160402", "SW1": "C160402", "SW2": "C160402",
     "SW3": "C231329", "SW4": "C231329", "J4": "C160404", "J5": "C160404",
-    "J6": "C7430445",  # ZX-SH1.0-3PWT, JST SM03B-compatible (C160403 out of stock)
+    "U14": "C2829047",  # GD5F1GQ5UEYIGR, supported by espressif/spi_nand_flash
+    "J6": "C7430445",
+    "J7": "C961679",  # XKB TF-018, microSD push-pull
+    "U15": "C351410", "Q3": "C2830320", "D4": "C2909920", "D5": "C168799",
+    "C26": "C1525", "C27": "C1525",  # 100n 0402  # ZX-SH1.0-3PWT, JST SM03B-compatible (C160403 out of stock)
 }
 LCSC_0603 = {("R", "10k"): "C25804", ("R", "100k"): "C25803", ("R", "5.1k"): "C23186", ("R", "2k"): "C22975",
              ("R", "330"): "C23138", ("R", "100"): "C22775", ("R", "75k"): "C23242",
-             ("C", "100n"): "C14663", ("C", "1u"): "C15849"}
+             ("C", "100n"): "C14663", ("C", "1u"): "C15849", ("R", "1k"): "C21190"}
+SMALL = {f"R{i}" for i in range(28, 35)} | {"R37"}  # 0402 where the board is tight
+LCSC_0402 = {"100": "C25076", "10k": "C25744", "1k": "C11702"}
 VEST = {f"U{i}" for i in range(7, 12)} | {f"R{i}" for i in range(16, 21)} | {f"C{i}" for i in range(11, 16)}
 VEST |= {"U13", "R26", "C24"}  # TSOP 6 sits on the weapon, filter at the sensor
 
 
 def assign_footprints():
-    for inst in sh.sch.schematicSymbols:
+    for inst in sh.sch.schematicSymbols:  # current page
         ref = next(p.value for p in inst.properties if p.key == "Reference")
         if ref.startswith("#"):
             continue
@@ -721,14 +852,14 @@ def assign_footprints():
             continue
         fp = FOOTPRINTS.get(ref)
         if fp is None and inst.entryName == "R":
-            fp = "Resistor_SMD:R_0603_1608Metric"
+            fp = "Resistor_SMD:R_0402_1005Metric" if ref in SMALL else "Resistor_SMD:R_0603_1608Metric"
         if fp is None and inst.entryName == "C":
             fp = "Capacitor_SMD:C_0603_1608Metric"
         assert fp, f"no footprint for {ref}"
         fprop = next(p for p in inst.properties if p.key == "Footprint")
         fprop.value = fp
         val = next(p.value for p in inst.properties if p.key == "Value")
-        part = LCSC.get(ref) or LCSC_0603.get((inst.entryName, val))
+        part = LCSC.get(ref) or (LCSC_0402.get(val) if ref in SMALL else LCSC_0603.get((inst.entryName, val)))
         assert part, f"no LCSC part for {ref} ({val})"
         if not any(p.key == "LCSC" for p in inst.properties):
             lp = copy.deepcopy(fprop)
@@ -737,21 +868,75 @@ def assign_footprints():
 
 
 # three rows, 27.94mm between blocks, ~38mm between rows
-block_power(22.86, 38.1)
-block_charger(175.26, 38.1)
-block_adc(309.88, 38.1)
-block_usb(381.0, 38.1)
-block_audio(482.6, 38.1)
-block_mcu(10.16, 147.32)
-block_ir(132.08, 147.32)
-block_buttons(248.92, 147.32)
-block_ws2812(335.28, 147.32)
-block_vibration(462.28, 147.32)
-block_weste(22.86, 281.94)
-block_ui(309.88, 281.94)
-block_tsop6(431.8, 281.94)
-
-assign_footprints()
+# one A3 page per function, root page with the sheet symbols; blocks keep their frames
+PAGES = [
+    ("Stromversorgung", "stromversorgung.kicad_sch",
+     [(block_power, 22.86, 38.1), (block_charger, 175.26, 38.1), (block_adc, 309.88, 38.1), (block_protect, 30.48, 124.46)]),
+    ("ESP32-S3 und USB", "mcu_usb.kicad_sch", [(block_mcu, 10.16, 38.1), (block_usb, 132.08, 38.1)]),
+    ("Bedienung und Aktoren", "bedienung_aktoren.kicad_sch",
+     [(block_ir, 10.16, 38.1), (block_buttons, 109.22, 38.1), (block_ws2812, 177.8, 38.1),
+      (block_vibration, 289.56, 38.1), (block_ui, 15.24, 129.54)]),
+    ("Audio und Speicher", "audio_speicher.kicad_sch",
+     [(block_audio, 15.24, 38.1), (block_flash, 109.22, 38.1), (block_sd, 182.88, 38.1)]),
+    ("Sensoren", "sensoren.kicad_sch", [(block_weste, 22.86, 38.1), (block_tsop6, 22.86, 116.84), (block_tsop_r, 137.16, 116.84)]),
+]
 out = os.environ.get("OUT_SCH", "waffe_clean.kicad_sch")
-sh.save(out)
+outdir = os.path.dirname(os.path.abspath(out))
+root = Sch("Übersicht", paper="A4")
+page_files = []
+for n, (title, fname, blocks) in enumerate(PAGES):
+    sid = root.uid()
+    sh = Sch(title, path="/" + sid)
+    for fn, ox, oy in blocks:
+        fn(ox, oy)
+    assign_footprints()
+    sh.save(os.path.join(outdir, fname))
+    page_files.append(os.path.join(outdir, fname))
+    x, y = 25.4, 48.26 + n * 27.94  # one column: KiCad numbers the pages top to bottom
+    font = Effects(font=Font(height=FONT, width=FONT), justify=Justify(horizontally="left", vertically="bottom"))
+    root.sch.sheets.append(HierarchicalSheet(
+        position=Position(X=x, Y=y), width=76.2, height=17.78, fieldsAutoplaced=True,
+        stroke=Stroke(width=0.1524, type="solid"), fill=ColorRGBA(R=255, G=255, B=194, A=1), uuid=sid,
+        sheetName=Property(key="Sheetname", value=title, position=Position(X=x, Y=y - 0.7116, angle=0), effects=font),
+        fileName=Property(key="Sheetfile", value=fname, position=Position(X=x, Y=y + 18.3, angle=0),
+                          effects=Effects(font=Font(height=FONT, width=FONT), justify=Justify(horizontally="left", vertically="top"))),
+        instances=[HierarchicalSheetProjectInstance(name="waffe_elektronik", paths=[
+            HierarchicalSheetProjectPath(sheetInstancePath="/", page=str(n + 2))])]))
+sh = root
+sh.note((25.4, 35.56), "Signale zwischen den Seiten über globale Labels, Versorgung über Power-Symbole", size=2.0)
+root.save(out)
+
+
+def write_project_lib(paths):
+    """Copy the embedded lasertag:* symbols into the project library (identical text -> no lib_symbol_mismatch)."""
+    blocks, seen = [], set()
+    for path in paths:
+        _extract(open(path).read(), blocks, seen)
+    os.makedirs(os.path.dirname(PROJECT_LIB), exist_ok=True)
+    with open(PROJECT_LIB, "w") as f:
+        f.write('(kicad_symbol_lib\n\t(version 20241209)\n\t(generator "lasertag")\n')
+        for b in blocks:
+            f.write("\t" + b + "\n")
+        f.write(")\n")
+
+
+def _extract(t, blocks, seen):
+    i = t.find('(symbol "lasertag:')
+    while i >= 0:
+        depth, j = 0, i
+        while True:
+            c = t[j]
+            depth += c == "("
+            depth -= c == ")"
+            j += 1
+            if depth == 0:
+                break
+        name = t[i:t.find('"', i + 9)]
+        if name not in seen:
+            seen.add(name)
+            blocks.append(t[i:j].replace('(symbol "lasertag:', '(symbol "', 1))
+        i = t.find('(symbol "lasertag:', j)
+
+
+write_project_lib(page_files)
 print("ok ->", out)
