@@ -842,8 +842,8 @@ VEST = {f"U{i}" for i in range(7, 12)} | {f"R{i}" for i in range(16, 21)} | {f"C
 VEST |= {"U13", "R26", "C24"}  # TSOP 6 sits on the weapon, filter at the sensor
 
 
-# Soldered by hand (connectors, fallback buttons): no LCSC field -> not in the JLC BOM/CPL; the LCSC numbers for
-# the separate parts order are in fertigung/lcsc/waffe_lose_teile.csv
+# Soldered by hand (connectors, fallback buttons): field "LCSC Hand" instead of "LCSC" -> not in the standard JLC
+# BOM/CPL, only in the *_komplett variant; the separate parts order is fertigung/lcsc/waffe_lose_teile.csv
 HAND = {"J1", "J2", "J4", "J5", "J6", "BT1", "SP1", "LED1", "M1", "SW1", "SW2", "SW3", "SW4"}
 
 
@@ -864,13 +864,12 @@ def assign_footprints():
         fprop = next(p for p in inst.properties if p.key == "Footprint")
         fprop.value = fp
         val = next(p.value for p in inst.properties if p.key == "Value")
-        if ref in HAND:
-            continue
         part = LCSC.get(ref) or (LCSC_0402.get(val) if ref in SMALL else LCSC_0603.get((inst.entryName, val)))
         assert part, f"no LCSC part for {ref} ({val})"
-        if not any(p.key == "LCSC" for p in inst.properties):
+        key = "LCSC Hand" if ref in HAND else "LCSC"
+        if not any(p.key == key for p in inst.properties):
             lp = copy.deepcopy(fprop)
-            lp.key, lp.value = "LCSC", part
+            lp.key, lp.value = key, part
             inst.properties.append(lp)
 
 

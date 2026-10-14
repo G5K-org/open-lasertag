@@ -9,7 +9,9 @@ Creates in OUT_DIR:
   <name>_bom.csv         Comment, Designator, Footprint, LCSC Part #
   <name>_cpl.csv         Designator, Mid X, Mid Y, Layer, Rotation (mm, JLC rotation corrections applied)
 --check queries JLCPCB for every LCSC part: stock vs. N boards, basic/extended, unit price.
-Footprints need an "LCSC" field; parts without it are listed and left out of BOM/CPL.
+Footprints need an "LCSC" field; parts without it are listed and left out of BOM/CPL. Parts with an "LCSC Hand"
+field instead (hand-soldered by default) go only into <name>_bom_komplett.csv / <name>_cpl_komplett.csv.
+ESP32-S3-WROOM-1 boards also get *_externe_antenne variants with the WROOM-1U (same footprint).
 """
 import csv
 import math
@@ -34,6 +36,7 @@ ROTATIONS = [
     (r"^SOP-(?!18_)", 270, 0, 0), (r"^TSSOP-", 270, 0, 0), (r"^SSOP-", 270, 0, 0), (r"^SOIC-", 270, 0, 0),
     (r"^DFN-", 270, 0, 0), (r"^(.*?_|V)?QFN-(16|20|24|28|40)(-|_|$)", 270, 0, 0),
     (r"^CP_EIA-", 180, 0, 0), (r"^SW_SPST_B3", 90, 0, 0), (r"^JST_PH_S", 180, 0, 0), (r"^JST_GH_SM", 180, 0, 0),
+    (r"^JST_SH_SM", 180, 0, 0),
     (r"^SC-74-6", 180, 0, 0), (r"^SOT-143", 180, 0, 0), (r"^ESP32-W", 270, 0, 0),
 ]
 
@@ -70,20 +73,18 @@ def main():
             z.write(os.path.join(gdir, f), f)
 
     board = pcbnew.LoadBoard(pcb)
-    groups, cpl, missing = {}, [], []
+    parts, missing = [], []   # (ref, footprint, lcsc, value, cpl row, hand)
     for fp in board.GetFootprints():
         ref = fp.GetReference()
         if fp.IsDNP() or fp.IsExcludedFromBOM():
             continue
         lcsc = fp.GetFieldText("LCSC") if fp.HasField("LCSC") else ""
+        hand = fp.GetFieldText("LCSC Hand") if fp.HasField("LCSC Hand") else ""
         if not lcsc:
             missing.append(ref)
-            continue
+            if not hand:
+                continue
         fpname = fp.GetFPID().GetLibItemName().wx_str()
-        g = groups.setdefault((fpname, lcsc), {"refs": [], "vals": []})
-        g["refs"].append(ref)
-        if fp.GetValue() not in g["vals"]:
-            g["vals"].append(fp.GetValue())
         rot, dx, dy = 0, 0.0, 0.0
         for pat, r, ox, oy in ROTATIONS:
             if re.search(pat, fpname):
@@ -91,57 +92,73 @@ def main():
                 break
         p = fp.GetPosition()
         bottom = fp.GetLayer() == pcbnew.B_Cu
-        cpl.append((ref, round(p.x / 1e6 + dx, 4), round(-p.y / 1e6 + dy, 4), "Bottom" if bottom else "Top",
-                    round((fp.GetOrientationDegrees() + rot) % 360, 2)))
+        row = (ref, round(p.x / 1e6 + dx, 4), round(-p.y / 1e6 + dy, 4), "Bottom" if bottom else "Top",
+               round((fp.GetOrientationDegrees() + rot) % 360, 2))
+        parts.append((ref, fpname, lcsc or hand, fp.GetValue(), row, not lcsc))
 
     def natkey(r):
         m = re.match(r"([A-Za-z]+)(\d+)", r)
         return (m.group(1), int(m.group(2))) if m else (r, 0)
 
-    bom = os.path.join(out, f"{name}_bom.csv")
-    with open(bom, "w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
-        for (fpname, lcsc), g in sorted(groups.items(), key=lambda kv: natkey(sorted(kv[1]["refs"], key=natkey)[0])):
-            w.writerow([" / ".join(sorted(g["vals"])), ",".join(sorted(g["refs"], key=natkey)), fpname, lcsc])
     # variant for an external antenna: same footprint, ESP32-S3-WROOM-1U (U.FL) instead of the PCB-antenna module
     # (the 1U footprint origin sits 3.15 mm further towards the pins -> CPL centre moves along the module axis)
     ALT = {"C2913202": ("C3013946", "ESP32-S3-WROOM-1U-N16R8")}
     ALT_SHIFT = {"C3013946": 3.15}
-    if any(lcsc in ALT for _, lcsc in groups):
-        with open(os.path.join(out, f"{name}_bom_externe_antenne.csv"), "w", newline="") as f:
+
+    def write(suffix, hand, alt):
+        groups = {}
+        for ref, fpname, lcsc, val, row, is_hand in parts:
+            if is_hand and not hand:
+                continue
+            code, v = ALT.get(lcsc, (lcsc, val)) if alt else (lcsc, val)
+            g = groups.setdefault((fpname, code), {"refs": [], "vals": [], "rows": []})
+            g["refs"].append(ref)
+            if v not in g["vals"]:
+                g["vals"].append(v)
+            if code in ALT_SHIFT and alt:  # shift along the module's own +y (towards the pins), CPL y is inverted
+                ref, x, y, layer, rot = row
+                a = math.radians(rot)
+                row = (ref, round(x - ALT_SHIFT[code] * math.sin(a), 4), round(y - ALT_SHIFT[code] * math.cos(a), 4),
+                       layer, rot)
+            g["rows"].append(row)
+        with open(os.path.join(out, f"{name}_bom{suffix}.csv"), "w", newline="") as f:
             w = csv.writer(f)
             w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
-            for (fpname, lcsc), g in sorted(groups.items(), key=lambda kv: natkey(sorted(kv[1]["refs"], key=natkey)[0])):
-                code, val = ALT.get(lcsc, (lcsc, " / ".join(sorted(g["vals"]))))
-                w.writerow([val, ",".join(sorted(g["refs"], key=natkey)), fpname, code])
-    with open(os.path.join(out, f"{name}_cpl.csv"), "w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
-        for row in sorted(cpl, key=lambda r: natkey(r[0])):
-            w.writerow(row)
-    alt_refs = {r: ALT_SHIFT[ALT[lcsc][0]] for (_, lcsc), g in groups.items() if lcsc in ALT for r in g["refs"]}
-    if alt_refs:
-        with open(os.path.join(out, f"{name}_cpl_externe_antenne.csv"), "w", newline="") as f:
+            for (fpname, code), g in sorted(groups.items(), key=lambda kv: natkey(sorted(kv[1]["refs"], key=natkey)[0])):
+                w.writerow([" / ".join(sorted(g["vals"])), ",".join(sorted(g["refs"], key=natkey)), fpname, code])
+        with open(os.path.join(out, f"{name}_cpl{suffix}.csv"), "w", newline="") as f:
             w = csv.writer(f)
             w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
-            for ref, x, y, layer, rot in sorted(cpl, key=lambda r: natkey(r[0])):
-                if ref in alt_refs:  # shift along the module's own +y (towards the pins), CPL y is inverted
-                    d = alt_refs[ref]
-                    a = math.radians(rot)
-                    x, y = round(x - d * math.sin(a), 4), round(y - d * math.cos(a), 4)
-                w.writerow([ref, x, y, layer, rot])
+            for row in sorted((r for g in groups.values() for r in g["rows"]), key=lambda r: natkey(r[0])):
+                w.writerow(row)
+        return groups
+
+    has_alt = any(lcsc in ALT for _, _, lcsc, _, _, _ in parts)
+    has_hand = any(h for *_, h in parts)
+    groups = check = write("", False, False)
+    if has_alt:
+        write("_externe_antenne", False, True)
+    if has_hand:  # hand-solder parts (field "LCSC Hand") assembled by JLCPCB as well
+        check = write("_komplett", True, False)
+        if has_alt:
+            write("_komplett_externe_antenne", True, True)
+    bom = os.path.join(out, f"{name}_bom.csv")
+    cpl = [r for g in groups.values() for r in g["rows"]]
 
     print(f"gerber : {zpath} ({len(os.listdir(gdir))} files)")
     print(f"bom    : {bom} ({len(groups)} lines, {sum(len(g['refs']) for g in groups.values())} parts)")
     print(f"cpl    : {len(cpl)} placements")
-    if missing:
-        print("NO LCSC field (not assembled):", ", ".join(sorted(missing, key=natkey)))
+    hand = sorted((r[0] for r in parts if r[5]), key=natkey)
+    if hand:
+        print("LCSC Hand (only in *_komplett):", ", ".join(hand))
+    nolcsc = sorted(set(missing) - set(hand), key=natkey)
+    if nolcsc:
+        print("NO LCSC field (not assembled):", ", ".join(nolcsc))
 
     if "--check" in sys.argv:
         ext, total, ok = 0, 0.0, True
         print(f"\nJLCPCB stock check for {boards} boards:")
-        for (fpname, lcsc), g in sorted(groups.items(), key=lambda kv: kv[0][1]):
+        for (fpname, lcsc), g in sorted(check.items(), key=lambda kv: kv[0][1]):
             refs, val = g["refs"], " / ".join(sorted(g["vals"]))
             need = len(refs) * boards
             it = jlc_part(lcsc)

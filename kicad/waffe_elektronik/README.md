@@ -180,7 +180,9 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 [`fertigung/jlcpcb/`](fertigung/jlcpcb/): `waffe_elektronik_gerber.zip` (Gerber + Bohrdaten),
 `waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. JLCPCB bestückt 66 Teile (Feld `LCSC`, Lagerbestand
 geprüft, 13 Extended-Teile); die Stecker (BT1, SP1, J1, J2, J4–J6, LED1, M1, SW1, SW2) und die Taster SW3/SW4
-haben kein `LCSC`-Feld und werden selbst gelötet.
+haben statt `LCSC` das Feld `LCSC Hand` und werden selbst gelötet. Mit allen Steckern und Tastern bestückt
+(79 Teile, 20 Extended-Teile): `waffe_elektronik_bom_komplett.csv` + `waffe_elektronik_cpl_komplett.csv`, mit
+externer Antenne `waffe_elektronik_bom_komplett_externe_antenne.csv` + `waffe_elektronik_cpl_komplett_externe_antenne.csv`.
 Selbst zu lötende Teile und lose Teile in der Waffe:
 [`fertigung/lcsc/waffe_lose_teile.csv`](fertigung/lcsc/waffe_lose_teile.csv) (LCSC-Nummern, Menge je Waffe).
 Alles für den Selbstbau bei Mouser: [`fertigung/mouser/`](fertigung/mouser/) (10 Waffen, Mouser-Vorlage) plus

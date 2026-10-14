@@ -884,416 +884,416 @@
   )
 
   (junction (at 33.02 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid b64f31ae-b3a6-4b0a-a8e8-1b7965a25e73)
+    (uuid 740dd4b9-da91-48c9-9111-95d1be4ed7c3)
   )
   (junction (at 33.02 73.66) (diameter 0) (color 0 0 0 0)
-    (uuid 3e4ec72b-3e79-4c31-8b79-e5376039d0af)
+    (uuid 3e133c5c-09f9-4195-bcc4-d6e32b7f212e)
   )
   (junction (at 38.1 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid 1b50088e-119a-416f-870a-34dfffa7657b)
+    (uuid 50806843-22da-45b1-af5d-514a35ad2d9d)
   )
   (junction (at 45.72 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid b407224d-a31e-4c80-90de-c5e014545d3e)
+    (uuid 13d97494-22d8-4621-bd0e-c3232ebca933)
   )
   (junction (at 45.72 66.04) (diameter 0) (color 0 0 0 0)
-    (uuid c6c036eb-f1f2-406a-9f77-b3bc4bf65368)
+    (uuid e1e4e146-c953-4960-8731-e295c53ba196)
   )
   (junction (at 66.04 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid 85700621-f902-43ce-a0d7-1a72d09a1b70)
+    (uuid e29b4bab-5090-470a-a071-754ed86ab3e3)
   )
   (junction (at 76.2 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid 2078869d-3e9c-4c77-b0ff-373545cfe31f)
+    (uuid 64ceff38-4874-44d9-a823-4242700d9777)
   )
   (junction (at 76.2 71.12) (diameter 0) (color 0 0 0 0)
-    (uuid 3ef5a362-9ce0-437e-85ee-80bb8c40c2fb)
+    (uuid 50fbee57-c699-41d8-9626-691714ae3a08)
   )
   (junction (at 81.28 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid 6d5cb6a9-6aac-44df-9c5e-4598fca5e475)
+    (uuid 104e0dde-459f-4ac0-8599-170beb199b73)
   )
   (junction (at 86.36 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid c8fa7f7a-3f42-4ffe-8b21-be93d480b736)
+    (uuid 825b2757-0b01-441b-885c-f57747afcc2a)
   )
   (junction (at 91.44 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid 27a48c5f-a756-40fe-bd09-7320efef7bde)
+    (uuid 1e323e12-2194-45b3-9543-6cecb2e38856)
   )
   (junction (at 101.6 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid 5a29019d-bccd-45e2-a81c-d63d66087f8f)
+    (uuid bcbdaba4-df7a-4fef-9071-becf877c6bfe)
   )
   (junction (at 111.76 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid 93cdfd4f-5f01-437d-b1d7-5c3584ff5155)
+    (uuid eb9e9cf7-b04b-444d-bf85-bd06505b5064)
   )
   (junction (at 144.78 55.88) (diameter 0) (color 0 0 0 0)
-    (uuid 1d05bcec-db11-4f22-bd48-539bc850cbb9)
+    (uuid 9123373d-a6f1-46c2-9550-da8d69391308)
   )
   (junction (at 190.5 50.8) (diameter 0) (color 0 0 0 0)
-    (uuid 40d8bb03-6d93-4855-853c-d93cccee6238)
+    (uuid 683d48e3-a729-48b5-9bc2-8af2fade3d25)
   )
   (junction (at 198.12 50.8) (diameter 0) (color 0 0 0 0)
-    (uuid b96e99b6-1ea7-40d0-952e-ad2f7ae14c60)
+    (uuid f6073c27-d837-425b-a868-4b964f50164a)
   )
   (junction (at 236.22 50.8) (diameter 0) (color 0 0 0 0)
-    (uuid 6d85eb15-276e-4c83-a178-180baf82337c)
+    (uuid a4d4ff83-ff3e-40e8-9650-0b3c2740edea)
   )
   (junction (at 251.46 66.04) (diameter 0) (color 0 0 0 0)
-    (uuid 32c0f63d-0df7-4e36-ad79-f2cb4dab7fb0)
+    (uuid c3f3f767-9b97-4fa8-9b8c-3bad80690c06)
   )
   (junction (at 320.04 63.5) (diameter 0) (color 0 0 0 0)
-    (uuid 46747899-0423-4077-8772-9cf1bfbecfc8)
+    (uuid 0cc37d20-85a2-4911-931b-c2ff0d852526)
   )
   (junction (at 330.2 63.5) (diameter 0) (color 0 0 0 0)
-    (uuid d9733a6c-c513-47f8-87e9-d3f2a4887b2b)
+    (uuid dd6212f1-50f6-41a7-aee7-b48dec7fbae4)
   )
   (junction (at 58.42 142.24) (diameter 0) (color 0 0 0 0)
-    (uuid 7623dd3c-92f5-435f-b4d5-172d2a8c8382)
+    (uuid b22fb632-06c6-4407-a4fb-26cfce3902bf)
   )
   (junction (at 63.5 142.24) (diameter 0) (color 0 0 0 0)
-    (uuid 4b09f7ed-ef5c-444a-922f-ae59f4e92216)
+    (uuid 43fdaee7-38b5-41fb-b4ee-192d24edf239)
   )
   (junction (at 58.42 154.94) (diameter 0) (color 0 0 0 0)
-    (uuid bcd9de93-e196-408b-a4bf-2df814af881f)
+    (uuid 9a7107db-382c-4b94-9840-7534d98c4a08)
   )
   (junction (at 91.44 180.34) (diameter 0) (color 0 0 0 0)
-    (uuid 166ac65c-5ccb-4614-9386-7317d7069a3c)
+    (uuid ed95af10-346f-4c28-9197-2667633bd288)
   )
 
-  (no_connect (at 86.36 142.24) (uuid f87fe49b-0f21-407b-906d-1e4b9421fff3))
+  (no_connect (at 86.36 142.24) (uuid b4459f90-2420-40e5-b0f7-316cfdea6d7b))
 
   (wire (pts (xy 33.02 60.96) (xy 33.02 55.88))
     (stroke (width 0.0))
-    (uuid 4b1fbd02-bdec-4764-9c96-5f1552648db8)
+    (uuid 0cb28230-9f86-4b56-bd18-decc6ca5c611)
   )
   (wire (pts (xy 33.02 55.88) (xy 33.02 50.8))
     (stroke (width 0.0))
-    (uuid 494b91fa-f681-469b-a2cd-2778b8a887f8)
+    (uuid 24bcec2a-579e-41c4-9030-a5441345cb80)
   )
   (wire (pts (xy 33.02 68.58) (xy 33.02 81.28))
     (stroke (width 0.0))
-    (uuid 8023ecb9-0ae6-4fe9-ba32-cdbe7a4330f0)
+    (uuid 63e2f08e-3ea1-4c2e-8abd-ca2284826fd2)
   )
   (wire (pts (xy 33.02 81.28) (xy 30.48 81.28))
     (stroke (width 0.0))
-    (uuid c2d66b0b-b1e1-4a7d-a27a-ce65cef1c44c)
+    (uuid 609c0b3e-d2d6-4a2c-b429-2e6628ab98cf)
   )
   (wire (pts (xy 33.02 73.66) (xy 27.94 73.66))
     (stroke (width 0.0))
-    (uuid 356b6b14-37f6-4ceb-ac44-e7e388e51d45)
+    (uuid 4ac2656d-fde7-433f-97dd-d359f14dabe1)
   )
   (wire (pts (xy 38.1 63.5) (xy 38.1 81.28))
     (stroke (width 0.0))
-    (uuid fa0426a1-164e-4655-a741-1babc7cd6abd)
+    (uuid 32be8919-aa10-4fb6-a41a-60580191d562)
   )
   (wire (pts (xy 45.72 55.88) (xy 45.72 66.04))
     (stroke (width 0.0))
-    (uuid a4d89ffa-e296-4b61-810f-5f296513ebc8)
+    (uuid 89ba5507-8d7e-46c4-b9b6-fb747bfd105b)
   )
   (wire (pts (xy 45.72 66.04) (xy 48.26 66.04))
     (stroke (width 0.0))
-    (uuid b6044227-44b1-4993-be9c-f231e717d7b0)
+    (uuid 2078829b-8608-4a4e-978d-bf4a138ea6d4)
   )
   (wire (pts (xy 45.72 66.04) (xy 45.72 71.12))
     (stroke (width 0.0))
-    (uuid f1818f23-23d7-421c-a1ca-968d0bfd0515)
+    (uuid e8636629-7152-4ff8-9bcd-f2520ad02d9c)
   )
   (wire (pts (xy 45.72 71.12) (xy 48.26 71.12))
     (stroke (width 0.0))
-    (uuid dbaf9a28-6307-41d7-98e7-d8ca9377ba5c)
+    (uuid 47d41457-f5c5-417f-81ab-c808f903a309)
   )
   (wire (pts (xy 55.88 76.2) (xy 55.88 81.28))
     (stroke (width 0.0))
-    (uuid a1aa0bf8-bf8b-4476-b8ca-a1101cb2a5c7)
+    (uuid 960a00b2-5236-4437-9efc-bc067ea5cf06)
   )
   (wire (pts (xy 33.02 55.88) (xy 49.53 55.88))
     (stroke (width 0.0))
-    (uuid 6d52ccaf-8cb6-4c40-9271-6594ae7d8708)
+    (uuid 38ed51f1-5ea3-4dfc-9a73-9546bf5d7f91)
   )
   (wire (pts (xy 57.15 55.88) (xy 66.04 55.88))
     (stroke (width 0.0))
-    (uuid a3eb5891-1506-4bff-93ab-b03a42ec9b45)
+    (uuid 8934444a-7fb2-4c5b-9823-ea4b5c3b0270)
   )
   (wire (pts (xy 66.04 55.88) (xy 66.04 66.04))
     (stroke (width 0.0))
-    (uuid 97e7a1f7-e366-4a3c-9ed6-f133788196f7)
+    (uuid 561ab70a-a6fc-4b51-97d8-ba7c0da699e0)
   )
   (wire (pts (xy 66.04 66.04) (xy 63.5 66.04))
     (stroke (width 0.0))
-    (uuid 5b4845ed-f53a-46bc-939b-88d7afdf1396)
+    (uuid edcff0e0-8384-44c2-a66f-18c37ff87f07)
   )
   (wire (pts (xy 66.04 55.88) (xy 68.58 55.88))
     (stroke (width 0.0))
-    (uuid 9236a1c0-ed5d-4ae5-bac1-6e6f5cdfd557)
+    (uuid f180a0bc-d9d0-4760-a264-42a8ed391c90)
   )
   (wire (pts (xy 76.2 55.88) (xy 76.2 58.42))
     (stroke (width 0.0))
-    (uuid 84eb60fe-00cf-46ac-93fe-7a90a1301b65)
+    (uuid f7f86579-04c5-4e86-8b85-6bf0ef35664c)
   )
   (wire (pts (xy 76.2 66.04) (xy 76.2 71.12))
     (stroke (width 0.0))
-    (uuid 3d442212-29e7-497d-9a1f-770f2b11e27d)
+    (uuid 5285b867-0637-494f-9924-835acecf43ff)
   )
   (wire (pts (xy 76.2 71.12) (xy 63.5 71.12))
     (stroke (width 0.0))
-    (uuid fd947c7a-fec2-4fb6-8686-b2c3241194cb)
+    (uuid 0ef10c2a-daae-49af-8fe4-3460a3360f93)
   )
   (wire (pts (xy 76.2 78.74) (xy 76.2 81.28))
     (stroke (width 0.0))
-    (uuid 81f1dbe8-26dc-4c18-b8db-0a9dfd41165d)
+    (uuid 6e117bd2-7b3a-477d-a3f7-a3557bfe4a0d)
   )
   (wire (pts (xy 76.2 55.88) (xy 121.92 55.88))
     (stroke (width 0.0))
-    (uuid 6f50b23b-87e9-4177-b6b4-d89e2fabb079)
+    (uuid 5eb0f89d-d036-452f-b56c-fee9987e6d03)
   )
   (wire (pts (xy 81.28 55.88) (xy 81.28 50.8))
     (stroke (width 0.0))
-    (uuid 9394ba1e-f32f-47c3-8513-7a11f5f7f5f7)
+    (uuid ee68b19d-726a-4263-a629-e994bfbffb1f)
   )
   (wire (pts (xy 91.44 55.88) (xy 91.44 58.42))
     (stroke (width 0.0))
-    (uuid dcf7a73c-c9e1-48f7-ab7c-b54fba22d22c)
+    (uuid a4b24d7b-7aa0-4dae-bfd3-d9d83d1d353d)
   )
   (wire (pts (xy 91.44 66.04) (xy 91.44 81.28))
     (stroke (width 0.0))
-    (uuid f3ea54ab-3405-44a3-841a-eda755e1dc93)
+    (uuid f08cca38-a43a-4534-9829-2d71da071fd3)
   )
   (wire (pts (xy 101.6 55.88) (xy 101.6 58.42))
     (stroke (width 0.0))
-    (uuid c95868fe-f011-46fe-8ebd-bc5418db3c8b)
+    (uuid ce0b387e-f597-49f3-a936-3e2735f4447a)
   )
   (wire (pts (xy 101.6 66.04) (xy 101.6 81.28))
     (stroke (width 0.0))
-    (uuid 514cc7ef-a1fc-4d67-a19d-9e3bbcab83c3)
+    (uuid db9e311c-b2a1-4d87-8af6-b5894f2c02b6)
   )
   (wire (pts (xy 111.76 55.88) (xy 111.76 58.42))
     (stroke (width 0.0))
-    (uuid bb7a922b-f907-448e-b8b8-5648f4485e75)
+    (uuid 94f50eb9-5a69-4d2a-8e66-5bd8d11d1e04)
   )
   (wire (pts (xy 111.76 66.04) (xy 111.76 81.28))
     (stroke (width 0.0))
-    (uuid c06a5190-f130-40a6-a387-6f36ce766e67)
+    (uuid 74dc5b8d-ae1f-4c95-8d1b-a717945e708b)
   )
   (wire (pts (xy 129.54 63.5) (xy 129.54 81.28))
     (stroke (width 0.0))
-    (uuid d85940ea-65bb-4ec4-8a04-33a18b0db5f3)
+    (uuid 822dae59-ec35-4a69-b837-d8d0cb5e4b4a)
   )
   (wire (pts (xy 137.16 55.88) (xy 152.4 55.88))
     (stroke (width 0.0))
-    (uuid 52112ee2-d50d-4622-8bdd-b96f7ff0e58e)
+    (uuid dd3f131d-e78e-4007-b556-0f03d221e905)
   )
   (wire (pts (xy 152.4 55.88) (xy 152.4 50.8))
     (stroke (width 0.0))
-    (uuid e37f57f4-ca91-4e1c-b19f-03fbab4b7c24)
+    (uuid 91da095f-1f4a-4a8c-b7f0-5c5f5ea7954a)
   )
   (wire (pts (xy 144.78 55.88) (xy 144.78 58.42))
     (stroke (width 0.0))
-    (uuid 17035ed4-11a3-49a3-956a-3955d14371a3)
+    (uuid ba097642-bf1d-42a8-a63d-fc137842ab4c)
   )
   (wire (pts (xy 144.78 66.04) (xy 144.78 81.28))
     (stroke (width 0.0))
-    (uuid 562139fa-dba5-4145-ad53-38b87ef1a541)
+    (uuid 6472b2a5-0c9e-4cd8-9907-f11294d047c5)
   )
   (wire (pts (xy 213.36 55.88) (xy 213.36 50.8))
     (stroke (width 0.0))
-    (uuid 84d90f7e-fdf2-429e-af89-2186bdd20ed9)
+    (uuid e68bbf37-495a-4491-ad1b-5b420d784d51)
   )
   (wire (pts (xy 213.36 50.8) (xy 182.88 50.8))
     (stroke (width 0.0))
-    (uuid fd473456-0199-4d64-b056-5957fae4c86c)
+    (uuid 1251814c-ed70-45e4-a8ed-78c4876dea84)
   )
   (wire (pts (xy 190.5 58.42) (xy 190.5 78.74))
     (stroke (width 0.0))
-    (uuid e9c91159-ead8-4f3d-96c3-a492d8e77430)
+    (uuid e1d9b5ae-e7a7-4557-809d-46aed7fc68b9)
   )
   (wire (pts (xy 203.2 66.04) (xy 198.12 66.04))
     (stroke (width 0.0))
-    (uuid 4b07f017-9efc-4d5e-8d08-4d4fc39c19a9)
+    (uuid 7e7b24f7-c3be-47ca-a3bf-a6e3d706d926)
   )
   (wire (pts (xy 198.12 73.66) (xy 198.12 78.74))
     (stroke (width 0.0))
-    (uuid 2115dc91-376c-4cb1-a676-1e6b947b713f)
+    (uuid fe7996dd-1b7a-48b1-8c43-d7b1fae620f6)
   )
   (wire (pts (xy 213.36 71.12) (xy 213.36 78.74))
     (stroke (width 0.0))
-    (uuid b01da07b-2e29-4fb9-8942-6e011cda7800)
+    (uuid 48a6d34b-7181-4ea2-a5bb-11910df27c5d)
   )
   (wire (pts (xy 223.52 60.96) (xy 228.6 60.96))
     (stroke (width 0.0))
-    (uuid db02f3da-bf9c-4fbb-8991-a25371098069)
+    (uuid 524461f1-d9c8-49fd-b2e9-183119f271c5)
   )
   (wire (pts (xy 228.6 60.96) (xy 228.6 50.8))
     (stroke (width 0.0))
-    (uuid e53948a1-94c1-4eb5-b4db-c856067cfacd)
+    (uuid 35f65927-7fe4-483b-9486-e3d454c38b32)
   )
   (wire (pts (xy 228.6 50.8) (xy 241.3 50.8))
     (stroke (width 0.0))
-    (uuid 77a6eace-3284-4f7e-ad08-c1dd3e561e1b)
+    (uuid 977074ac-9973-4eee-a044-6715a206febe)
   )
   (wire (pts (xy 236.22 58.42) (xy 236.22 60.96))
     (stroke (width 0.0))
-    (uuid 7f79f005-3d93-4a55-a56f-81229b33e0ad)
+    (uuid 2cba672a-fb34-4445-a5b7-49b5a559de5e)
   )
   (wire (pts (xy 223.52 66.04) (xy 240.03 66.04))
     (stroke (width 0.0))
-    (uuid 185b7d78-f85d-4f48-a1c3-a35c52628b0b)
+    (uuid ec6fa9fd-8256-481a-90bf-0828fcc3b551)
   )
   (wire (pts (xy 247.65 66.04) (xy 259.08 66.04))
     (stroke (width 0.0))
-    (uuid 371340fb-8306-4f7b-a104-be79c854bb3a)
+    (uuid 679bd60b-44a0-4529-83cc-dc3be5531f3e)
   )
   (wire (pts (xy 251.46 58.42) (xy 251.46 55.88))
     (stroke (width 0.0))
-    (uuid c5406b39-b222-475e-bce6-1244fd60e51f)
+    (uuid 9369f997-2142-4e5d-9a0f-c9744c45370e)
   )
   (wire (pts (xy 320.04 54.61) (xy 320.04 50.8))
     (stroke (width 0.0))
-    (uuid 173151c5-306d-414a-a4ff-cc2cf3c75816)
+    (uuid bf3414c5-6b5b-474e-b0fe-5da4c3ff692c)
   )
   (wire (pts (xy 320.04 62.23) (xy 320.04 66.04))
     (stroke (width 0.0))
-    (uuid 5a6ef596-4c03-4ba5-9230-f6d9147cb915)
+    (uuid 60fdb557-0303-4043-95a3-62c518355dfb)
   )
   (wire (pts (xy 320.04 63.5) (xy 337.82 63.5))
     (stroke (width 0.0))
-    (uuid 32d6e984-690f-4b54-ac88-61a5a6286517)
+    (uuid 4ca0914f-79b2-485a-9c65-741b0dc4a10c)
   )
   (wire (pts (xy 330.2 71.12) (xy 330.2 78.74))
     (stroke (width 0.0))
-    (uuid 94fa4252-33d9-4feb-a85a-53d1f18acc69)
+    (uuid f53d5325-738b-43dc-b1f9-4ae8a825de4f)
   )
   (wire (pts (xy 320.04 73.66) (xy 320.04 78.74))
     (stroke (width 0.0))
-    (uuid e4e70f6d-16cb-484b-8a8c-5279c228704f)
+    (uuid 0a350702-fa16-4437-9fca-a77a887adfa3)
   )
   (wire (pts (xy 66.04 142.24) (xy 54.61 142.24))
     (stroke (width 0.0))
-    (uuid a7d90564-fae0-4573-8d20-967d6685d46d)
+    (uuid be91bdd8-3aff-4f5a-8352-421617d483a6)
   )
   (wire (pts (xy 46.99 142.24) (xy 43.18 142.24))
     (stroke (width 0.0))
-    (uuid f896b4a5-9788-46f1-9ba3-2f329958fc36)
+    (uuid 1b8702a9-c32f-4372-ada3-5546ffdb0dd5)
   )
   (wire (pts (xy 43.18 142.24) (xy 43.18 137.16))
     (stroke (width 0.0))
-    (uuid e007ca8e-c286-48a8-a8a8-39dce9d7d446)
+    (uuid 77bf0f01-f6a8-4f89-863d-2fa54a431b37)
   )
   (wire (pts (xy 66.04 147.32) (xy 63.5 147.32))
     (stroke (width 0.0))
-    (uuid a4bcd2f9-99be-435b-91c3-d1c275f9003d)
+    (uuid 83698853-caeb-4fb2-9dc8-118515290d22)
   )
   (wire (pts (xy 63.5 147.32) (xy 63.5 154.94))
     (stroke (width 0.0))
-    (uuid 68d61ba5-97fc-4da1-b2a3-d70ad26092e4)
+    (uuid fa52487a-295f-442f-980e-1216536c20ba)
   )
   (wire (pts (xy 63.5 154.94) (xy 43.18 154.94))
     (stroke (width 0.0))
-    (uuid 2759fd17-5d50-444d-83d4-1509977dd824)
+    (uuid 0254c98d-7162-448b-a1e1-10fc65526529)
   )
   (wire (pts (xy 58.42 149.86) (xy 58.42 154.94))
     (stroke (width 0.0))
-    (uuid 301da8b8-e078-4bf6-846a-2175b53158d1)
+    (uuid 577d3e0b-470b-4f19-93d0-fa25ccc13f46)
   )
   (wire (pts (xy 73.66 152.4) (xy 73.66 157.48))
     (stroke (width 0.0))
-    (uuid 8e68a9fe-cefa-4304-a1b8-c79795565194)
+    (uuid c2ec75ea-922d-4a17-bfa7-d76a987a5204)
   )
   (wire (pts (xy 73.66 157.48) (xy 63.5 157.48))
     (stroke (width 0.0))
-    (uuid 7899c86e-d734-451f-aaf2-90731cc85e1b)
+    (uuid e68a4703-a28e-4ee2-bc47-25a0dd25c01b)
   )
   (wire (pts (xy 63.5 157.48) (xy 63.5 175.26))
     (stroke (width 0.0))
-    (uuid df528d43-5157-4654-a012-6bdf3f352aa3)
+    (uuid 5d90ecab-ea5b-4fad-a8aa-136288a7a539)
   )
   (wire (pts (xy 63.5 175.26) (xy 66.04 175.26))
     (stroke (width 0.0))
-    (uuid 3b4a0c0b-1dd7-4092-af37-a6eef7a74fb8)
+    (uuid 486f1876-186a-4ca0-923f-8401c2334c08)
   )
   (wire (pts (xy 78.74 152.4) (xy 78.74 157.48))
     (stroke (width 0.0))
-    (uuid a05a3dab-8bf1-4c28-8c31-e5c8444d1704)
+    (uuid 625f1259-38ad-499e-a45f-2eecd29d10f7)
   )
   (wire (pts (xy 78.74 157.48) (xy 88.9 157.48))
     (stroke (width 0.0))
-    (uuid c9ccb0e6-232e-4a7c-b75b-1cb925c407bf)
+    (uuid 223a993f-b25b-4f5b-b115-e6359d24e34b)
   )
   (wire (pts (xy 88.9 157.48) (xy 88.9 175.26))
     (stroke (width 0.0))
-    (uuid 7626b6a1-676e-4e67-8fe4-5bc5a643bd0c)
+    (uuid be524554-8aff-46ae-aafd-23d135784c8e)
   )
   (wire (pts (xy 88.9 175.26) (xy 86.36 175.26))
     (stroke (width 0.0))
-    (uuid 880a6c25-d671-4c0c-beb3-43073ded1134)
+    (uuid b06d40b5-a035-4346-af58-816529805d6e)
   )
   (wire (pts (xy 73.66 167.64) (xy 73.66 165.1))
     (stroke (width 0.0))
-    (uuid 8a5b93ea-e31c-4a69-92c3-04eba77d9267)
+    (uuid 85753a34-1cb5-492b-9550-4f33dc285110)
   )
   (wire (pts (xy 73.66 165.1) (xy 78.74 165.1))
     (stroke (width 0.0))
-    (uuid 7dcca9b6-6e32-4111-b8df-222e6984fdab)
+    (uuid 62259706-f191-445c-b700-7674bb91bd22)
   )
   (wire (pts (xy 78.74 165.1) (xy 78.74 167.64))
     (stroke (width 0.0))
-    (uuid 47a05706-645c-4592-a6ab-6594131a1a90)
+    (uuid bea072a2-d086-4a2d-a648-57785d53b324)
   )
   (wire (pts (xy 66.04 180.34) (xy 58.42 180.34))
     (stroke (width 0.0))
-    (uuid dbfc7ba9-b55c-44dc-bb9c-999792f8b6e8)
+    (uuid d0334000-a114-489a-9ac0-05d14a151ee5)
   )
   (wire (pts (xy 86.36 180.34) (xy 93.98 180.34))
     (stroke (width 0.0))
-    (uuid a7946524-8085-4cc5-bbeb-e8b249514204)
+    (uuid 2878ed39-adbc-47da-b2ba-ddaaf773837b)
   )
   (wire (pts (xy 93.98 180.34) (xy 93.98 185.42))
     (stroke (width 0.0))
-    (uuid d7c11814-4364-45e0-979b-b421b43665ca)
+    (uuid fb34377a-ff4d-404b-a9f2-c7664f1ecfa8)
   )
   (wire (pts (xy 86.36 147.32) (xy 87.63 147.32))
     (stroke (width 0.0))
-    (uuid 71dc04f9-da7d-49e9-a960-deda2b5f746a)
+    (uuid 3c786186-d639-428c-b335-021ddf8fdfd1)
   )
   (wire (pts (xy 95.25 147.32) (xy 99.06 147.32))
     (stroke (width 0.0))
-    (uuid 574bdb2b-4eb0-47dc-87ed-0a509bdd162e)
+    (uuid 7bb5d735-5dc2-49df-9133-13c8568cd0cc)
   )
   (wire (pts (xy 99.06 147.32) (xy 99.06 152.4))
     (stroke (width 0.0))
-    (uuid fded1941-5136-4741-a35e-3869e7f866eb)
+    (uuid 12c141f8-893d-40d7-8bb7-f88c64a64aaf)
   )
   (wire (pts (xy 115.57 139.7) (xy 111.76 139.7))
     (stroke (width 0.0))
-    (uuid 06cdf24e-7248-4199-8044-5beb0b1b5bdc)
+    (uuid d52e6d67-1af9-4ddf-9b8c-239bb3ea80e9)
   )
   (wire (pts (xy 111.76 139.7) (xy 111.76 134.62))
     (stroke (width 0.0))
-    (uuid 1473508b-afb5-45b9-afb4-2ed2fb61d2b4)
+    (uuid bcecf3af-5227-44fc-b84e-c97b2f9d0bd6)
   )
   (wire (pts (xy 123.19 139.7) (xy 127.0 139.7))
     (stroke (width 0.0))
-    (uuid 381123f7-fb6a-4734-b4c7-057b90cbdcbc)
+    (uuid fbeb6ed0-1af6-4dba-a02a-fa6cf37f430e)
   )
   (wire (pts (xy 127.0 139.7) (xy 127.0 134.62))
     (stroke (width 0.0))
-    (uuid a5f72285-0451-4681-a79c-00abbcee68a8)
+    (uuid a6804eae-c1d6-4a82-a096-f2c2e358834f)
   )
 
   (rectangle (start 12.7 33.02) (end 162.56 88.9)
     (stroke (width 0) (type dash))
     (fill (type none))
-    (uuid 67ad9bde-f093-4f12-9ce5-0c5fa6731564)
+    (uuid 6d7b85a9-cbd1-4f89-82c0-a71a02710895)
   )
   (rectangle (start 172.72 33.02) (end 274.32 86.36)
     (stroke (width 0) (type dash))
     (fill (type none))
-    (uuid ffe7e1a1-e125-457d-b383-14bc98503a3c)
+    (uuid 908a3f0c-fad7-4dbb-8a83-63facee88652)
   )
   (rectangle (start 302.26 33.02) (end 350.52 86.36)
     (stroke (width 0) (type dash))
     (fill (type none))
-    (uuid b16bc681-4d0c-4c0e-ab1f-2a9e27c7418c)
+    (uuid 6a49e8aa-38f9-4675-a126-e902ca5e2e38)
   )
   (rectangle (start 27.94 119.38) (end 142.24 200.66)
     (stroke (width 0) (type dash))
     (fill (type none))
-    (uuid 6aa76356-5dba-4c33-a84e-422b5382cb06)
+    (uuid fe7e30cd-9a75-45e5-a8aa-1f27648ce133)
   )
 
   (text "Stromversorgung" (at 15.24 36.83 0)
@@ -1318,28 +1318,28 @@
 
   (global_label "BAT_N" (shape passive) (at 30.48 81.28 180)
     (effects (font (size 1.27 1.27)) (justify right))
-    (uuid e8eb1a03-efc5-48ef-beb7-d117b22e5413)
+    (uuid 1872524b-4e63-476c-a3fb-fba69275b31e)
   )
   (global_label "CHRG_STAT" (shape passive) (at 259.08 66.04 0)
     (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 522e5605-231a-4e29-ade3-b0de1b88d5a8)
+    (uuid 6ec627af-3d7a-427a-a32b-0b0edbb93fa8)
   )
   (global_label "ADC_BATT" (shape passive) (at 337.82 63.5 0)
     (effects (font (size 1.27 1.27)) (justify left))
-    (uuid c5e2a5ac-48e2-49c7-97ca-377aa255b400)
+    (uuid 578e44c6-197f-4ab7-b124-6ec2e9d2c4f7)
   )
   (global_label "BAT_N" (shape passive) (at 43.18 154.94 180)
     (effects (font (size 1.27 1.27)) (justify right))
-    (uuid c18e767d-40f2-4b45-a308-a632f8f1617d)
+    (uuid 890a1982-1bd2-4288-b8dc-78da2103bfd2)
   )
   (global_label "BAT_N" (shape passive) (at 58.42 180.34 180)
     (effects (font (size 1.27 1.27)) (justify right))
-    (uuid 2b0f9777-e106-47e2-8611-f609db05fe5c)
+    (uuid 5f8ebe69-95cc-4fa6-8b85-46114171b0e2)
   )
 
   (symbol (lib_id "Device:Battery_Cell") (at 33.02 66.04 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 5e7dfc3b-a40f-4b02-944a-0e09bfbb20b7)
+    (uuid 343978fc-28dd-45c1-a6bf-6bbba45e6386)
     (property "Reference" "BT1" (at 29.21 64.77 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
@@ -1349,11 +1349,14 @@
     (property "Footprint" "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
-    (pin "1" (uuid dee13bed-3148-481c-880d-1298b0204bd5))
-    (pin "2" (uuid 56b8530a-ba82-476d-8a4f-1c401b373820))
+    (property "LCSC Hand" "C225233" (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify right) hide)
+    )
+    (pin "1" (uuid 6714aec4-0db2-43d8-92b6-05aec9b30186))
+    (pin "2" (uuid 66bdc4a7-bd69-4758-b07f-3ff23d8599df))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "BT1") (unit 1)
         )
       )
@@ -1362,7 +1365,7 @@
 
   (symbol (lib_id "power:VCC") (at 33.02 50.8 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 1e6f7a39-8609-4597-9be1-c46445346232)
+    (uuid 2fa3e7f8-01e5-4b0b-888b-aec66d14bf05)
     (property "Reference" "#PWR01" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1372,10 +1375,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid ea078014-6827-4dca-a2bb-ae25fd38e9e6))
+    (pin "1" (uuid 598fac1b-9a40-4c17-b5d8-92128d87ad94))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR01") (unit 1)
         )
       )
@@ -1384,7 +1387,7 @@
 
   (symbol (lib_id "power:PWR_FLAG") (at 27.94 73.66 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 139714c5-529a-4a9f-ba4b-4755e4feace1)
+    (uuid 68d398bb-43c7-434d-9339-cc5a23a09353)
     (property "Reference" "#FLG1" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
@@ -1394,10 +1397,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 1f2961a6-5864-4f2f-b0eb-84c22773dccf))
+    (pin "1" (uuid 67090a76-fbdb-4b67-b7a8-ea433749cac9))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#FLG1") (unit 1)
         )
       )
@@ -1406,7 +1409,7 @@
 
   (symbol (lib_id "Device:C") (at 38.1 59.69 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 2b3630bd-8f65-4e3f-8db5-dbb636a564c5)
+    (uuid c41781ca-bcab-4140-832b-e8f330b79b2e)
     (property "Reference" "C19" (at 40.64 58.42 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -1419,11 +1422,11 @@
     (property "LCSC" "C45783" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid db35d999-ef54-4c76-b190-49c29f12bd55))
-    (pin "2" (uuid e288c072-31b5-499f-93de-4eda66683b4a))
+    (pin "1" (uuid 078ab1cc-a80c-42ff-b2f3-188921a9219c))
+    (pin "2" (uuid 315c0253-fe63-45bb-a7eb-5cf569b26aa2))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "C19") (unit 1)
         )
       )
@@ -1432,7 +1435,7 @@
 
   (symbol (lib_id "power:GND") (at 38.1 81.28 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 1cb6128e-28b8-4a89-88af-3b15c99fbc7b)
+    (uuid af396bdf-ea8c-4a27-91ed-738228253320)
     (property "Reference" "#PWR02" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1442,10 +1445,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 9ad113a3-a4c2-4a87-8a88-95ea7b1cc94b))
+    (pin "1" (uuid 621a917d-b2ec-411b-9f2a-4c3d188c170f))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR02") (unit 1)
         )
       )
@@ -1454,7 +1457,7 @@
 
   (symbol (lib_id "Regulator_Switching:MT3608") (at 55.88 68.58 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid e0b65c70-8b55-4335-9ead-04a1ac25cdc1)
+    (uuid 4c5ecff9-4978-409a-8002-6c1e455038f0)
     (property "Reference" "U1" (at 50.8 78.74 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
@@ -1467,15 +1470,15 @@
     (property "LCSC" "C84817" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
-    (pin "1" (uuid 26069bae-14ec-4af7-84f1-8ac654f2cdb4))
-    (pin "2" (uuid 0dfc8f69-1ad0-49f3-8842-80fb66fd3720))
-    (pin "3" (uuid b3c6f651-a5eb-4688-abcc-7a8afc85ef08))
-    (pin "4" (uuid dd945136-9473-4d52-a890-eb1d14a664b0))
-    (pin "5" (uuid dd6cbe1f-d8b2-4c80-a795-512bbde5c641))
-    (pin "6" (uuid 932294a3-1b1b-44ea-81cf-9f14819de6b9))
+    (pin "1" (uuid a8984fff-b137-451d-b2f3-b468dc7c4cb8))
+    (pin "2" (uuid d7744e4f-19ee-4845-b6df-b67a42003681))
+    (pin "3" (uuid 98b468be-a667-45e5-8dd9-2b74cdc68548))
+    (pin "4" (uuid 79e3f6da-384f-4c8d-a690-ee8245ab63eb))
+    (pin "5" (uuid 33668fcc-9719-4cca-98e0-47d5eac59092))
+    (pin "6" (uuid 607ea78b-4688-46a4-8858-703c988fad78))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "U1") (unit 1)
         )
       )
@@ -1484,7 +1487,7 @@
 
   (symbol (lib_id "power:GND") (at 55.88 81.28 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 421655e6-6135-4460-b41a-76067dcbac98)
+    (uuid 7ac512d7-ddca-4577-bdbc-d494c730b009)
     (property "Reference" "#PWR03" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1494,10 +1497,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 9960e98d-a0f5-48d9-bf38-5daac7a4dd55))
+    (pin "1" (uuid b8a6270b-25a6-48da-be4e-a22198701300))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR03") (unit 1)
         )
       )
@@ -1506,7 +1509,7 @@
 
   (symbol (lib_id "Device:L") (at 53.34 55.88 90) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid ff61d7a9-dccf-496b-a42f-26dd804ce0d6)
+    (uuid 94e05bfe-b86c-4011-a67b-e6ac506cd07d)
     (property "Reference" "L1" (at 53.34 51.435 90)
       (effects (font (size 1.27 1.27)))
     )
@@ -1519,11 +1522,11 @@
     (property "LCSC" "C408412" (at 0 0 90)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 9030b91b-8048-4ca0-b029-bb1c06cca09d))
-    (pin "2" (uuid ba33da4c-132d-4719-9d6f-d6972b8bfaaa))
+    (pin "1" (uuid c576c6e5-8a3d-4e9b-9d95-bcf834d4523b))
+    (pin "2" (uuid 9b31022f-40af-4f2e-9251-2202ead34dcb))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "L1") (unit 1)
         )
       )
@@ -1532,7 +1535,7 @@
 
   (symbol (lib_id "Diode:SS34") (at 72.39 55.88 180) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid a7889c77-201c-4027-b4e1-71f919ffafef)
+    (uuid e0c622b6-f80a-4f5d-8407-c7ed228da0b4)
     (property "Reference" "D3" (at 72.39 51.435 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -1545,11 +1548,11 @@
     (property "LCSC" "C8678" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 718c6a22-94d9-498d-ac0b-00ba7d92fc2c))
-    (pin "2" (uuid 90f4868e-b278-440e-97f7-ce859aa00544))
+    (pin "1" (uuid 394f9006-ea44-43dd-bd64-5f3fb9f34a9c))
+    (pin "2" (uuid 6be08bde-8d6e-42f3-9685-4718fd2db785))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "D3") (unit 1)
         )
       )
@@ -1558,7 +1561,7 @@
 
   (symbol (lib_id "Device:R") (at 76.2 62.23 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 7a154f19-9127-40be-8268-6c7b090a934e)
+    (uuid 08b963a9-b61a-4125-88e4-267a5e7e917c)
     (property "Reference" "R24" (at 78.74 60.96 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -1571,11 +1574,11 @@
     (property "LCSC" "C23242" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 2041c638-8276-44b7-9c44-3e7df6fc5897))
-    (pin "2" (uuid 5a781253-25f9-4a83-8a67-06c0ab9c0205))
+    (pin "1" (uuid bd4a5048-ac85-4e64-9bdd-f53d4a3adc87))
+    (pin "2" (uuid a477d8eb-485d-4df4-915b-45f2d6be54c2))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "R24") (unit 1)
         )
       )
@@ -1584,7 +1587,7 @@
 
   (symbol (lib_id "Device:R") (at 76.2 74.93 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid ea791a10-76a6-422a-8e4c-09702a877e1e)
+    (uuid 789174f9-7776-42d0-aa44-b9e1a9c2d553)
     (property "Reference" "R25" (at 78.74 73.66 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -1597,11 +1600,11 @@
     (property "LCSC" "C25804" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 58fa7fd8-c0d4-4feb-988f-57a585d4181f))
-    (pin "2" (uuid 3e36671a-c63c-43b9-badf-bbdabdbab78b))
+    (pin "1" (uuid 43890912-9469-4c8b-a495-3a7de59580eb))
+    (pin "2" (uuid 338adcf0-c23d-43d5-bb0d-ef6ed9839b2d))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "R25") (unit 1)
         )
       )
@@ -1610,7 +1613,7 @@
 
   (symbol (lib_id "power:GND") (at 76.2 81.28 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 0efa608c-b753-4d4b-96e5-980e692e67d3)
+    (uuid 9b65b257-15fe-443b-a250-b0a04827ebb2)
     (property "Reference" "#PWR04" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1620,10 +1623,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 5871778b-2fc0-41d8-a319-8b67efd68179))
+    (pin "1" (uuid 143243ea-beee-4b11-bce0-df4f8a691a74))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR04") (unit 1)
         )
       )
@@ -1632,7 +1635,7 @@
 
   (symbol (lib_id "Regulator_Linear:AMS1117-3.3") (at 129.54 55.88 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid b3fb3351-83f6-45fc-845b-22b0f9f697d7)
+    (uuid 221ad0af-663e-4288-8401-df1ee48f1d78)
     (property "Reference" "U2" (at 129.54 46.99 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -1645,12 +1648,12 @@
     (property "LCSC" "C6186" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 265a1ae1-042e-4e7b-a321-345d66beec7a))
-    (pin "2" (uuid 9c579665-4f09-4eca-b5aa-0187e25711aa))
-    (pin "3" (uuid 010ca4dc-83f1-42e1-9613-2f7be2fac672))
+    (pin "1" (uuid 4c0aeed5-3140-496f-8530-a046d16a8323))
+    (pin "2" (uuid 746ece5c-2614-412f-9ce5-b88a62d309ed))
+    (pin "3" (uuid 83788f14-0e70-4f36-928e-32e7d9023def))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "U2") (unit 1)
         )
       )
@@ -1659,7 +1662,7 @@
 
   (symbol (lib_id "power:VCC") (at 81.28 50.8 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 0bc9037c-754c-4d0c-8169-f219eeb446c9)
+    (uuid 3634c450-dc90-41f4-ac41-9f42dcd71b99)
     (property "Reference" "#PWR05" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1669,10 +1672,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 672546a4-1266-4892-9569-b37247390d9d))
+    (pin "1" (uuid bda89814-334a-4a72-8806-08999d7a6d77))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR05") (unit 1)
         )
       )
@@ -1681,7 +1684,7 @@
 
   (symbol (lib_id "power:PWR_FLAG") (at 86.36 55.88 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 7bc06409-15fa-4928-96b2-563fcfb88ebf)
+    (uuid ebe8ae21-2409-4b83-af29-109fe230c23f)
     (property "Reference" "#FLG2" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
@@ -1691,10 +1694,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 1a9b2b81-f4e0-417a-988a-65cdf2702c36))
+    (pin "1" (uuid 2c358517-198c-4c74-9a49-fb5e96d6a78c))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#FLG2") (unit 1)
         )
       )
@@ -1703,7 +1706,7 @@
 
   (symbol (lib_id "Device:C") (at 91.44 62.23 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 2a245ff6-a812-4e74-a8d3-7fad9209068c)
+    (uuid 5695ff6a-a82b-4ee0-91ab-9aade053987c)
     (property "Reference" "C20" (at 93.98 60.96 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -1716,11 +1719,11 @@
     (property "LCSC" "C45783" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid ca996b5d-5f19-4964-97b8-0dc63103aaf8))
-    (pin "2" (uuid 2a4a496b-1fd3-4b70-8018-4216f87464cf))
+    (pin "1" (uuid 8f06576f-507e-4de1-ae18-2f647839bff8))
+    (pin "2" (uuid 3a500214-e209-45c6-9d3b-03286abcfb6c))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "C20") (unit 1)
         )
       )
@@ -1729,7 +1732,7 @@
 
   (symbol (lib_id "power:GND") (at 91.44 81.28 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid fd05d606-3a8f-4b7e-82c0-16fd98704857)
+    (uuid 20755ba8-ab59-4cbb-8bd4-00626779cf2b)
     (property "Reference" "#PWR06" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1739,10 +1742,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 69e1f785-5bad-4eda-ab27-b77fd3127c77))
+    (pin "1" (uuid 0fdb5c0a-2947-44ff-b187-8a0d7e6351e1))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR06") (unit 1)
         )
       )
@@ -1751,7 +1754,7 @@
 
   (symbol (lib_id "Device:C") (at 101.6 62.23 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid bb6698c9-ab23-4905-8654-888483f593aa)
+    (uuid 5420396a-5fff-4ad3-afcf-dd34d6256cef)
     (property "Reference" "C1" (at 104.14 60.96 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -1764,11 +1767,11 @@
     (property "LCSC" "C23742" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid d151ff95-0c52-424e-b6a1-218355b673c7))
-    (pin "2" (uuid ad39d8be-2955-401d-948d-be305cf9c67d))
+    (pin "1" (uuid 50260bdb-4b63-4902-a7fb-6118392a1d54))
+    (pin "2" (uuid 1f132445-05e6-49da-bcaf-3a93ad830c06))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "C1") (unit 1)
         )
       )
@@ -1777,7 +1780,7 @@
 
   (symbol (lib_id "power:GND") (at 101.6 81.28 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid a5e91473-e064-44b5-a178-f57d68b2538b)
+    (uuid a0b6156e-1cb0-4023-9a26-90b6d33b94a1)
     (property "Reference" "#PWR07" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1787,10 +1790,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 3a78388d-0e7e-46c3-ade8-c97cb3e7a8eb))
+    (pin "1" (uuid 4b11a181-2cab-49eb-8a6a-9dc1885495e6))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR07") (unit 1)
         )
       )
@@ -1799,7 +1802,7 @@
 
   (symbol (lib_id "Device:C") (at 111.76 62.23 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 9991bff4-4540-40aa-a085-60e375f5a136)
+    (uuid 6ee6c630-2ebb-4c38-974b-009d41e3ddb5)
     (property "Reference" "C2" (at 114.3 60.96 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -1812,11 +1815,11 @@
     (property "LCSC" "C15850" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid d79f3f96-2a12-47f7-918d-74adb0c86d36))
-    (pin "2" (uuid e36c4877-858a-4227-b0ad-1722c5345ff2))
+    (pin "1" (uuid c6e0509b-e12f-4684-b66a-70782ea5a38d))
+    (pin "2" (uuid 14efd1aa-7ca2-4532-adab-5ee43c3e8882))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "C2") (unit 1)
         )
       )
@@ -1825,7 +1828,7 @@
 
   (symbol (lib_id "power:GND") (at 111.76 81.28 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 1dea16dd-5cd6-419a-91f2-05b5d1c666fa)
+    (uuid d63b9f48-8b8f-4703-ab54-b5251343167f)
     (property "Reference" "#PWR08" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1835,10 +1838,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 2c01c01f-c154-49ca-89c1-73d7d93fb5e1))
+    (pin "1" (uuid af13f05b-41f9-4c58-b37e-cfaf40d75e41))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR08") (unit 1)
         )
       )
@@ -1847,7 +1850,7 @@
 
   (symbol (lib_id "power:GND") (at 129.54 81.28 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 1d73b3ff-2df5-4d47-9aa3-cc16ce03acf4)
+    (uuid 073123ab-bcf9-49ea-996c-8f5b0ef11f07)
     (property "Reference" "#PWR09" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1857,10 +1860,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid a5ff42ae-32e6-4881-bb30-24aa392a4c08))
+    (pin "1" (uuid c620d75f-2a18-43e6-9289-7d1c7e1688c4))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR09") (unit 1)
         )
       )
@@ -1869,7 +1872,7 @@
 
   (symbol (lib_id "power:VCC") (at 152.4 50.8 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 1c28442a-fad5-4c5c-89ea-d316a93f082d)
+    (uuid c0465d96-6401-43c7-895e-fe98b4784d2d)
     (property "Reference" "#PWR10" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1879,10 +1882,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 7e215bb9-a0ff-4d26-9c61-a22fa6f2fd33))
+    (pin "1" (uuid ff7c013a-6072-4515-8918-506aacb479f7))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR10") (unit 1)
         )
       )
@@ -1891,7 +1894,7 @@
 
   (symbol (lib_id "Device:C_Polarized") (at 144.78 62.23 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 9b57cf01-0fa2-4236-986e-ec9d05132fc3)
+    (uuid f42707e3-a2e1-4154-ac85-bac004e0d19a)
     (property "Reference" "C3" (at 147.955 60.96 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -1904,11 +1907,11 @@
     (property "LCSC" "C7171" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 47371b78-8c6b-4a5c-8ec0-100f53bb943c))
-    (pin "2" (uuid 4efbd819-a924-417c-a12c-f0c25a26be5d))
+    (pin "1" (uuid 5f6894f7-f563-4248-b668-e29346c09ccc))
+    (pin "2" (uuid 2c2fed8a-3387-4fcb-b5cc-505071cfa2db))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "C3") (unit 1)
         )
       )
@@ -1917,7 +1920,7 @@
 
   (symbol (lib_id "power:GND") (at 144.78 81.28 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 286ef7da-a50b-4fbc-bd43-eb3e74729851)
+    (uuid 4a39a5f9-d538-430f-90ea-c21591d49ef0)
     (property "Reference" "#PWR11" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1927,10 +1930,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 139f00cf-7c8d-457b-8975-cf02c7a1f0ca))
+    (pin "1" (uuid 1b0de749-4d10-410c-a37b-6a3828412b92))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR11") (unit 1)
         )
       )
@@ -1939,7 +1942,7 @@
 
   (symbol (lib_id "Battery_Management:MCP73831-2-OT") (at 213.36 63.5 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 68e684b7-5cf3-4058-ac16-da70a5e62524)
+    (uuid 4f7608f6-098d-4189-969e-ebb11cf733f2)
     (property "Reference" "U3" (at 215.9 53.34 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -1952,14 +1955,14 @@
     (property "LCSC" "C424093" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 2972c187-e0ca-414b-b203-e150535fa643))
-    (pin "2" (uuid 8668a792-f279-4fa1-a356-44c696b59010))
-    (pin "3" (uuid 9b8325af-7319-415b-b858-56ababbaf5e9))
-    (pin "4" (uuid 923c1c45-d755-4312-b858-a43028a165ab))
-    (pin "5" (uuid a86eb519-7e75-4db2-8979-3b72119efa0e))
+    (pin "1" (uuid d2fdf1e7-0f91-4315-92f8-71fa7d7f418b))
+    (pin "2" (uuid 3274f7eb-0f98-4016-b75f-18f0a25da91c))
+    (pin "3" (uuid 9a1a78c6-a364-483f-8af5-9e39c535af7e))
+    (pin "4" (uuid b70baa53-3052-4e76-bcc0-c1388cecddfc))
+    (pin "5" (uuid e7677aae-7595-46f0-884e-c32e8ddc152b))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "U3") (unit 1)
         )
       )
@@ -1968,7 +1971,7 @@
 
   (symbol (lib_id "power:VCC") (at 182.88 50.8 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 9d040d0a-eddd-4022-be12-4326c715f558)
+    (uuid 736b089f-5847-4c5c-95be-cb27f63bd2e0)
     (property "Reference" "#PWR12" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -1978,10 +1981,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid d12815b4-1357-4567-853d-64b74d7871f5))
+    (pin "1" (uuid 760897ce-076d-43dd-a50a-044900a912c1))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR12") (unit 1)
         )
       )
@@ -1990,7 +1993,7 @@
 
   (symbol (lib_id "Device:C") (at 190.5 54.61 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 38c9a6bb-ff10-4317-9515-276f0681806f)
+    (uuid 82421c34-b975-46dc-8a44-44482d916830)
     (property "Reference" "C4" (at 193.04 53.34 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -2003,11 +2006,11 @@
     (property "LCSC" "C15849" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 902ec6c1-c9f8-40b9-9b93-be0750e03915))
-    (pin "2" (uuid 6504cc8e-c0e5-46ff-8d97-87f63c64bcd0))
+    (pin "1" (uuid 7976c2f9-323d-4b9e-86fb-823abb2ef0ed))
+    (pin "2" (uuid c5be66c6-79b3-449f-a9f4-de48919bb6c9))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "C4") (unit 1)
         )
       )
@@ -2016,7 +2019,7 @@
 
   (symbol (lib_id "power:GND") (at 190.5 78.74 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 2c1dd3cb-0d7c-4d0c-8e96-e16f48110352)
+    (uuid 83f3c541-a41b-42cb-84ed-aaf4623a2311)
     (property "Reference" "#PWR13" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2026,10 +2029,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 68404c99-af75-4859-b1fe-0c403ed3de14))
+    (pin "1" (uuid c3bbe6ec-1bf1-4325-9525-8be225541c4d))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR13") (unit 1)
         )
       )
@@ -2038,7 +2041,7 @@
 
   (symbol (lib_id "power:PWR_FLAG") (at 198.12 50.8 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 1a068c28-0ef9-4a77-bda6-d8470ef19d76)
+    (uuid 3457577f-24cd-4368-a4ee-7793d515aa02)
     (property "Reference" "#FLG3" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
@@ -2048,10 +2051,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 9dea9935-44fc-4dae-a959-6c57a01437d4))
+    (pin "1" (uuid 451133ec-ad5a-4326-8ec8-c30e028dec8c))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#FLG3") (unit 1)
         )
       )
@@ -2060,7 +2063,7 @@
 
   (symbol (lib_id "Device:R") (at 198.12 69.85 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 1909524d-a118-4a41-a283-95bfe316238b)
+    (uuid 9221836a-4490-4ac0-91a1-1a88b00d05a2)
     (property "Reference" "R1" (at 200.66 68.58 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -2073,11 +2076,11 @@
     (property "LCSC" "C22975" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 44f26f6b-4719-4c16-bf13-9e81f22d7e70))
-    (pin "2" (uuid fb9777b5-064b-4b25-b387-1d2af03e4e2d))
+    (pin "1" (uuid 7f6994e1-7cbd-4241-ac98-207ed67d0939))
+    (pin "2" (uuid 83a4252b-beac-4cd4-b53a-16b7d3d0bb34))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "R1") (unit 1)
         )
       )
@@ -2086,7 +2089,7 @@
 
   (symbol (lib_id "power:GND") (at 198.12 78.74 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 9ec05f14-9665-42f4-95d9-151fab6d1d24)
+    (uuid 9e077f6d-caec-4a7e-b09c-f655182323b4)
     (property "Reference" "#PWR14" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2096,10 +2099,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid b33b2c99-de7a-48da-b5c0-3f88382b1607))
+    (pin "1" (uuid 96fc6c8d-2d49-4735-af8c-7ed2e5171bf5))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR14") (unit 1)
         )
       )
@@ -2108,7 +2111,7 @@
 
   (symbol (lib_id "power:GND") (at 213.36 78.74 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid dbe6d686-15b7-4a94-9373-5e466aa60f76)
+    (uuid cdb03a95-80c6-41fd-b071-71ca5fd1d569)
     (property "Reference" "#PWR15" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2118,10 +2121,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid af1a54e6-5c6e-40ac-9c1e-39b2df8b7c72))
+    (pin "1" (uuid 74354d8b-b5f7-4e1b-afc4-39be4a255d14))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR15") (unit 1)
         )
       )
@@ -2130,7 +2133,7 @@
 
   (symbol (lib_id "power:VCC") (at 241.3 50.8 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 3f2c2728-c084-4d83-b884-fe2bc511a4ff)
+    (uuid 4b96e7fe-1e59-4bca-933e-9293c6974b9f)
     (property "Reference" "#PWR16" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2140,10 +2143,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid f683f6ed-acf9-45cb-b7c3-06899890b507))
+    (pin "1" (uuid 7745045b-8263-418b-96f7-ffcadc9b421f))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR16") (unit 1)
         )
       )
@@ -2152,7 +2155,7 @@
 
   (symbol (lib_id "Device:C") (at 236.22 54.61 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid b8d263b3-6cfa-4392-bd65-6c4aa37f6a94)
+    (uuid a3b62556-6338-4c1d-9be5-e6cf479b04e5)
     (property "Reference" "C5" (at 238.76 53.34 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -2165,11 +2168,11 @@
     (property "LCSC" "C15849" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid fd6600d8-632e-4b88-b795-2e2646dda985))
-    (pin "2" (uuid 46b8ded0-7abd-4fdb-8aff-04a7a24c9a32))
+    (pin "1" (uuid 47c13189-f9a0-4f98-829e-9f80d16595be))
+    (pin "2" (uuid 47b7ab10-de11-4ea8-ba4a-d5a934e67a42))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "C5") (unit 1)
         )
       )
@@ -2178,7 +2181,7 @@
 
   (symbol (lib_id "power:GND") (at 236.22 60.96 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 8d8804eb-850d-4934-9fa6-18a78d897dc7)
+    (uuid 5c85c3d6-3acc-487b-89c7-fefc7119428a)
     (property "Reference" "#PWR17" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2188,10 +2191,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid c5c4dc1c-51e0-4a7c-b871-4377b35a103a))
+    (pin "1" (uuid e11b1cd9-d5bf-4405-ab53-452be214a427))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR17") (unit 1)
         )
       )
@@ -2200,7 +2203,7 @@
 
   (symbol (lib_id "Device:R") (at 251.46 62.23 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid af462a51-bf19-4982-9ccb-c3689c0881d8)
+    (uuid 7345539b-faba-4685-bc63-54e7bad94807)
     (property "Reference" "R2" (at 254.0 60.96 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -2213,11 +2216,11 @@
     (property "LCSC" "C25804" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 00934fbd-ffba-4c79-b7be-14c72fc60cc8))
-    (pin "2" (uuid f9bfd20b-2c8c-46e6-87c9-5c43803d424f))
+    (pin "1" (uuid 3075e6c8-100c-485d-a1d8-ab943f84d77c))
+    (pin "2" (uuid 6bdcb2b3-3a5c-41d7-9007-45d8b010c0a6))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "R2") (unit 1)
         )
       )
@@ -2226,7 +2229,7 @@
 
   (symbol (lib_id "Device:D_Schottky") (at 243.84 66.04 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 3b8b5cf6-d47b-4564-bbf2-c4c613ca1dfc)
+    (uuid 44c01370-9456-481d-aaff-11f6e8d64627)
     (property "Reference" "D5" (at 243.84 69.85 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2239,11 +2242,11 @@
     (property "LCSC" "C191023" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid d725f3ab-7f70-47c3-b5cb-10fcf49d5e00))
-    (pin "2" (uuid 28ae719c-32e9-40fd-95bc-20dd36cc7efe))
+    (pin "1" (uuid fa828da1-cbb6-40d0-b92c-c6ac752d31b4))
+    (pin "2" (uuid e299f5e2-5c8a-4a30-a7ec-69c3bb0c4d20))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "D5") (unit 1)
         )
       )
@@ -2252,7 +2255,7 @@
 
   (symbol (lib_id "power:VCC") (at 251.46 55.88 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 078ca3f2-f553-451a-868b-57f1ee7ac768)
+    (uuid a72478c7-966e-4666-97af-8122943b63cc)
     (property "Reference" "#PWR18" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2262,10 +2265,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid e274ceb8-a407-4e7e-a8df-cd4d38d38e1c))
+    (pin "1" (uuid 447f6caa-8915-41e0-95ab-1860e8af4e22))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR18") (unit 1)
         )
       )
@@ -2274,7 +2277,7 @@
 
   (symbol (lib_id "Device:R") (at 320.04 58.42 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid cbe26d87-e168-4e73-9482-6a4b4f86eb70)
+    (uuid 9b5e4827-8342-48a9-b9a4-dd993adfed5c)
     (property "Reference" "R3" (at 317.5 57.15 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
@@ -2287,11 +2290,11 @@
     (property "LCSC" "C25803" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
-    (pin "1" (uuid 9364d2c2-8424-4eaf-a8f4-9ceed7296e6b))
-    (pin "2" (uuid dabaf792-b637-4ef5-9ecd-c2ac23cc6221))
+    (pin "1" (uuid d5706a71-6e11-41d5-8358-aeb1c5a0c41b))
+    (pin "2" (uuid a6c2265e-6085-49d4-8323-a87f7e79bfc7))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "R3") (unit 1)
         )
       )
@@ -2300,7 +2303,7 @@
 
   (symbol (lib_id "Device:R") (at 320.04 69.85 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 65575ee6-f1c8-442c-9681-94ace3d694d1)
+    (uuid 88561884-6357-4753-b3cf-f6543fce142f)
     (property "Reference" "R4" (at 317.5 68.58 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
@@ -2313,11 +2316,11 @@
     (property "LCSC" "C25803" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
-    (pin "1" (uuid 7113628b-231a-484f-9358-bd04ba50a845))
-    (pin "2" (uuid 596a9438-761e-4449-9af3-a52e62666579))
+    (pin "1" (uuid 9dac2017-6d39-40e0-b71c-8e04877eecfd))
+    (pin "2" (uuid 98920e81-4044-43ad-8c0a-a41384816a11))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "R4") (unit 1)
         )
       )
@@ -2326,7 +2329,7 @@
 
   (symbol (lib_id "power:VCC") (at 320.04 50.8 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 5610ac47-adb2-4ddd-8857-57fa2311900e)
+    (uuid 484e4493-52f9-4da1-abc4-c1392f0c4229)
     (property "Reference" "#PWR19" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2336,10 +2339,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid a7e4ba4e-e1e4-4078-b645-d86e0ef33cba))
+    (pin "1" (uuid 7f4cd0d6-b3ef-4871-880f-967e4da7763d))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR19") (unit 1)
         )
       )
@@ -2348,7 +2351,7 @@
 
   (symbol (lib_id "Device:C") (at 330.2 67.31 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid fa45c165-6af3-4923-8716-c65533f0bd60)
+    (uuid 914ae296-96a1-4f93-b03d-d18fca078fa7)
     (property "Reference" "C6" (at 332.74 66.04 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -2361,11 +2364,11 @@
     (property "LCSC" "C14663" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid df279b75-20f1-4592-bea4-2672552de5a8))
-    (pin "2" (uuid 954fff84-cb0d-4db0-8d20-a59899c393b3))
+    (pin "1" (uuid 2adf5ed6-e585-4a6e-adc2-948a98c1edb4))
+    (pin "2" (uuid 51562308-3b99-49dc-8d51-795966e5967f))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "C6") (unit 1)
         )
       )
@@ -2374,7 +2377,7 @@
 
   (symbol (lib_id "power:GND") (at 330.2 78.74 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid e55071b9-6fa6-4d43-a31b-0010bc93b10c)
+    (uuid 69f0446a-7571-497d-a945-645742dfdc60)
     (property "Reference" "#PWR20" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2384,10 +2387,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 0f989d78-ecc9-4d7b-8ce6-d8de272ff6cc))
+    (pin "1" (uuid e09cc757-38cf-4799-9746-a094f8e17467))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR20") (unit 1)
         )
       )
@@ -2396,7 +2399,7 @@
 
   (symbol (lib_id "power:GND") (at 320.04 78.74 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 4d5af0d4-f357-470c-980c-30565b67e875)
+    (uuid 3585ded6-32e6-4e6c-a48d-031fb9da052c)
     (property "Reference" "#PWR21" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2406,10 +2409,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 211adfa7-3e5a-451a-bc8e-30a746e3f369))
+    (pin "1" (uuid 61e1b712-681d-46ea-ba6c-77877b0bb0f5))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR21") (unit 1)
         )
       )
@@ -2418,7 +2421,7 @@
 
   (symbol (lib_id "Battery_Management:DW01A") (at 76.2 144.78 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 898cf66e-25bb-4ad2-8565-cdf76d8ba0bf)
+    (uuid f0f1d5a7-286d-4d82-ae75-5a8c41e27c78)
     (property "Reference" "U15" (at 76.2 134.62 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2431,15 +2434,15 @@
     (property "LCSC" "C351410" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 744a24dc-fc72-4b2e-8b52-cb7583f99950))
-    (pin "2" (uuid e8cf9835-8fe6-40b8-a270-d491f5b34ee9))
-    (pin "3" (uuid ee4364c9-b606-47c9-af14-c0225a8baae8))
-    (pin "5" (uuid b740c2aa-7b26-4060-80de-72372ecc1ae3))
-    (pin "6" (uuid dc9f1fe4-2fad-4115-a0e3-e5f49e12f177))
-    (pin "4" (uuid b38a9e6b-1072-4146-b781-d6dd71414cb7))
+    (pin "1" (uuid 67ee2605-0dd0-4ddb-b078-2472eba88b8c))
+    (pin "2" (uuid a95e5784-8ee7-466b-9f72-b49bb94a1261))
+    (pin "3" (uuid 08a6cf73-ae49-4e55-8ddf-ee3caccdabd6))
+    (pin "5" (uuid 2013ffb0-382f-45f2-9cb4-3d3c18bba3ee))
+    (pin "6" (uuid 174304e6-5975-4128-bcb2-4cca3eb5b714))
+    (pin "4" (uuid 72ef9320-fd4f-4b3f-8122-efeda8fba70a))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "U15") (unit 1)
         )
       )
@@ -2448,7 +2451,7 @@
 
   (symbol (lib_id "Device:R") (at 50.8 142.24 90) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 11450cdf-2ee0-4df7-bc32-ea9b5cfa131f)
+    (uuid 36b2c5a6-61d3-4bb2-bdba-e4050f1dd2c8)
     (property "Reference" "R28" (at 50.8 137.795 90)
       (effects (font (size 1.27 1.27)))
     )
@@ -2461,11 +2464,11 @@
     (property "LCSC" "C25076" (at 0 0 90)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid dc6457da-79c6-4de9-bcb6-859d981a99aa))
-    (pin "2" (uuid 3faed52d-b195-462e-b315-8473604eea8f))
+    (pin "1" (uuid c89bbbd6-1a34-44b6-9a80-be281de71358))
+    (pin "2" (uuid d3c7c7ca-8cd2-497a-ae5d-4ee3567ecb24))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "R28") (unit 1)
         )
       )
@@ -2474,7 +2477,7 @@
 
   (symbol (lib_id "power:VCC") (at 43.18 137.16 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 4735f427-9c3f-4823-957c-d2eef25da9aa)
+    (uuid c9e65020-0d1c-4a11-8138-79ed9d58f7f6)
     (property "Reference" "#PWR22" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2484,10 +2487,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid e1761cde-178b-480b-991b-f96678248502))
+    (pin "1" (uuid ef67210f-0858-4c77-ae7f-6f6c0d5a704b))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR22") (unit 1)
         )
       )
@@ -2496,7 +2499,7 @@
 
   (symbol (lib_id "Device:C") (at 58.42 146.05 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 4ea2c93e-44b4-4744-a96b-ed16aef9ec88)
+    (uuid dee43c7a-7492-4a75-b00e-5c2cb9ca3173)
     (property "Reference" "C27" (at 55.88 144.78 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
@@ -2509,11 +2512,11 @@
     (property "LCSC" "C1525" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
-    (pin "1" (uuid dd16db7b-9718-49b0-ace0-9ee337e434b0))
-    (pin "2" (uuid 54994c1f-cb3b-4577-b726-4f5ed7acafb0))
+    (pin "1" (uuid c3e16d44-217b-4c8b-8006-b99f400b81c0))
+    (pin "2" (uuid 7a29a75c-0cd8-4968-b841-6af5002e825b))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "C27") (unit 1)
         )
       )
@@ -2522,7 +2525,7 @@
 
   (symbol (lib_id "power:PWR_FLAG") (at 63.5 142.24 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid d78d20ef-9c4a-465c-86db-e0338f5c20a8)
+    (uuid 05baa1bc-27d2-4764-9185-a2ed3a33dfa9)
     (property "Reference" "#FLG11" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
@@ -2532,10 +2535,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid 61e8aa34-a516-4676-b959-1aa447f5a7fd))
+    (pin "1" (uuid c800b595-31d4-4d33-a0a7-067ba9a27bb3))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#FLG11") (unit 1)
         )
       )
@@ -2544,7 +2547,7 @@
 
   (symbol (lib_id "lasertag:FS8205A") (at 76.2 177.8 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid aa34e7a8-64f9-4e61-97c6-a7f4c1898ac8)
+    (uuid fe77c739-6490-4e97-b290-375df82260c7)
     (property "Reference" "Q3" (at 86.36 187.96 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
@@ -2557,15 +2560,15 @@
     (property "LCSC" "C2830320" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "6" (uuid 49060ac4-09de-46fd-bb7f-d3576c71ef23))
-    (pin "1" (uuid f84126d3-4a12-4a8f-a34e-cab8f056dc62))
-    (pin "4" (uuid b466f330-c1b1-4e5a-9129-012aee4f55b3))
-    (pin "3" (uuid 9eb2cd70-b411-47c8-9d53-e1e58c83c3c1))
-    (pin "2" (uuid 9f805adc-dc2c-422f-82de-2bc89edc4e6f))
-    (pin "5" (uuid e0beb151-3f14-4c81-b945-59308d9eb1bd))
+    (pin "6" (uuid 001372b8-289c-463d-9c90-2c5e59c7bd6d))
+    (pin "1" (uuid 2d4c5745-63b2-4aae-8342-6f2b57444fc7))
+    (pin "4" (uuid 3644edf8-6c09-4843-8898-f8761831e11f))
+    (pin "3" (uuid fb416404-c42a-4dbc-9550-ec398717e381))
+    (pin "2" (uuid 4cdcd2d3-dc6a-49ae-bfa6-6dad40b86bc6))
+    (pin "5" (uuid 42658314-9147-405c-bb75-2672e893b678))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "Q3") (unit 1)
         )
       )
@@ -2574,7 +2577,7 @@
 
   (symbol (lib_id "power:GND") (at 93.98 185.42 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 688e7e81-688d-45f9-974c-2162d5ececdc)
+    (uuid bf2fbf6e-ddec-42b0-8f8c-2dd1fda04298)
     (property "Reference" "#PWR23" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2584,10 +2587,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 0b0ee5aa-d219-4794-95dc-286d6f0f949c))
+    (pin "1" (uuid 195ecadc-95c3-4157-a84a-38beefc38bbf))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR23") (unit 1)
         )
       )
@@ -2596,7 +2599,7 @@
 
   (symbol (lib_id "power:PWR_FLAG") (at 91.44 180.34 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid a6505a5e-2fb0-415f-81c7-46dbe10df735)
+    (uuid 942920df-68c8-4e55-b5cc-f6402a3c8248)
     (property "Reference" "#FLG10" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
@@ -2606,10 +2609,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
-    (pin "1" (uuid ace1e54d-3266-4ba5-aed2-4cf98823b6af))
+    (pin "1" (uuid 5533f0df-2050-47c5-83e5-0d57322111ef))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#FLG10") (unit 1)
         )
       )
@@ -2618,7 +2621,7 @@
 
   (symbol (lib_id "Device:R") (at 91.44 147.32 90) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid e3bcf6a5-ec87-45d7-ad74-26513bb54691)
+    (uuid f9589fb9-bdc9-4998-84b4-a0fcc8ca70ce)
     (property "Reference" "R29" (at 91.44 142.875 90)
       (effects (font (size 1.27 1.27)))
     )
@@ -2631,11 +2634,11 @@
     (property "LCSC" "C11702" (at 0 0 90)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid bb3b665f-08ba-4474-97a8-681066ba2719))
-    (pin "2" (uuid a8dcd2a2-6118-4882-a492-b66191101ca1))
+    (pin "1" (uuid 67897533-6daf-4cc5-b728-7122551da563))
+    (pin "2" (uuid 31a52bd2-bfed-4c2b-a98e-bfc8d25c848b))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "R29") (unit 1)
         )
       )
@@ -2644,7 +2647,7 @@
 
   (symbol (lib_id "power:GND") (at 99.06 152.4 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 864bf6c2-9779-4e9b-8d02-33be6f38a00c)
+    (uuid add90321-ee34-491a-9bd9-3ba323a713c6)
     (property "Reference" "#PWR24" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2654,10 +2657,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 3316f6d9-2a1e-4112-94ed-6e97923923b2))
+    (pin "1" (uuid 6b7cc6f0-d2df-4acf-8367-93d71a73b25b))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR24") (unit 1)
         )
       )
@@ -2666,7 +2669,7 @@
 
   (symbol (lib_id "Diode:SS14") (at 119.38 139.7 180) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid a28f3bbf-c500-4e36-9444-23d6a00640ea)
+    (uuid c764206c-d81b-4e5d-85fd-0c9df830b56e)
     (property "Reference" "D4" (at 119.38 135.255 0)
       (effects (font (size 1.27 1.27)))
     )
@@ -2679,11 +2682,11 @@
     (property "LCSC" "C8598" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid f7f0666f-df31-4f59-979d-d1d67e0463aa))
-    (pin "2" (uuid ff478c9f-750b-4769-8dfe-9f80a3a050ff))
+    (pin "1" (uuid c02925ef-d0dd-4681-babf-378d5565e865))
+    (pin "2" (uuid 8e35da12-22c7-4c33-8d17-30746e54adef))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "D4") (unit 1)
         )
       )
@@ -2692,7 +2695,7 @@
 
   (symbol (lib_id "power:VCC") (at 111.76 134.62 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid fb82ffb6-c488-4513-bc09-a7d143f69f46)
+    (uuid 2a872bcf-6e65-4c36-af6f-bd6d928b697a)
     (property "Reference" "#PWR25" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2702,10 +2705,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 657a9656-bbf1-49fc-a042-8ff541eebf3f))
+    (pin "1" (uuid 542ae388-fe3c-4789-aca0-88878ccd83dc))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR25") (unit 1)
         )
       )
@@ -2714,7 +2717,7 @@
 
   (symbol (lib_id "power:VCC") (at 127.0 134.62 0) (unit 1)
     (in_bom yes) (on_board yes)
-    (uuid 776b8d4a-470a-4031-859d-c9e960262029)
+    (uuid 532de5da-951d-4e60-9cdb-1e699fd62f0c)
     (property "Reference" "#PWR26" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2724,10 +2727,10 @@
     (property "Footprint" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 5da4b65c-9df5-4e38-84cd-3071608ac444))
+    (pin "1" (uuid 9a4bba51-24e3-4436-8f1c-c055155c9224))
     (instances
       (project "waffe_elektronik"
-        (path "/6146174f-6fc0-4dfe-9e54-70594fb25d56"
+        (path "/27e22f34-b877-4a4d-85cf-14d8a28e22fb"
           (reference "#PWR26") (unit 1)
         )
       )
