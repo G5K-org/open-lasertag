@@ -27,14 +27,9 @@ AWG28, AWG24 = 0.9, 1.3       # Außendurchmesser Litze mit Isolierung (mm)
 def meshes():
     out = {}
     for name, src, mat, _ in B.parts():
-        if name.startswith("Steg vorn"):
-            m = B.steg_vorn()
-        elif name.startswith("Steg hinten"):
-            m = B.bar(P.STEG_L, B.X_REAR_BAR, P.STOP[3])
-        else:
-            m = B.load(src if os.path.isabs(src) else os.path.join(B.SRC, src + ".stl"))
-            m.apply_transform(mat)
-        out[name] = m
+        if name.startswith("Pigtail"):                              # wird als Kabelweg geprüft
+            continue
+        out[name] = B.mesh_of(name, src, mat)
     with tempfile.TemporaryDirectory() as tmp:
         bs, g = B.board(tmp)
         pcb = []
@@ -93,6 +88,7 @@ def routes(M):
         "Drehgeber (J5)": (4, AWG28, [(89.5, 149.4, 2), (89.5, 156, 2), (97.5, 156, 0), (100, 152, 0),
                                       (101.5, 151.4, 0)] + motor[1:] + [(152, 183, 0), tuple(enc)],
                            ["Motorschacht"]),
+        "Antenne (Pigtail)": (1, 1.13, P.pigtail_path() + [P.UFL], []),
         "Vibrationsmotor (M1)": (2, AWG28, [g(54.5, 23.2), (P.X0 + 23.2, 150.5, 2)] + motor + [(149, 170, 0)],
                                  ["Motorschacht"]),
     }

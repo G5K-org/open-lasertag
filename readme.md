@@ -115,7 +115,7 @@ das Sensorkabel der Weste.
 |---|---|
 | <img src="kicad/waffe_elektronik/renders/platine_oben.png" alt="Platine Oberseite" width="420"> | <img src="kicad/waffe_elektronik/renders/platine_unten.png" alt="Platine Unterseite" width="420"> |
 
-**Auf der Platine:** ESP32-S3-WROOM-1 (16 MB Flash, 8 MB PSRAM), USB-C mit
+**Auf der Platine:** ESP32-S3-WROOM-1 (16 MB Flash, 8 MB PSRAM; optional WROOM-1U mit externer Antenne), USB-C mit
 ESD-Schutz zum Flashen und Laden, Lader MCP73831, Akkuschutz DW01A + FS8205A, 5-V-Boost MT3608,
 3,3-V-Regler, MOSFETs für IR-LED und Vibrationsmotor, Pegelwandler für
 WS2812, I²S-Verstärker MAX98357A, SPI-NAND-Flash 128 MB und microSD-Slot für Audio-Dateien,
@@ -152,7 +152,9 @@ Im Handschutz sitzt ein Lautsprecher Ø 40 mit Basskammer, vorn unter dem Korn d
 Einschmelzmuttern verschraubt; die vorderen Hälften umschließen einen Zapfen am hinteren Handschutz
 und sind dort mit je 2 × M3 befestigt (ohne Kleber, lösbar). Das Sensorkabel der Weste steckt unten vorn
 am Schaft in einer GX16-7-Buchse (Stecker hängt hinter dem Griff leicht schräg nach hinten unten). Links über
-dem Griff ist der Sicherungshebel ein beweglicher Nachladehebel (Wippe auf einen verdeckten Taster). Gehäuse, Zwischenring, Handschutz und Schaft sind
+dem Griff ist der Sicherungshebel ein beweglicher Nachladehebel (Wippe auf einen verdeckten Taster). Links oben
+über dem ESP32-Modul sitzt eine RP-SMA-Buchse für eine externe Knick-Stabantenne (Variante WROOM-1U), die
+senkrecht nach oben neben Kimme und Korn steht. Gehäuse, Zwischenring, Handschutz und Schaft sind
 mit Stahlstegen und je zwei Zugankern M4 vorn und hinten verspannt, der Zwischenring ist beidseitig
 zentriert. Alle Kabelwege sind geprüft:
 [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/README.md#kabelwege).
@@ -167,7 +169,13 @@ Platine zusammengesetzt: [gehaeuse/baugruppe/](gehaeuse/baugruppe/) (GLB/3MF).
 |---|---|
 | <img src="gehaeuse/baugruppe/baugruppe_vorn.png" alt="3D-Ansicht vorn: Frontkappe mit 12 Fenstern und Linsenhülse" width="420"> | <img src="gehaeuse/baugruppe/baugruppe_hinten.png" alt="3D-Ansicht hinten: OLED-Sockel mit Rahmen am Schaft" width="300"> |
 
-**Explosionszeichnung:** alle Druckteile und die Platine, entlang ihrer Montagerichtung auseinandergezogen.
+**Externe Antenne:** RP-SMA-Buchse in der linken Seitenwand, innen Pigtail als Schlaufe zum U.FL des WROOM-1U.
+
+| Außen | Innen (linke Hälfte und Antenne ausgeblendet) |
+|---|---|
+| <img src="gehaeuse/baugruppe/antenne_aussen.png" alt="Knick-Stabantenne links oben am Gehäuse, senkrecht nach oben" width="420"> | <img src="gehaeuse/baugruppe/antenne_innen.png" alt="RP-SMA-Buchse, Kabelschlaufe und U.FL am ESP32-S3-WROOM-1U" width="420"> |
+
+**Explosionszeichnung:** alle Druckteile, die Platine und die Antennenteile, entlang ihrer Montagerichtung auseinandergezogen.
 
 | Von links vorn | Von rechts |
 |---|---|
@@ -328,7 +336,7 @@ Stand der Planung: 08.10.2026
   74HCT125) zwischen 3,3-V-GPIO und Datenleitung.
 - I²S-Verstärker (MAX98357A) + Lautsprecher, nutzt denselben 5-V-Boost wie der
   WS2812-Strip
-- SPI-NAND-Flash GD5F1GQ5UEYIGR (128 MB) für Audio-Dateien, an IO7/IO15/IO3/IO46
+- SPI-NAND-Flash ZD35Q1GC (128 MB) für Audio-Dateien, an IO7/IO15/IO3/IO46
 - microSD-Slot (Push-Pull, TF-018) am selben SPI-Bus, /CS an IO48; Karte nur bei geöffnetem Gehäuse
   erreichbar
 - 1S-LiPo oder 18650, Akkuschutz (DW01A + FS8205A) auf der Platine, Akkuspannung per ADC, im Waffengehäuse
@@ -336,8 +344,8 @@ Stand der Planung: 08.10.2026
   (IO19/IO20) zum Flashen, Debuggen und Laden – Auto-Flash über den
   eingebauten USB-Serial-JTAG, BOOT- und RESET-Taster als Rückfallebene
 - Laden über USB-C: MCP73831 an VBUS derselben Buchse, STAT über eine Schottky-Diode
-  (BAT54WS) auf den Lade-Status-GPIO (siehe [pinbelegung.md](pinbelegung.md)); USB speist
-  über eine SS14 auch die 5-V-Schiene, damit Flashen ohne Akku geht
+  (1N5819WS) auf den Lade-Status-GPIO (siehe [pinbelegung.md](pinbelegung.md)); USB speist
+  über eine Schottky-Diode auch die 5-V-Schiene, damit Flashen ohne Akku geht
 - WLAN auf Core 0, IR-Auswertung auf Core 1
 
 ### Weste (nur Sensoren, keine eigene Elektronik)

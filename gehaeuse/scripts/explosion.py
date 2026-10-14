@@ -1,6 +1,8 @@
 """Explosionszeichnung der Baugruppe mit Teilenamen.
 
-Aufruf: python explosion.py bild.png gieren neigen   (z. B. -30 -22 = von links vorn, 150 -22 = von rechts)
+Aufruf: python explosion.py bild.png gieren neigen [zusammen]   (z. B. -30 -22 = von links vorn, 150 -22 = von rechts)
+"zusammen": zusammengebaut ohne Beschriftung; weitere Argumente "ohne=Teilname" blenden Teile aus,
+"bereich=u0,w0,u1,w1" schneidet auf einen Bildausschnitt (mm in der Bildebene)
 Teile und Lage aus baugruppe.py (mp5_umbau/ muss erzeugt sein), Platine per kicad-cli.
 """
 import os, sys, tempfile
@@ -12,21 +14,21 @@ import baugruppe as B  # noqa: E402
 
 d = {}
 for name, src, mat, _ in B.parts():
-    if name.startswith("Steg vorn"):
-        m = B.steg_vorn()
-    elif name.startswith("Steg hinten"):
-        m = B.bar(B.P.STEG_L, B.X_REAR_BAR, B.P.STOP[3])
-    else:
-        m = B.load(src if os.path.isabs(src) else os.path.join(B.SRC, src + ".stl"))
-        m.apply_transform(mat)
+    m = B.mesh_of(name, src, mat)
     d[name] = (m.vertices, m.faces)
 with tempfile.TemporaryDirectory() as tmp:
     bs, g = B.board(tmp)
-    pcb = []
+    pcb = []; pcol = []
     for node in bs.graph.nodes_geometry:
         t, gn = bs.graph[node]
         geo = bs.geometry[gn].copy(); geo.apply_transform(g @ t); pcb.append(geo)
+        try:
+            c = np.asarray(geo.visual.material.baseColorFactor[:3], float) / 255
+        except AttributeError:
+            c = np.asarray(geo.visual.main_color[:3], float) / 255
+        pcol.append(np.tile(c, (len(geo.faces), 1)))
     pb = trimesh.util.concatenate(pcb); d["Platine"] = (pb.vertices, pb.faces)
+    PCOL = np.concatenate(pcol)                                      # Farben der Bauteile aus KiCad
 th=np.radians(12.0); ag=np.array([-np.cos(th),np.sin(th),0])   # Magazinachse (oben)
 # Versatz im Gun-Rahmen (X unten, Y hinten, Z links)
 OFF={
@@ -38,33 +40,42 @@ OFF={
  'Korn':(-50,-150,0),'TSOP-Einsatz':(-65,-195,0),'Linsenhülse':(0,-225,0),'Frontkappe':(0,-255,0),
  'Schaft links':(0,80,45),'Schaft rechts':(0,80,-50),'OLED-Rahmen':(-35,100,0),
  'Steg hinten (Rundstab 77 mm)':(-60,40,0),
+ 'Antennenbuchse RP-SMA':(0,0,140),'Antenne 2,4 GHz':(0,0,175),'Pigtail RP-SMA U.FL':(-45,0,-20),
  'Magazin':tuple(-ag*90),'Magazin Unterteil':tuple(-ag*150),
 }
 COL={'Gehäuse':(0.58,0.6,0.63),'Platine':(0.15,0.55,0.25),'Steg':(0.78,0.78,0.8),'Stift':(0.78,0.78,0.8),
-     'Magazin Unterteil':(0.25,0.45,0.6),'Abzug':(0.75,0.2,0.2),'Linsenhülse':(0.85,0.62,0.2),'OLED':(0.2,0.3,0.55),'TSOP':(0.55,0.2,0.6)}
+     'Magazin Unterteil':(0.25,0.45,0.6),'Abzug':(0.75,0.2,0.2),'Linsenhülse':(0.85,0.62,0.2),'OLED':(0.2,0.3,0.55),'TSOP':(0.55,0.2,0.6),
+     'Antennenbuchse':(0.8,0.65,0.3),'Antenne':(0.12,0.12,0.13),'Pigtail':(0.5,0.5,0.52)}
 def color(n):
     for k,c in COL.items():
         if k in n: return c
     return (0.3,0.31,0.33)
 yaw,pitch=np.radians(float(sys.argv[2])),np.radians(float(sys.argv[3]))
+ZUSAMMEN=len(sys.argv)>4 and sys.argv[4]=='zusammen'
+if ZUSAMMEN: OFF={}
 def xf(v):
     u=v[...,1]; w=-v[...,0]; dd=v[...,2]
     u,dd=u*np.cos(yaw)+dd*np.sin(yaw),-u*np.sin(yaw)+dd*np.cos(yaw)
     w,dd=w*np.cos(pitch)+dd*np.sin(pitch),-w*np.sin(pitch)+dd*np.cos(pitch)
     return np.stack([u,w,dd],-1)
 items=[]
+OHNE={a[5:] for a in sys.argv[4:] if a.startswith('ohne=')}
+BEREICH=[[float(x) for x in a[8:].split(',')] for a in sys.argv[4:] if a.startswith('bereich=')]
 for n,(v,f) in d.items():
+    if n in OHNE: continue
     t=v[f]+np.array(OFF.get(n,(0,0,0)))
-    items.append((n,xf(t),color(n)))
+    items.append((n,xf(t),PCOL if n=='Platine' else color(n)))
 allp=np.concatenate([t.reshape(-1,3) for _,t,_ in items])
 res=0.3; pad=60
 u0,w0=allp[:,0].min()-pad,allp[:,1].min()-pad; u1,w1=allp[:,0].max()+pad,allp[:,1].max()+pad
+if BEREICH: u0,w0,u1,w1=BEREICH[0]; res=0.05
 nx,ny=int((u1-u0)/res)+2,int((w1-w0)/res)+2
 Z=np.full((ny,nx),-1e9); C=np.ones((ny,nx,3)); Lt=np.array([-0.4,0.6,0.7]); Lt/=np.linalg.norm(Lt)
 for n,T,c in items:
     nn=np.cross(T[:,1]-T[:,0],T[:,2]-T[:,0]); nn/=np.linalg.norm(nn,axis=1,keepdims=True)+1e-12
     k=np.clip(0.35+0.65*np.abs(nn@Lt),0,1)
-    for tr,kk in zip(T,k):
+    cs=c if isinstance(c,np.ndarray) else np.tile(np.array(c),(len(T),1))
+    for tr,kk,c in zip(T,k,cs):
         A,B,Cc=tr
         x0=max(int((min(A[0],B[0],Cc[0])-u0)/res),0); x1=min(int((max(A[0],B[0],Cc[0])-u0)/res)+1,nx-1)
         y0=max(int((min(A[1],B[1],Cc[1])-w0)/res),0); y1=min(int((max(A[1],B[1],Cc[1])-w0)/res)+1,ny-1)
@@ -80,7 +91,7 @@ fig=plt.figure(figsize=(nx/100,ny/100),dpi=100); ax=plt.axes([0,0,1,1]); ax.imsh
 # Beschriftung: Anker = sichtbarer Schwerpunkt, Text nach außen versetzt
 cen=np.array([(u0+u1)/2,(w0+w1)/2])
 placed=[]
-for n,T,c in items:
+for n,T,c in ([] if ZUSAMMEN else items):
     p=T.reshape(-1,3)[:,:2].mean(0)
     dirv=p-cen; dirv=dirv/ (np.linalg.norm(dirv)+1e-9)
     q=p+dirv*35

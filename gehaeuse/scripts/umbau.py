@@ -19,6 +19,8 @@ Einbauten:
     (Kimme und Korn bleiben)
   - Gehäusehälften mit 6 x M3 x 10 und Einschmelzmuttern verschraubt
   - GX16-7 Buchse für das Sensorkabel der Weste unten vorn am Schaft (15° nach hinten), Kabelschacht zur Platine (J2)
+  - RP-SMA-Buchse für eine externe Antenne links oben über dem ESP32-Modul (Variante WROOM-1U), Planfläche
+    außen, Raum für Sechskant und Kabelschlaufe des Pigtails innen (platine_einbau.py)
   - Nachladehebel (Wippe aus dem Sicherungshebel, Taster 6 x 6 verdeckt darunter) links über dem Griff
   - Verstärkung: Stege aus Stahl, je 2 Zuganker M4 vorn (Zapfen bis Gehäuse) und hinten (Gehäuse bis Schaft),
     Zwischenring mit Zentrierbund und Nut
@@ -239,8 +241,8 @@ def rot_z(man, deg, about):
 
 
 def to_man(tm):
-    return m3.Manifold(m3.Mesh(vert_properties=np.asarray(tm.vertices, np.float32),
-                               tri_verts=np.asarray(tm.faces, np.uint32)))
+    return m3.Manifold(m3.Mesh(vert_properties=np.ascontiguousarray(tm.vertices, np.float32),
+                               tri_verts=np.ascontiguousarray(tm.faces, np.uint32)))
 
 
 def to_tm(man):
@@ -739,12 +741,16 @@ def build():
     hcut, pod, pod_cut, oled_frame, oled_loc = housing_cuts(tip, yw, mag_top)
     pcut, bosses, pilots, stop = P.pocket_shapes()
     vcut = vest()
+    acut = P.antenna_cut()
 
     lcut, lboss, lever, _ = reload_lever()
     rf = reinforcement()
     halves = []
     for H, side in ((L - lcut + lboss, P.HALF_L), (R, P.HALF_R)):
-        H = H - pcut - trig_cut - hcut - screws() - vcut - rf["front"] - rf["rear"] + (rf["housing_collar"] ^ side) + (stop ^ side)
+        for c in (pcut, trig_cut, hcut, screws(), vcut, acut, rf["front"], rf["rear"]):
+            H = H - c
+            H.num_tri()                                 # schrittweise auswerten (tiefer CSG-Baum stürzt ab)
+        H = H + (rf["housing_collar"] ^ side) + (stop ^ side)
         if side is P.HALF_R:
             H = H + bosses - pilots
         halves.append(H)
@@ -764,7 +770,11 @@ def build():
     stocks = {}
     for key, orig, side in (("schaft_links", "obj_4_7", P.HALF_L), ("schaft_rechts", "obj_2_4", P.HALF_R)):
         mat = parts[B.NAMES[key]][1]
-        stocks[key] = (load_gun(orig, mat) + (pod ^ side) - pod_cut - vcut - rf["rear"] - rf["stock"], mat)
+        S = load_gun(orig, mat) + (pod ^ side)
+        for c in (pod_cut, vcut, rf["rear"], rf["stock"]):
+            S = S - c
+            S.num_tri()
+        stocks[key] = (S, mat)
 
     os.makedirs(OUT, exist_ok=True)
     for f in os.listdir(OUT):                               # alter Stand (auch frühere Dateinamen)

@@ -58,6 +58,18 @@ STOP = (76.5, 91.0, 160.5, 164.0, 6.0)   # X0, X1, Y0, Y1, halbe Dicke
 STEG_L = 100.0 - (STOP[3] - 141.0)
 
 
+# Externe Antenne (Variante mit ESP32-S3-WROOM-1U): RP-SMA-Buchse quer durch die linke Seitenwand über dem
+# Modul, Knick-Stabantenne außen senkrecht nach oben neben Kimme und Korn, Pigtail RP-SMA -> U.FL innen
+ANT = (71.5, 134.0)          # Achse der Buchse (X, Y), entlang +Z
+ANT_WALL = (9.0, 11.5)       # Wand an der Buchse: Innenseite, Planfläche außen (Z)
+ANT_SPOT = 14.0              # Planfläche Ø (Mutter SW 8, Steckschlüssel)
+ANT_HOLE = 6.6               # Durchgang Gewinde 1/4"-36
+ANT_INNER = 11.0             # Freiraum innen um den Sechskant der Buchse
+ANT_LOOP = (66.5, 76.0, 119.0, 148.5)   # Raum für die Kabelschlaufe in der linken Tasche (X0, X1, Y0, Y1)
+UFL = (78.76, 141.4, 2.7)    # U.FL des WROOM-1U: Mitte, Kabelachse des Steckers (Z)
+ANT_ROD = (130.0, 10.0, 8.0)   # Stab ab Gelenkmitte: Länge, Ø unten, Ø oben (Linx ANT-2.4-CW-HWR-RPS, 142 hoch)
+
+
 def rect(x0, y0, x1, y1):
     return m3.CrossSection([[(x0, y0), (x1, y0), (x1, y1), (x0, y1)]])
 
@@ -129,6 +141,73 @@ def steg(length=STEG_L):
     lo, hi = tm.bounds
     keep = m3.Manifold.cube((50.0, 50.0, length)).translate((lo[0] - 20, lo[1] - 20, lo[2]))
     return bar ^ keep
+
+
+def _zcyl(d, z0, z1, x=None, y=None, seg=64):
+    x, y = ANT if x is None else (x, y)
+    return m3.Manifold.cylinder(z1 - z0, d / 2, d / 2, seg).translate((x, y, z0))
+
+
+def _zhex(af, z0, z1):
+    return m3.Manifold.cylinder(z1 - z0, af / np.sqrt(3), af / np.sqrt(3), 6).translate((ANT[0], ANT[1], z0))
+
+
+def antenna_cut():
+    """Planfläche außen, Durchgang, Freiraum für Sechskant und Kabelschlaufe innen (Gun-Rahmen, linke Hälfte)."""
+    zi, zo = ANT_WALL
+    x0, x1, y0, y1 = ANT_LOOP
+    loop = m3.Manifold.cube((x1 - x0, y1 - y0, DEPTH_L + 0.01)).translate((x0, y0, -0.01))
+    return (_zcyl(ANT_SPOT, zo, 60.0) + _zcyl(ANT_HOLE, zi - 0.01, zo + 0.01)
+            + _zcyl(ANT_INNER, DEPTH_L - 0.01, zi) + loop)
+
+
+def _ellipse_coil(c, a, z0, z1, t0, t1, n=120):
+    t = np.linspace(t0, t1, n)
+    return [(c[0] + a[0] * np.cos(u), c[1] + a[1] * np.sin(u), z0 + (z1 - z0) * (u - t0) / (t1 - t0)) for u in t]
+
+
+def pigtail_path():
+    """Kabelachse des Pigtails (Linx CSI-RGFB-100-UFFR, 100 mm): Buchse -> Bogen -> Schlaufe vor der Buchse
+    -> U.FL."""
+    x, y = ANT
+    zb = ANT_WALL[0] - 5.5                                   # Ende der Crimphülse
+    r = 2.5
+    bend = [(x, y - r + r * np.cos(a), zb - r * np.sin(a)) for a in np.linspace(0, np.pi / 2, 10)]
+    coil = _ellipse_coil((71.0, 125.6), (3.0, 5.8), 1.0, 3.4, np.pi / 2, 2 * np.pi * 2)
+    return bend + coil + [(75.2, 131.0, 2.4), (75.2, 139.0, 2.7), (UFL[0] - 1.6, UFL[1], UFL[2])]
+
+
+def antenna_parts():
+    """Kaufteile im Gun-Rahmen: Buchse mit Mutter, Antenne geklappt (Stab nach oben, -X), Pigtail."""
+    zi, zo = ANT_WALL
+    jack = (_zhex(8.0, zi - 1.8, zi) + _zcyl(6.35, zi, zi + 9.5) + _zcyl(4.5, zi - 5.5, zi - 1.8)
+            + _zcyl(10.0, zo, zo + 0.5) + _zhex(8.0, zo + 0.5, zo + 2.5))
+    zc = zo + 2.5                                            # Überwurf der Antenne liegt an der Mutter
+    hinge_z = zc + 12.0
+    l, d0, d1 = ANT_ROD
+    rod = m3.Manifold.cylinder(l - d1 / 2, d0 / 2, d1 / 2, 48)
+    rod = rod + m3.Manifold.sphere(d1 / 2, 32).translate((0, 0, l - d1 / 2))
+    rod = rod.rotate((0, -90, 0)).translate((ANT[0], ANT[1], hinge_z))          # lokale z -> -X
+    ant = (_zcyl(9.0, zc, zc + 7.0) + _zcyl(10.0, zc + 7.0, hinge_z)
+           + m3.Manifold.cylinder(10.0, 5.0, 5.0, 48).rotate((-90, 0, 0)).translate((ANT[0], ANT[1] - 5.0, hinge_z))
+           + rod)
+    pts = pigtail_path()
+    cable = None
+    for a, b in zip(pts, pts[1:]):
+        s = m3.Manifold.sphere(0.56, 12)
+        c = m3.Manifold.batch_hull([s.translate(a), s.translate(b)])
+        cable = c if cable is None else cable + c
+    ufl = m3.Manifold.cube((3.2, 3.0, 1.4)).translate((UFL[0] - 1.6, UFL[1] - 1.5, UFL[2] - 0.7))
+    out = {}
+    for k, man in (("Antennenbuchse RP-SMA", jack), ("Antenne 2,4 GHz", ant), ("Pigtail RP-SMA U.FL", cable + ufl)):
+        mm = man.to_mesh()
+        out[k] = trimesh.Trimesh(mm.vert_properties[:, :3], mm.tri_verts)
+    return out
+
+
+def pigtail_length():
+    p = np.asarray(pigtail_path())
+    return float(np.linalg.norm(np.diff(p, axis=0), axis=1).sum())
 
 
 def build():

@@ -10,7 +10,7 @@ Vollständiger Drucksatz, jedes Teil mit eindeutigem Namen (gleicher Name als Kn
 
 | Datei | Teil | aus Original | Änderung |
 |---|---|---|---|
-| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite) mit Zonen für die Stecker, USB-C bündig in einer Mulde, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Tasche und Lagerbund des Nachladehebels (Sicherungshebel-Relief entfernt), Einschmelzmuttern, Zentrierbund vorn, Zuganker mit Mutternischen |
+| `gehaeuse_links.stl` | Gehäuse links | `obj_1_3` | Platinentasche (Bauteilseite) mit Zonen für die Stecker, USB-C bündig in einer Mulde, RP-SMA-Buchse für die externe Antenne mit Planfläche und Raum für die Kabelschlaufe, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Tasche und Lagerbund des Nachladehebels (Sicherungshebel-Relief entfernt), Einschmelzmuttern, Zentrierbund vorn, Zuganker mit Mutternischen |
 | `gehaeuse_rechts.stl` | Gehäuse rechts | `obj_3_6` | Platinentasche mit Domen, Abzugsmechanik, Kabelschächte (auch zur Westenbuchse), Motor, Drehgeber, Schraubensenkungen, Zentrierbund vorn, Zuganker mit Mutternischen |
 | `zwischenring.stl` | Zwischenring | `obj_5_5` | Kabelschacht, Nut hinten, Zentrierbund vorn, 2 Bohrungen für die Zuganker (Nut unten drucken) |
 | `handschutz_hinten.stl` | Handschutz hinten | `obj_10_2` | einteilig, ab Y = −32; vorn Zapfen mit 4 Einschmelzmuttern und 2 gefangenen Muttern M4 (Zuganker), Nut hinten, Kabelschacht (Rückseite unten drucken, Stützen unter dem Zapfenkopf) |
@@ -64,6 +64,7 @@ Elektrische Teile außerhalb der Platine mit LCSC-Nummer: [`waffe_lose_teile.csv
 | Sensorkabel Weste | GX16-7 Einbaubuchse (Gewinde M16 × 1, Mutter SW 19, Flansch bis Ø 20) + GX16-7 Kabelstecker; 7 Litzen AWG 28 zu J2 (JST-SH 7) |
 | Kabel innen | Litze AWG 28 (Ø ≤ 0,9 mm), Akku AWG 24 (Ø ≤ 1,3 mm) |
 | TSOP 6 | TSOP34838 (6 × 6,95 × 5,6 mm) |
+| Externe Antenne | Knick-Stabantenne 2,4 GHz RP-SMA, 3,2 dBi, 142 mm (TE/Linx ANT-2.4-CW-HWR-RPS); Pigtail RP-SMA-Einbaubuchse auf U.FL, 100 mm, Kabel 1,13 mm (TE/Linx CSI-RGFB-100-UFFR); nur mit ESP32-S3-WROOM-1U auf der Platine |
 
 ## Einbau
 
@@ -140,6 +141,16 @@ Elektrische Teile außerhalb der Platine mit LCSC-Nummer: [`waffe_lose_teile.csv
 
 <img src="../baugruppe/schnitt_weste.png" alt="Schnitt: GX16-Buchse im Schaft, Mutter, Stecker, Kabelschacht zur Platine" width="520">
 
+- **Externe Antenne** (Variante mit ESP32-S3-WROOM-1U): RP-SMA-Buchse quer durch die linke Seitenwand oben über
+  dem Modul (X = 71,5, Y = 134), Wand an der Buchse 2,5 mm, außen Planfläche Ø 14. Buchse vor dem Einsetzen der
+  Platine von innen durchstecken (Sechskant innen an der Wand), außen Scheibe und Mutter SW 8. Kabel in knapp zwei
+  Windungen vor der Buchse in der Tasche zur Schlaufe legen, U.FL auf das Modul stecken. Antenne außen aufschrauben
+  und senkrecht nach oben klappen; sie steht neben Kimme und Korn
+
+| Außen | Innen (linke Hälfte und Antenne ausgeblendet) |
+|---|---|
+| <img src="../baugruppe/antenne_aussen.png" alt="Antenne links oben am Gehäuse, senkrecht nach oben geklappt" width="420"> | <img src="../baugruppe/antenne_innen.png" alt="RP-SMA-Buchse, Kabelschlaufe des Pigtails und U.FL am WROOM-1U" width="420"> |
+
 - **Nachladehebel** (Wippe) links über dem Griff: der Sicherungshebel ist ein eigenes Teil und dreht um die
   Kreismarke (Daumen drückt den Arm ca. 4,5° nach unten)
   1. Taster 6 × 6 liegend in die Tasche unter dem Hebel (Stößel zum Drehpunkt hin), Beinchen nach unten biegen,
@@ -177,6 +188,7 @@ rechten Kante nach oben in die VIB-Zone und von dort in den Motorschacht.
 | OLED | J4 (JST-SH 4) | 4 | Zone rechts oben → OLED-Schacht → OLED im Schaft | 95 mm |
 | Drehgeber | J5 (JST-SH 4) | 4 | Zone rechts oben → VIB-Zone → Motorschacht → Motorraum → Drehgeber | 145 mm |
 | Vibrationsmotor | M1 (JST-SH 2) | 2 | rechte Zone → Motorschacht → Motor | 80 mm |
+| Antenne | U.FL am WROOM-1U | Koax 1,13 | Schlaufe vor der Buchse in der Antennenzone → RP-SMA-Buchse | 100 mm (Pigtail) |
 
 Füllung der Schächte (Querschnitt der Adern / Schacht): Hauptschacht im Gehäuse 46 % (12 Adern inkl. Akku,
 dünne Silikonlitze verwenden), im Handschutz 32 %, Motorschacht 29 % (Motor, Drehgeber, Weste: 13 Adern),

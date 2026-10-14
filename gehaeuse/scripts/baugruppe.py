@@ -11,6 +11,7 @@ Z zur linken Außenseite, mm. Die Lage der Teile folgt aus ihren Passungen:
   - Korn obj_7_1: Steg im Schlitz vorn oben auf dem Handschutz
   - Spannhebel: Stift obj_11_12 im Loch der linken Mulde, Knauf obj_9_10 außen darauf
   - Platine: wie in platine_einbau.py (X = X0 + by, Y = Y0 + bx, Oberseite in der Teilungsebene)
+  - externe Antenne: RP-SMA-Buchse in der linken Seitenwand, Antenne nach oben geklappt, Pigtail zum U.FL
 
 Ausgabe: baugruppe/mp5_baugruppe.glb (Meter, y oben, Mündung in +x) und baugruppe/mp5_baugruppe.3mf (mm).
 
@@ -38,6 +39,8 @@ BLACK = (40, 40, 42, 255)
 DARK = (70, 72, 76, 255)
 STEEL = (150, 150, 155, 255)
 YELLOW = (230, 190, 40, 255)
+BRASS = (200, 165, 80, 255)
+GREY = (120, 120, 125, 255)
 
 Y_FRONT = 30.0      # Vorderseite Gehäuse
 Y_REAR = 211.1      # Rückseite Gehäuse (oberer Teil)
@@ -112,8 +115,15 @@ def magazine():
 
 
 def board(tmp):
+    """Bestückte Platine als Variante mit ESP32-S3-WROOM-1U (externe Antenne)."""
+    pcb = os.path.join(tmp, "board.kicad_pcb")
+    src = open(PCB).read()
+    wroom = "${KICAD10_3DMODEL_DIR}/RF_Module.3dshapes/ESP32-S3-WROOM-1.step"
+    assert src.count(wroom) == 1
+    open(pcb, "w").write(src.replace(wroom, "${KIPRJMOD}/3dmodels/ESP32-S3-WROOM-1U.wrl"))
+    os.symlink(os.path.join(os.path.dirname(PCB), "3dmodels"), os.path.join(tmp, "3dmodels"))
     glb = os.path.join(tmp, "board.glb")
-    subprocess.run(["kicad-cli", "pcb", "export", "glb", "--subst-models", "-o", glb, PCB],
+    subprocess.run(["kicad-cli", "pcb", "export", "glb", "--subst-models", "-o", glb, pcb],
                    check=True, capture_output=True)
     scene = trimesh.load(glb)
     # glTF der Platine: x = bx, y = Höhe über der Rückseite, z = by (m)
@@ -171,8 +181,8 @@ def parts():
         (N["steg_vorn_96mm"], None, None, STEEL),
         (N["steg_hinten_77mm"], None, None, STEEL),
         (N["magazin"], mod("magazin"), magazine(), BLACK),
-    ] + new_parts()
-    return [p for p in out if p[1] is not None or p[0].startswith("Steg")]
+    ] + new_parts() + [(k, None, None, c) for k, c in KAUF.items()]
+    return [p for p in out if p[1] is not None or p[0].startswith("Steg") or p[0] in KAUF]
 
 
 def hg_matrix():
@@ -194,6 +204,10 @@ def mod(key, fallback=""):
 
 NEW = {"abzug": DARK, "nachladehebel": DARK, "handschutz_vorn_links": BLACK, "handschutz_vorn_rechts": BLACK, "linsenhuelse": STEEL, "frontkappe": BLACK, "magazin_unterteil": BLACK,
        "oled_rahmen": BLACK, "tsop_einsatz": BLACK}
+
+
+# Kaufteile der externen Antenne (Geometrie in platine_einbau.py)
+KAUF = {"Antennenbuchse RP-SMA": BRASS, "Antenne 2,4 GHz": BLACK, "Pigtail RP-SMA U.FL": GREY}
 
 
 def new_parts():
@@ -262,13 +276,26 @@ def bar(length, x, y0):
     """Steg (Rundstab Ø 10 aus obj_8_8, ggf. gekürzt) entlang +Y ab y0, Achse bei (x, 0)."""
     if length < 100.0:
         mm = P.steg(length).to_mesh()
-        b = trimesh.Trimesh(mm.vert_properties[:, :3], mm.tri_verts)
+        b = trimesh.Trimesh(np.array(mm.vert_properties)[:, :3], np.array(mm.tri_verts))
     else:
         b = load(os.path.join(SRC, "obj_8_8.stl")).split(only_watertight=False)[0]
     lo, hi = b.bounds
     c = (lo + hi) / 2
     b.apply_transform(m4(rot([[0, 0, 1], [1, 0, 0], [0, 1, 0]]), (c[0], c[1], lo[2]), (x, y0, 0)))
     return b
+
+
+def mesh_of(name, src, mat):
+    """Teil im Gun-Rahmen: Stege und Kaufteile erzeugt, sonst aus der Datei."""
+    if name.startswith("Steg vorn"):
+        return steg_vorn()
+    if name.startswith("Steg hinten"):
+        return bar(P.STEG_L, X_REAR_BAR, P.STOP[3])
+    if name in KAUF:
+        return P.antenna_parts()[name]
+    mesh = load(src if os.path.isabs(src) else os.path.join(SRC, src + ".stl"))
+    mesh.apply_transform(mat)
+    return mesh
 
 
 def main():
@@ -278,13 +305,7 @@ def main():
     scene = trimesh.Scene()
     mm_scene = trimesh.Scene()
     for name, src, mat, color in parts():
-        if name.startswith("Steg vorn"):
-            mesh = steg_vorn()
-        elif name.startswith("Steg hinten"):
-            mesh = bar(P.STEG_L, X_REAR_BAR, P.STOP[3])
-        else:
-            mesh = load(src if os.path.isabs(src) else os.path.join(SRC, src + ".stl"))
-            mesh.apply_transform(mat)
+        mesh = mesh_of(name, src, mat)
         mesh.visual = trimesh.visual.ColorVisuals(mesh, face_colors=color)
         mm_scene.add_geometry(mesh.copy(), node_name=name, geom_name=name)
         m = mesh.copy()
