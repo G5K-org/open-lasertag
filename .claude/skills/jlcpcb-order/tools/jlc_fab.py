@@ -12,6 +12,7 @@ Creates in OUT_DIR:
 Footprints need an "LCSC" field; parts without it are listed and left out of BOM/CPL.
 """
 import csv
+import math
 import json
 import os
 import re
@@ -103,11 +104,33 @@ def main():
         w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
         for (fpname, lcsc), g in sorted(groups.items(), key=lambda kv: natkey(sorted(kv[1]["refs"], key=natkey)[0])):
             w.writerow([" / ".join(sorted(g["vals"])), ",".join(sorted(g["refs"], key=natkey)), fpname, lcsc])
+    # variant for an external antenna: same footprint, ESP32-S3-WROOM-1U (U.FL) instead of the PCB-antenna module
+    # (the 1U footprint origin sits 3.15 mm further towards the pins -> CPL centre moves along the module axis)
+    ALT = {"C2913202": ("C3013946", "ESP32-S3-WROOM-1U-N16R8")}
+    ALT_SHIFT = {"C3013946": 3.15}
+    if any(lcsc in ALT for _, lcsc in groups):
+        with open(os.path.join(out, f"{name}_bom_externe_antenne.csv"), "w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
+            for (fpname, lcsc), g in sorted(groups.items(), key=lambda kv: natkey(sorted(kv[1]["refs"], key=natkey)[0])):
+                code, val = ALT.get(lcsc, (lcsc, " / ".join(sorted(g["vals"]))))
+                w.writerow([val, ",".join(sorted(g["refs"], key=natkey)), fpname, code])
     with open(os.path.join(out, f"{name}_cpl.csv"), "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
         for row in sorted(cpl, key=lambda r: natkey(r[0])):
             w.writerow(row)
+    alt_refs = {r: ALT_SHIFT[ALT[lcsc][0]] for (_, lcsc), g in groups.items() if lcsc in ALT for r in g["refs"]}
+    if alt_refs:
+        with open(os.path.join(out, f"{name}_cpl_externe_antenne.csv"), "w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
+            for ref, x, y, layer, rot in sorted(cpl, key=lambda r: natkey(r[0])):
+                if ref in alt_refs:  # shift along the module's own +y (towards the pins), CPL y is inverted
+                    d = alt_refs[ref]
+                    a = math.radians(rot)
+                    x, y = round(x - d * math.sin(a), 4), round(y - d * math.cos(a), 4)
+                w.writerow([ref, x, y, layer, rot])
 
     print(f"gerber : {zpath} ({len(os.listdir(gdir))} files)")
     print(f"bom    : {bom} ({len(groups)} lines, {sum(len(g['refs']) for g in groups.values())} parts)")

@@ -1,0 +1,4 @@
+﻿Manufacturer Part Number,Manufacturer Name,Quantity,Customer Part Number,Description,Menge je Waffe,Hinweis
+ESP32-S3-WROOM-1U-N16R8,Espressif,10,U4,WLAN-Modul mit U.FL-Anschluss,1,ersetzt ESP32-S3-WROOM-1-N16R8 in mouser_bom_10_waffen (gleicher Footprint)
+CSI-RGFB-100-UFFR,TE Connectivity / Linx,10,Pigtail,"Kabel RP-SMA-Einbaubuchse auf U.FL, 100 mm, 1,13 mm",1,"Buchse links oben im Gehäuse, Mutter SW 8 außen"
+ANT-2.4-CW-HWR-RPS,TE Connectivity / Linx,10,Antenne,"Knick-Stabantenne 2,4 GHz, RP-SMA, 3,2 dBi, 142 mm",1,"außen auf die Buchse, senkrecht nach oben geklappt"

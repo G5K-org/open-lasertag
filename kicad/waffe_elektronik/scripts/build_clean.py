@@ -359,7 +359,7 @@ def block_charger(ox, oy):
     c5 = C("C5", "1u", ox + 60.96, oy + 16.51)
     sh.j((ox + 60.96, oy + 12.7)); sh.w(c5["2"], (ox + 60.96, oy + 22.86)); sh.gnd((ox + 60.96, oy + 22.86))
     r2 = R("R2", "10k", ox + 76.2, oy + 24.13)
-    d5 = sh.part("Device", "D_Schottky", "D5", "BAT54WS", ox + 68.58, oy + 27.94,
+    d5 = sh.part("Device", "D_Schottky", "D5", "1N5819WS", ox + 68.58, oy + 27.94,
                  ref_at=(ox + 68.58, oy + 31.75), val_at=(ox + 68.58, oy + 34.29), just="center")
     sh.w(u3["1"], d5["1"]); sh.w(d5["2"], (ox + 83.82, oy + 27.94)); sh.j((ox + 76.2, oy + 27.94))
     sh.lbl((ox + 83.82, oy + 27.94), "CHRG_STAT", "R")
@@ -583,7 +583,7 @@ def block_vibration(ox, oy):
         dx, dy = ox + 12.7 + i * 52.07, oy + 22.86
         mm = sh.part("Motor", "Motor_DC", m, mval, dx + 25.4, dy,
                      ref_at=(dx + 21.59, dy - 1.27), val_at=(dx + 21.59, dy + 1.27), just="right")
-        dd = sh.part("Diode", "SS14", d, "SS14", dx + 35.56, dy + 1.27, angle=270,
+        dd = sh.part("Diode", "SS14", d, "B5819W", dx + 35.56, dy + 1.27, angle=270,
                      ref_at=(dx + 40.64, dy), val_at=(dx + 40.64, dy + 2.54))
         top, bot = dy - 10.16, dy + 12.7
         sh.w(mm["1"], (dx + 25.4, dy - 15.24)); sh.vcc((dx + 25.4, dy - 15.24), "5V_PERIPH")
@@ -683,7 +683,7 @@ def block_weste(ox, oy):
 def block_flash(ox, oy):
     """SPI-NAND 1 Gbit (128 MB) for audio files, 1-bit SPI: /WP and /HOLD tied high, /CS pulled up."""
     ux, uy = ox + 30.48, oy + 30.48
-    u = sh.part("Memory_Flash", "W25Q32JVZP", "U14", "GD5F1GQ5UEYIGR", ux, uy,
+    u = sh.part("Memory_Flash", "W25Q32JVZP", "U14", "ZD35Q1GC-IB", ux, uy,
                 ref_at=(ux + 3.81, uy - 16.51), val_at=(ux + 6.35, uy + 16.51), just="left")
     sh.w(u["8"], (ux, uy - 20.32)); sh.vcc((ux, uy - 20.32), "3V3_MCU")
     sh.w((ux, uy - 17.78), (ux + 15.24, uy - 17.78)); sh.j((ux, uy - 17.78))
@@ -761,7 +761,7 @@ def block_protect(ox, oy):
     sh.note((ox + 2.54, oy + 71.12), "Trennt bei ca. 4,3 V (Überladung), 2,4 V (Tiefentladung) und Überstrom")
     # USB supply for the 5 V rail (D3 keeps it out of the battery, the boost wins when a battery is in)
     dx, dy = ox + 88.9, oy + 15.24
-    d4 = sh.part("Diode", "SS14", "D4", "SS14", dx, dy, angle=180,
+    d4 = sh.part("Diode", "SS14", "D4", "B5819W", dx, dy, angle=180,
                  ref_at=(dx, dy - 4.445), val_at=(dx, dy + 3.81), just="center")
     sh.w(d4["2"], (dx - 7.62, dy), (dx - 7.62, dy - 5.08)); sh.vcc((dx - 7.62, dy - 5.08), "VBUS_NATIVE")
     sh.w(d4["1"], (dx + 7.62, dy), (dx + 7.62, dy - 5.08)); sh.vcc((dx + 7.62, dy - 5.08), "5V_PERIPH")
@@ -796,11 +796,11 @@ FOOTPRINTS = {
     "U6": "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",
     "U12": "Package_TO_SOT_SMD:SOT-23-6",
     "Q1": "Package_TO_SOT_SMD:SOT-23", "Q2": "Package_TO_SOT_SMD:SOT-23",
-    "D1": "Diode_SMD:D_SOD-123F", "D3": "Diode_SMD:D_SMA",
+    "D1": "Diode_SMD:D_SOD-123", "D3": "Diode_SMD:D_SMA",
     "L1": "Inductor_SMD:L_Sunlord_MWSA0503S",
     "R7": "Resistor_SMD:R_1206_3216Metric",
     "C1": "Capacitor_SMD:C_1210_3225Metric", "C7": "Capacitor_SMD:C_1210_3225Metric",
-    "C10": "Capacitor_SMD:C_1210_3225Metric", "C3": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
+    "C10": "Capacitor_SMD:C_1210_3225Metric", "C3": "Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A",
     "C2": "Capacitor_SMD:C_0805_2012Metric", "C18": "Capacitor_SMD:C_0805_2012Metric",
     "C19": "Capacitor_SMD:C_0805_2012Metric", "C22": "Capacitor_SMD:C_0805_2012Metric", "C20": "Capacitor_SMD:C_0805_2012Metric",
     "J1": "Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
@@ -813,24 +813,24 @@ FOOTPRINTS = {
     "U14": "Package_SON:WSON-8-1EP_8x6mm_P1.27mm_EP3.4x4.3mm",
     "J7": "lasertag:microSD_TF-018_PushPull",  # project library
     "U15": "Package_TO_SOT_SMD:SOT-23-6", "Q3": "Package_TO_SOT_SMD:SOT-23-6",
-    "D4": "Diode_SMD:D_SOD-123F", "D5": "Diode_SMD:D_SOD-323",
+    "D4": "Diode_SMD:D_SOD-123", "D5": "Diode_SMD:D_SOD-323",
     "C26": "Capacitor_SMD:C_0402_1005Metric", "C27": "Capacitor_SMD:C_0402_1005Metric",
 }
 # JLCPCB/LCSC part numbers (checked for stock 2026-10-11); by reference, fallback by value for 0603 R/C
 LCSC = {
     "U1": "C84817", "U2": "C6186", "U3": "C424093", "U4": "C2913202", "U5": "C131316", "U6": "C910544",
     "U12": "C7519", "Q1": "C20917", "Q2": "C20917",
-    "D1": "C2909920", "D3": "C8678", "L1": "C408412",
+    "D1": "C8598", "D3": "C8678", "L1": "C408412",
     "R7": "C17903",
-    "C1": "C723734", "C10": "C723734", "C7": "C49066", "C3": "C7193",
+    "C1": "C23742", "C10": "C23742", "C7": "C23742", "C3": "C7171",  # 100u 10V 1210 / 10u 16V tantalum case A
     "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783",
     "J1": "C225234", "J2": "C160406", "J3": "C49261570", "BT1": "C225233", "SP1": "C225233",
     "M1": "C160402", "LED1": "C160402", "SW1": "C160402", "SW2": "C160402",
     "SW3": "C231329", "SW4": "C231329", "J4": "C160404", "J5": "C160404",
-    "U14": "C2829047",  # GD5F1GQ5UEYIGR, supported by espressif/spi_nand_flash
+    "U14": "C2928927",  # Zetta ZD35Q1GC-IB, supported by espressif/spi_nand_flash
     "J6": "C7430445",
     "J7": "C961679",  # XKB TF-018, microSD push-pull
-    "U15": "C351410", "Q3": "C2830320", "D4": "C2909920", "D5": "C168799",
+    "U15": "C351410", "Q3": "C2830320", "D4": "C8598", "D5": "C191023",
     "C26": "C1525", "C27": "C1525",  # 100n 0402  # ZX-SH1.0-3PWT, JST SM03B-compatible (C160403 out of stock)
 }
 LCSC_0603 = {("R", "10k"): "C25804", ("R", "100k"): "C25803", ("R", "5.1k"): "C23186", ("R", "2k"): "C22975",
@@ -840,6 +840,11 @@ SMALL = {f"R{i}" for i in range(28, 35)} | {"R37"}  # 0402 where the board is ti
 LCSC_0402 = {"100": "C25076", "10k": "C25744", "1k": "C11702"}
 VEST = {f"U{i}" for i in range(7, 12)} | {f"R{i}" for i in range(16, 21)} | {f"C{i}" for i in range(11, 16)}
 VEST |= {"U13", "R26", "C24"}  # TSOP 6 sits on the weapon, filter at the sensor
+
+
+# Soldered by hand (connectors, fallback buttons): no LCSC field -> not in the JLC BOM/CPL; the LCSC numbers for
+# the separate parts order are in fertigung/lcsc/waffe_lose_teile.csv
+HAND = {"J1", "J2", "J4", "J5", "J6", "BT1", "SP1", "LED1", "M1", "SW1", "SW2", "SW3", "SW4"}
 
 
 def assign_footprints():
@@ -859,6 +864,8 @@ def assign_footprints():
         fprop = next(p for p in inst.properties if p.key == "Footprint")
         fprop.value = fp
         val = next(p.value for p in inst.properties if p.key == "Value")
+        if ref in HAND:
+            continue
         part = LCSC.get(ref) or (LCSC_0402.get(val) if ref in SMALL else LCSC_0603.get((inst.entryName, val)))
         assert part, f"no LCSC part for {ref} ({val})"
         if not any(p.key == "LCSC" for p in inst.properties):

@@ -54,7 +54,7 @@ Die Symbole stammen aus den KiCad-Standardbibliotheken; FS8205A sowie Kopien von
 schreibt. Verwendet u. a.
 `ESP32-S3-WROOM-1` (`U4`), `USB_C_Receptacle_USB2.0_16P` (`J3`),
 `USBLC6-2SC6`, `MT3608`, `MCP73831-2-OT`, `AMS1117-3.3`, `TSOP348xx`,
-`MAX98357A`, `AO3400A`, `74AHCT125`, `SS14`, `SS34`, `W25Q32JVZP` (Pinbild für U14), `Micro_SD_Card_Det1`,
+`MAX98357A`, `AO3400A`, `74AHCT125`, `SS14` (Pinbild für B5819W), `SS34`, `W25Q32JVZP` (Pinbild für U14), `Micro_SD_Card_Det1`,
 `DW01A`, `D_Schottky`. Alle Footprints sind
 SMD, J3 aus der Projektbibliothek; Bauteile außerhalb der Platine (Akku, IR-LED, TSOP 6, Taster, Motoren,
 Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
@@ -82,9 +82,9 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **Akkuschutz:** DW01A (`U15`, LCSC C351410) + FS8205A (`Q3`, C2830320) im Minuspfad des Akkus
   (`BAT_N` → `GND`): trennt bei ca. 4,3 V, 2,4 V und Überstrom; VCC über 100 Ω (`R28`) + 100 nF (`C27`),
   CS über 1 kΩ (`R29`)
-- **USB ohne Akku:** Schottky SS14 (`D4`) von `VBUS_NATIVE` auf `5V_PERIPH`; D3 im Boost sperrt den Rückweg
+- **USB ohne Akku:** Schottky B5819W (`D4`) von `VBUS_NATIVE` auf `5V_PERIPH`; D3 im Boost sperrt den Rückweg
   in den Akku, mit Akku liefert der Boost (5,1 V)
-- **Lade-Status:** STAT des MCP73831 über BAT54WS (`D5`) an IO18, Pull-up `R2` auf der GPIO-Seite
+- **Lade-Status:** STAT des MCP73831 über 1N5819WS (`D5`) an IO18, Pull-up `R2` auf der GPIO-Seite
 - **IR-Puffer:** `C7` (100 µF) von `BAT_P` nach GND
 - **Lader (`U3`, MCP73831):** hängt ausschließlich an `VBUS_NATIVE` der
   USB-C-Buchse, nicht am Boost-Ausgang.
@@ -95,8 +95,8 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   330 Ω-Vorwiderstand; die Munitionsanzeige hängt als weitere WS2812-Pixel am
   physischen DOUT-Pin des HP-Streifens (Daisy-Chain), am Ende der Kette sitzt
   das Ringlicht für das Mündungsfeuer vorne an der Waffe.
-- **Flash für Audio-Dateien (`U14`):** SPI-NAND GD5F1GQ5UEYIGR, 1 Gbit (128 MB), WSON-8 8×6,
-  LCSC C2829047, ESP-IDF-Komponente `espressif/spi_nand_flash`; SPI2 über die GPIO-Matrix
+- **Flash für Audio-Dateien (`U14`):** SPI-NAND Zetta ZD35Q1GC-IB, 1 Gbit (128 MB), WSON-8 8×6,
+  LCSC C2928927 (pin- und gehäusegleich: GD5F1GQ5UE, W25N01GV), ESP-IDF-Komponente `espressif/spi_nand_flash`; SPI2 über die GPIO-Matrix
   (IO7 /CS, IO15 MISO, IO3 MOSI, IO46 CLK), /CS mit 10 kΩ (`R27`) auf 3V3, /WP und /HOLD fest
   auf 3V3, 100 nF (`C25`) an VCC, EP auf GND
 - **microSD-Slot (`J7`):** XKB TF-018, Push-Pull, LCSC C961679, im SPI-Modus am Flash-Bus
@@ -131,6 +131,14 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **microSD (J7):** unten rechts, Öffnung bündig mit der Unterkante, die Karte ragt ~8,6 mm in die
   Kabeltasche unter der Platine; MOSI/CLK/VDD/GND/MISO über Vias unter der Kontaktreihe, /CS von oben auf
   F.Cu, MISO auf B.Cu unter dem Slot durch; U6/C23 dafür 0,3 mm höher, J2 1,5 mm höher
+- **Antenne:** Standard ist das ESP32-S3-WROOM-1 mit Leiterplattenantenne über der Oberkante. Optional passt
+  das ESP32-S3-WROOM-1U-N16R8 (LCSC C3013946) ohne Änderung auf denselben Footprint (gleiche Pads, Modul
+  6,3 mm kürzer, endet an der Oberkante); dazu Pigtail U.FL auf RP-SMA-Einbaubuchse (TE/Linx CSI-RGFB-100-UFFR)
+  in der linken Seitenwand über dem Modul und Knick-Stabantenne außen (TE/Linx ANT-2.4-CW-HWR-RPS), siehe
+  [Gehäuse](../../gehaeuse/mp5_umbau/README.md#einbau). 3D-Modell des 1U für die Baugruppe:
+  `scripts/gen_3d_wroom1u.py`. JLCPCB-Dateien dafür:
+  `waffe_elektronik_bom_externe_antenne.csv` und `waffe_elektronik_cpl_externe_antenne.csv` (Modulmitte 3,15 mm
+  versetzt), Mouser: [`option_externe_antenne_10_waffen.csv`](fertigung/mouser/option_externe_antenne_10_waffen.csv)
 - **Bedienung:** J4 OLED (JST-SH 4, Qwiic: GND/3V3/SDA/SCL) und J5 Drehgeber (JST-SH 4:
   GND/Taster/B/A) übereinander im rechten Streifen; I²C-Pull-ups auf dem OLED-Modul
 - **Stecker nach Kabelweg in der Waffe:** jede Öffnung zeigt in die Zone am Platinenrand, aus der der
@@ -170,16 +178,18 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 ## Fertigung (JLCPCB)
 
 [`fertigung/jlcpcb/`](fertigung/jlcpcb/): `waffe_elektronik_gerber.zip` (Gerber + Bohrdaten),
-`waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. Alle Bauteile mit LCSC-Nummer (Feld `LCSC`),
-geprüft auf Lagerbestand bei JLCPCB.
-Lose Teile in der Waffe, die an die Platine angeschlossen werden (nicht bestückt):
-[`fertigung/lcsc/waffe_lose_teile.csv`](fertigung/lcsc/waffe_lose_teile.csv) – Nachladetaster
-K2-1102DP-C4SW-04 (C110153) an SW2, Abzugsschalter Omron D2F-01 (C397278) an SW1.
+`waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. JLCPCB bestückt 66 Teile (Feld `LCSC`, Lagerbestand
+geprüft, 13 Extended-Teile); die Stecker (BT1, SP1, J1, J2, J4–J6, LED1, M1, SW1, SW2) und die Taster SW3/SW4
+haben kein `LCSC`-Feld und werden selbst gelötet.
+Selbst zu lötende Teile und lose Teile in der Waffe:
+[`fertigung/lcsc/waffe_lose_teile.csv`](fertigung/lcsc/waffe_lose_teile.csv) (LCSC-Nummern, Menge je Waffe).
+Alles für den Selbstbau bei Mouser: [`fertigung/mouser/`](fertigung/mouser/) (10 Waffen, Mouser-Vorlage) plus
+[`lcsc_ergaenzung_10_waffen.csv`](fertigung/mouser/lcsc_ergaenzung_10_waffen.csv) für Teile, die Mouser nicht führt.
 
 - Leiterplatte: 4 Lagen, 1,6 mm, Impedanz-Stackup JLC04161H-7628, ENIG
 - Bestückung: Top Side, BOM + CPL hochladen, Platzierungsvorschau prüfen
-- Ersatzteile: `U5` 74HCT125PW, `D1`/`D2` SS14 (SOD-123FL), `L1` 10 µH MWSA0503S,
-  `BT1`/`SP1` CJT A2001WR-S-2P, `J1` CJT A2001WR-S-3P (JST-PH-kompatibel)
+- Teile: `U5` 74HCT125PW, `D1`/`D4` B5819W (SOD-123, Basic), `D5` 1N5819WS (Basic), `C1`/`C7`/`C10`
+  CL32A107MPVNNNE (100 µF 10 V), `C3` TAJA106K016RNJ (Case A, Basic), `L1` 10 µH MWSA0503S
 
 ## Bekannte offene Punkte
 

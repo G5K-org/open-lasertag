@@ -39,11 +39,11 @@ der Platine (kreuzungsfreies Routing).
 | TSOP 5 – Schultern (optional) | GPIO14 | RMT-Eingang |
 | TSOP 6 – an der Waffe | GPIO16 | J6 (1 VS, 2 GND, 3 OUT), Filter 100 Ω + 4,7 µF am Sensor; GPIO-Interrupt |
 | WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, 74HCT125) + 330 Ω; VDD über kleinen 5-V-Boost-Converter vom 1S-LiPo |
-| USB-C Lade-Status | GPIO18 | STAT des MCP73831 über Schottky BAT54WS (D5, sperrt 5 V), 10 kΩ Pull-up R2 auf 3V3; low = lädt |
+| USB-C Lade-Status | GPIO18 | STAT des MCP73831 über Schottky 1N5819WS (D5, sperrt 5 V), 10 kΩ Pull-up R2 auf 3V3; low = lädt |
 | I²S DOUT | GPIO38 | zu MAX98357A |
 | I²S BCLK | GPIO39 | zu MAX98357A |
 | I²S LRCLK/WS | GPIO40 | zu MAX98357A |
-| Flash /CS | GPIO7 | SPI-NAND U14 (GD5F1GQ5UEYIGR, 128 MB), SPI2 über GPIO-Matrix, 10 kΩ Pull-up |
+| Flash /CS | GPIO7 | SPI-NAND U14 (ZD35Q1GC-IB, 128 MB), SPI2 über GPIO-Matrix, 10 kΩ Pull-up |
 | microSD /CS | GPIO48 | Slot J7 (TF-018) am selben Bus, interner Pull-up |
 | SPI MISO | GPIO15 | U14 DO, J7 DAT0 (interner Pull-up) |
 | SPI MOSI | GPIO3 | U14 DI, J7 CMD (Strapping-Pin, JTAG-eFuse bleibt ungebrannt) |

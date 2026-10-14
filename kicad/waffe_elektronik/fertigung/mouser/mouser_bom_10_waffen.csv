@@ -1,24 +1,23 @@
 ﻿Manufacturer Part Number,Manufacturer Name,Quantity,Customer Part Number,Description,Menge je Waffe,Hinweis
 ESP32-S3-WROOM-1-N16R8,Espressif,10,U4,"WLAN-Modul 16 MB Flash, 8 MB PSRAM",1,
-W25N01GVZEIG,Winbond,10,U14,SPI-NAND 1 Gbit WSON-8 8x6,1,"Ersatz für GD5F1GQ5UEYIGR (gleiches Gehäuse und Pinbelegung, von spi_nand_flash unterstützt)"
+W25N01GVZEIG,Winbond,10,U14,SPI-NAND 1 Gbit WSON-8 8x6,1,"Ersatz für ZD35Q1GC-IB (gleiches Gehäuse und Pinbelegung, von spi_nand_flash unterstützt)"
 MCP73831T-2ACI/OT,Microchip,10,U3,Li-Ion-Lader SOT-23-5,1,
 LM1117MPX-3.3/NOPB,Texas Instruments,10,U2,"LDO 3,3 V SOT-223",1,Ersatz für AMS1117-3.3 (gleiche Pinbelegung)
 "74HCT125PW,118",Nexperia,10,U5,Puffer TSSOP-14,1,
 MAX98357AETE+T,Analog Devices / Maxim,10,U6,I2S-Verstärker TQFN-16,1,
 USBLC6-2SC6,STMicroelectronics,10,U12,USB-ESD SOT-23-6,1,
 DMN3404L-7,Diodes Inc.,20,"Q1,Q2",N-MOSFET 30 V SOT-23,2,Ersatz für AO3400A (gleiche Pinbelegung)
-MBR140SFT1G,onsemi,20,"D1,D4",Schottky 40 V 1 A SOD-123FL,2,Ersatz für SS14 SOD-123FL
+1N5819HW-7-F,Diodes Inc.,20,"D1,D4",Schottky 40 V 1 A SOD-123,2,Ersatz für B5819W
 SS34-E3/57T,Vishay,10,D3,Schottky 40 V 3 A SMA,1,
-BAT54WS-7-F,Diodes Inc.,10,D5,Schottky 30 V SOD-323,1,
+BAT54WS-7-F,Diodes Inc.,10,D5,Schottky 30 V SOD-323,1,Ersatz für 1N5819WS (als STAT-Diode gleichwertig)
 SRP5030T-100M,Bourns,10,L1,"Speicherdrossel 10 µH 5,7x5,2",1,Ersatz für Sunlord MWSA0503S-100MT (Pads überlappen)
-CC1210MKX5R6BB107,Yageo,22,"C1,C10",MLCC 100 µF 10 V X5R 1210,2,
-CL32A107MQVNNNE,Samsung,11,C7,"MLCC 100 µF 6,3 V X5R 1210",1,
+CL32A107MPVNNNE,Samsung,33,"C1,C7,C10",MLCC 100 µF 10 V X5R 1210,3,
 CL21A106KAYNNNE,Samsung,33,"C2,C18,C22",MLCC 10 µF 25 V X5R 0805,3,
 GRM21BR61E226ME44L,Murata,22,"C19,C20",MLCC 22 µF 25 V X5R 0805,2,
 CL10A105KB8NNNC,Samsung,40,"C4,C5,C16",MLCC 1 µF 50 V X5R 0603,3,
 CC0603KRX7R9BB104,Yageo,90,"C6,C8,C9,C17,C21,C23,C25",MLCC 100 nF 50 V X7R 0603,7,
 CL05B104KO5NNNC,Samsung,30,"C26,C27",MLCC 100 nF 16 V X7R 0402,2,
-TAJB106K016RNJ,Kyocera AVX,11,C3,Tantal 10 µF 16 V Case B,1,Polung beachten
+TAJA106K016RNJ,Kyocera AVX,11,C3,Tantal 10 µF 16 V Case A,1,Polung beachten
 RC0603FR-072KL,Yageo,20,R1,2 kΩ 0603,1,
 RC0603FR-0710KL,Yageo,80,"R2,R9,R10,R21,R25,R27",10 kΩ 0603,6,
 RC0603FR-07100KL,Yageo,50,"R3,R4,R6,R12",100 kΩ 0603,4,
