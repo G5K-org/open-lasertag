@@ -63,7 +63,7 @@ Licht, Ton und Vibration auslösen. Das Netz meldet nur nach.
 | 🎯 **Treffer** | bis zu 6 Sensoren; Treffer zählt erst bei 2 gültigen Frames in 100 ms, danach 500 ms unverwundbar; Kopftreffer geben Bonuspunkte |
 | 💡 **Anzeige** | WS2812-Kette an der Waffe: Lebensbalken grün → gelb → rot, Munition, Teamfarbe, Ringlicht als Mündungsfeuer; Anschlüsse für OLED (I²C) und Drehdrück-Geber |
 | 📳 **Feedback** | Rückstoß- und Treffervibration, Soundeffekte über I²S-Verstärker, weißer Blitz bei Treffer, rotes Pulsieren als tot |
-| 🔋 **Akku** | 1S-LiPo, Laden über USB-C, Spannungs- und Ladeanzeige |
+| 🔋 **Akku** | 1S-LiPo/18650 mit Schutzschaltung auf der Platine, Laden über USB-C, Spannungs- und Ladeanzeige; per USB auch ohne Akku lauffähig |
 | 📡 **Netz** | WLAN mit eigenem Roaming zwischen Access Points, UDP mit HMAC-Signatur, Treffer werden bis zur Bestätigung wiederholt |
 | 🛟 **ESP-NOW** | Fallback zum Server über ein Gateway, wenn das WLAN ausfällt; Trefferbestätigung direkt an die Waffe des Schützen (Ton + grüner Blitz) |
 | 🖥️ **Server** | Runden mit Zeitlimit, Teamwertung, Respawn-Freigabe, Live-Anzeige und Bedienung im Browser, Latenzmessung pro Hallenzone |
@@ -116,10 +116,10 @@ das Sensorkabel der Weste.
 | <img src="kicad/waffe_elektronik/renders/platine_oben.png" alt="Platine Oberseite" width="420"> | <img src="kicad/waffe_elektronik/renders/platine_unten.png" alt="Platine Unterseite" width="420"> |
 
 **Auf der Platine:** ESP32-S3-WROOM-1 (16 MB Flash, 8 MB PSRAM), USB-C mit
-ESD-Schutz zum Flashen und Laden, Lader MCP73831, 5-V-Boost MT3608,
+ESD-Schutz zum Flashen und Laden, Lader MCP73831, Akkuschutz DW01A + FS8205A, 5-V-Boost MT3608,
 3,3-V-Regler, MOSFETs für IR-LED und Vibrationsmotor, Pegelwandler für
 WS2812, I²S-Verstärker MAX98357A, SPI-NAND-Flash 128 MB und microSD-Slot für Audio-Dateien,
-GX16-Buchse für das Sensorkabel der Weste.
+GX16-Buchse für das Sensorkabel der Weste (TSOP-Leitungen über 100 Ω).
 
 <a href="kicad/waffe_elektronik/renders/schaltplan.png"><img src="kicad/waffe_elektronik/renders/schaltplan.png" alt="Schaltplan der Waffen-Elektronik, fünf Seiten"></a>
 
@@ -201,7 +201,8 @@ Core 0, IR-Empfang und Spiellogik auf Core 1.
   RMT-Empfangskanäle, weitere Sensoren über GPIO-Interrupts. Beide Wege gehen
   in denselben NEC-Decoder.
 - **Feedback:** WS2812 über `led_strip`, Vibration per PWM, Soundeffekte
-  werden synthetisch erzeugt (keine Sound-Dateien).
+  werden synthetisch erzeugt (keine Sound-Dateien). Flash und microSD für
+  Audio-Dateien sind auf der Platine vorgesehen, die Firmware nutzt sie noch nicht.
 - **Netz:** kein Stromsparmodus, eigenes Roaming unter −75 dBm, Treffer
   werden gepuffert und wiederholt, bis der Server bestätigt.
 - **ESP-NOW:** ohne WLAN nach 5 s Fallback über das [Gateway](gateway/);
@@ -264,10 +265,11 @@ python3 sim_weapon.py --count 6
 │   ├── sim_weapon.py      Waffen-Simulator
 │   └── tests/             Unit-Tests
 ├── kicad/waffe_elektronik/
-│   ├── scripts/           Generatoren für Schaltplan und Platine
+│   ├── scripts/           Generatoren für Schaltplan (5 Seiten) und Platine, 3D-Modelle
+│   ├── symbols/, footprints/, 3dmodels/   Projektbibliotheken
 │   ├── renders/           Bilder von Platine und Schaltplan
 │   └── fertigung/jlcpcb/  Gerber, BOM, CPL
-├── gehaeuse/              MP5-Gehäusebasis (STL)
+├── gehaeuse/              MP5-Umbau: Basis-STL, Druckteile, Baugruppe, Skripte
 ├── docs/bilder/           Screenshots
 ├── pinbelegung.md         GPIO-Belegung des ESP32-S3
 └── roadmap.md             Phasenplan
@@ -277,11 +279,11 @@ python3 sim_weapon.py --count 6
 
 | Teil | Stand |
 |---|---|
-| Schaltplan und Platine | fertig, ERC/DRC ohne Fehler, Bestellpaket für JLCPCB erstellt |
+| Schaltplan und Platine | fertig (Schaltplan auf fünf Seiten), ERC ohne Meldungen, DRC ohne Fehler, Bestellpaket für JLCPCB erstellt |
 | Firmware | erste Fassung, auf einem ESP32-S3 geflasht und gestartet; Peripherie noch nicht getestet |
 | Server | erste Fassung, mit simulierten Waffen getestet |
 | ESP-NOW | Fallback Waffe ↔ Gateway ↔ Server mit zwei ESP32-S3 getestet (beide Richtungen, RTT ~22 ms); Trefferbestätigung Waffe zu Waffe noch ungetestet |
-| Gehäuse | Basismodell ausgewählt, Umbau für die Elektronik offen |
+| Gehäuse | Umbau konstruiert (Druckteile, Baugruppe, Kabelwege geprüft), noch nicht gedruckt |
 | Weste | Sensoren und Kabel geplant |
 
 Nächste Schritte im [Phasenplan](roadmap.md).
@@ -313,7 +315,7 @@ Stand der Planung: 08.10.2026
 
 ### Waffe (ESP32-S3, zentrale Elektronik – einziger Chip)
 - IR-LED (TSAL6100 o. ä.) über N-MOSFET (AO3400 / IRLZ44N), Gate 100 Ω, Pulldown 100 kΩ
-- 100–220 µF Elko direkt am MOSFET
+- 100 µF Keramik (C7) als Puffer zwischen Akku und GND, direkt an LED und MOSFET
 - Abzug und Nachladen (Mikrotaster, RC-Entprellung 10 kΩ + 100 nF)
 - Munitionszähler: WS2812-Kette, dazu kleines OLED (I²C) und Drehdrück-Geber, je an eigenem Stecker
 - Ein Vibrationsmotor für Rückstoß und Treffer (MOSFET, Freilaufdiode, PWM)
@@ -333,11 +335,9 @@ Stand der Planung: 08.10.2026
 - ESP32-S3-WROOM-1 direkt auf der Platine, eigene USB-C-Buchse am nativen USB
   (IO19/IO20) zum Flashen, Debuggen und Laden – Auto-Flash über den
   eingebauten USB-Serial-JTAG, BOOT- und RESET-Taster als Rückfallebene
-- Ladeelektronik USB-C: VBUS derselben Buchse auf einen Lade-IC führen, z. B.
-  TP4056-Modul mit Schutzschaltung (DW01A + FS8205) oder MCP73831. Bei unprotected
-  LiPo-Pouch-Zelle zusätzliche Schutzschaltung einplanen. CHRG/STAT-Ausgang des
-  Lade-ICs auf den Lade-Status-GPIO (siehe [pinbelegung.md](pinbelegung.md))
-  und/oder eine eigene LED.
+- Laden über USB-C: MCP73831 an VBUS derselben Buchse, STAT über eine Schottky-Diode
+  (BAT54WS) auf den Lade-Status-GPIO (siehe [pinbelegung.md](pinbelegung.md)); USB speist
+  über eine SS14 auch die 5-V-Schiene, damit Flashen ohne Akku geht
 - WLAN auf Core 0, IR-Auswertung auf Core 1
 
 ### Weste (nur Sensoren, keine eigene Elektronik)
@@ -365,7 +365,8 @@ kein Protokoll.
 - 7 Adern (bei 5 Sensoren): GX16-7-Aviation-Steckverbinder mit Schraubverriegelung.
   Buchse unten vorn am Schaft, im Gehäuse Litzen zu J2 (JST-SH 7), siehe
   [Weste im Gehäuse](gehaeuse/mp5_umbau/README.md#einbau).
-- Je TSOP 100 Ω + 4,7 µF direkt am Sensor, nicht erst an der Waffe.
+- Je TSOP 100 Ω + 4,7 µF direkt am Sensor, nicht erst an der Waffe; auf der Platine
+  liegt jede TSOP-Leitung über 100 Ω in Reihe (Schutz der GPIOs).
 - Kabel kurz halten, geschirmt.
 - Reine GPIO/RMT-Eingänge, von derselben Firmware ausgewertet, die auch sendet.
 
