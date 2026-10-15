@@ -56,6 +56,13 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   Unter Labels keine Vias: `stitch()` hält Textflächen frei, `silk.py` prüft Vias mit Leiterbahn. Was vorne keinen Platz hat (Projekt-URL), geht in `BACK_LABELS` auf `B.SilkS`.
   Herstellerzeichen vorne unter U2: Borg-Würfel (`LOGO`, `logo()`, isometrisch mit 3 × 3-Gitter, Linien 0,15) plus
   „lucas.giesecke.cc“ darunter in `LABELS`; BOOT steht deshalb links unter SW4.
+  Rückseite: Fadenkreuz (`crosshair()`, vier Bögen + Striche) um einen Borg-Würfel mit 4 × 4-Gitter (`BACK_ART`),
+  darunter „OPEN-LASERTAG“ (1,5 mm) und „// RESISTANCE IS FUTILE //“ in `BACK_LABELS`; `stitch()` hält die
+  Würfel frei (`ART_KEEPOUT`), unter Ring und Strichen dürfen Vias liegen.
+  Schriften der Herstellertexte wie auf lucas.giesecke.cc: Orbitron (Titel) und Share Tech Mono (Spruch, URLs, rev),
+  TTF + OFL in `fonts/`. build_board.py setzt vor `import pcbnew` eine eigene fontconfig-Datei auf diesen Ordner;
+  Einträge in `LABELS`/`BACK_LABELS` mit 6. Feld (Schriftname) werden zu gefüllten Silk-Polygonen (Datei und Gerber
+  brauchen keine Schrift). Randlinie `FONT_GROW` dickt die Striche auf ≥ 0,15 mm auf (Share Tech Mono ist sonst zu dünn).
   Bauteilbezeichner bleiben auf `F.Fab`. Prüfen/platzieren mit `tools/silk.py`.
 - **Teardrops** an allen Pads und Vias (Ausnahme: GND-Stiche auf F.Cu, die in der GND-Fläche liegen).
 - Platine **so klein wie möglich**, Bauteilplatzierung mit 3D-Daten prüfen (Render).

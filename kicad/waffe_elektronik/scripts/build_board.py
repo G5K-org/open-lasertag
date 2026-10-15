@@ -13,11 +13,20 @@ import math
 import os
 import re
 import sys
-
-import pcbnew
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROJ = os.path.dirname(HERE)
+# TrueType fonts for the art texts (Orbitron, Share Tech Mono, OFL) come from fonts/ in the project: a private
+# fontconfig file adds that folder before pcbnew starts; the texts end up as silk polygons, the board needs no font
+_fc = tempfile.mkdtemp(prefix="fc_")
+with open(os.path.join(_fc, "fonts.conf"), "w") as _f:
+    _f.write('<?xml version="1.0"?><!DOCTYPE fontconfig SYSTEM "fonts.dtd"><fontconfig>'
+             '<include ignore_missing="yes">/etc/fonts/fonts.conf</include>'
+             f'<dir>{os.path.join(PROJ, "fonts")}</dir><cachedir>{_fc}</cachedir></fontconfig>')
+os.environ["FONTCONFIG_FILE"] = os.path.join(_fc, "fonts.conf")
+
+import pcbnew  # noqa: E402
 NETLIST = os.environ.get("NETLIST", "/tmp/board.net")
 OUT = os.environ.get("OUT_PCB", os.path.join(PROJ, "waffe_elektronik.kicad_pcb"))
 FPLIB = "/usr/share/kicad/footprints"
@@ -378,7 +387,7 @@ LABELS = [  # front silk, horizontal, next to the connector, clear of pads and b
     (10.65, 32.98, "WS2812", 0.8, 0), (30.2, 37.83, "USB", 0.8, 0), (56.5, 39.3, "SENSOR", 0.8, 0),
     (2.98, 44.98, "LAUTSPR.", 0.8, 0), (49.7, 26.03, "VIB", 0.8, 0), (54.1, 36.95, "1", 0.8, 0), (40.9, 40.13, "SD", 0.8, 0),
     (31.1, 22.7, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0),
-    (26.6, 21.15, "lucas.giesecke.cc", 0.8, 0),  # maker mark below U2, under LOGO
+    (26.6, 21.15, "lucas.giesecke.cc", 0.9, 0, "Share Tech Mono"),  # maker mark below U2, under LOGO
 ]
 STACKUP = "".join("\t\t" + l + "\n" for l in [
     "(stackup",
@@ -400,8 +409,12 @@ STACKUP = "".join("\t\t" + l + "\n" for l in [
     ")"])
 LOGO = (22.75, 18.2, 1.55)  # Borg cube (lucas.giesecke.cc) on the front silk: centre x, y, edge length
 BACK_LABELS = [  # no room on the front
-    (41.5, 16.0, "github.com/G5K-org/open-lasertag", 0.8, 0), (41.5, 14.6, "open-lasertag v1", 0.8, 0),
+    (41.5, 16.0, "github.com/G5K-org/open-lasertag", 1.0, 0, "Share Tech Mono"),
+    (41.5, 14.4, "rev 1 - 2026", 1.0, 0, "Share Tech Mono"),
+    (12.0, 31.6, "OPEN-LASERTAG", 1.2, 0, "Orbitron"), (12.0, 33.9, "// RESISTANCE IS FUTILE //", 1.0, 0, "Share Tech Mono"),
 ]
+BACK_ART = (12.0, 21.0, 7.0, 4.0)  # crosshair ring (centre x, y, radius) around a Borg cube (edge) on B.SilkS
+ART_KEEPOUT = []  # logo and font-text boxes: no stitching via under the art
 
 
 def stitch(board, netinfo, pitch=2.0, d=0.5, cl=0.25):
@@ -426,6 +439,7 @@ def stitch(board, netinfo, pitch=2.0, d=0.5, cl=0.25):
         if isinstance(t, pcbnew.PCB_TEXT):
             bb = t.GetEffectiveTextShape().BBox()
             boxes.append((bb.GetLeft() / 1e6, bb.GetTop() / 1e6, bb.GetRight() / 1e6, bb.GetBottom() / 1e6))
+    boxes += ART_KEEPOUT
     r0 = d / 2 + cl
     def segd(px, py, x1, y1, x2, y2):
         dx, dy = x2 - x1, y2 - y1
@@ -514,23 +528,41 @@ def teardrops(board, len_ratio=0.5, width_ratio=0.9, max_len=1.0, max_w=2.0):
     return n
 
 
+FONT_GROW = {"Share Tech Mono": 0.08, "Orbitron": 0.04}  # outline width on the glyph polygons: stems >= 0.15 mm
+
+
 def labels(board):
-    for (x, y, txt, h, ang), back in [(l, False) for l in LABELS] + [(l, True) for l in BACK_LABELS]:
+    """Silk labels; entries with a 6th field use that TrueType font and become filled polygons (no font in the file)."""
+    for l, back in [(l, False) for l in LABELS] + [(l, True) for l in BACK_LABELS]:
+        (x, y, txt, h, ang), font = l[:5], (l[5] if len(l) > 5 else None)
         t = pcbnew.PCB_TEXT(board)
         t.SetText(txt); t.SetLayer(pcbnew.B_SilkS if back else pcbnew.F_SilkS); t.SetMirrored(back)
         t.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y))); t.SetTextAngleDegrees(ang)
-        t.SetTextSize(pcbnew.VECTOR2I(MM(h), MM(h))); t.SetTextThickness(MM(0.15 if h >= 1 else 0.12))
-        board.Add(t)
+        t.SetTextSize(pcbnew.VECTOR2I(MM(h), MM(h))); t.SetTextThickness(MM(max(0.15, 0.15 * h) if h >= 1 else 0.12))
+        if not font:
+            board.Add(t); continue
+        t.SetUnresolvedFontName(font)
+        assert t.ResolveFont(None) and t.GetFontName() == font, f"font {font} missing in fonts/"
+        ps = pcbnew.SHAPE_POLY_SET()
+        t.TransformTextToPolySet(ps, 0, MM(0.003), pcbnew.ERROR_INSIDE)
+        ps.Fracture()
+        bb = ps.BBox()
+        ART_KEEPOUT.append((bb.GetLeft() / 1e6, bb.GetTop() / 1e6, bb.GetRight() / 1e6, bb.GetBottom() / 1e6))
+        for i in range(ps.OutlineCount()):
+            sg = pcbnew.PCB_SHAPE(board); sg.SetShape(pcbnew.SHAPE_T_POLY); sg.SetLayer(t.GetLayer())
+            one = pcbnew.SHAPE_POLY_SET(); one.AddOutline(ps.Outline(i))
+            sg.SetPolyShape(one); sg.SetFilled(True); sg.SetWidth(MM(FONT_GROW[font])); board.Add(sg)
 
 
-def logo(board, cx, cy, a, w=0.15):
-    """Isometric Borg cube: hexagon outline, the three visible face edges and a 3 x 3 grid on every face."""
+def logo(board, cx, cy, a, w=0.15, n=3, layer=pcbnew.F_SilkS):
+    """Isometric Borg cube: hexagon outline, the three visible face edges and an n x n grid on every face."""
     import math
     c = a * math.cos(math.radians(30))
+    ART_KEEPOUT.append((cx - c - 0.2, cy - a - 0.2, cx + c + 0.2, cy + a + 0.2))
     top, ur, lr, bot, ll, ul, mid = ((cx, cy - a), (cx + c, cy - a / 2), (cx + c, cy + a / 2), (cx, cy + a),
                                      (cx - c, cy + a / 2), (cx - c, cy - a / 2), (cx, cy))
     def line(p, q):
-        sg = pcbnew.PCB_SHAPE(board); sg.SetShape(pcbnew.SHAPE_T_SEGMENT); sg.SetLayer(pcbnew.F_SilkS)
+        sg = pcbnew.PCB_SHAPE(board); sg.SetShape(pcbnew.SHAPE_T_SEGMENT); sg.SetLayer(layer)
         sg.SetStart(pcbnew.VECTOR2I(MM(p[0]), MM(p[1]))); sg.SetEnd(pcbnew.VECTOR2I(MM(q[0]), MM(q[1])))
         sg.SetWidth(MM(w)); board.Add(sg)
     ring = [top, ur, lr, bot, ll, ul]
@@ -541,10 +573,26 @@ def logo(board, cx, cy, a, w=0.15):
     for o, u, v in ((ul, (top[0] - ul[0], top[1] - ul[1]), (mid[0] - ul[0], mid[1] - ul[1])),   # top face
                     (mid, (ur[0] - mid[0], ur[1] - mid[1]), (bot[0] - mid[0], bot[1] - mid[1])),  # right face
                     (ul, (mid[0] - ul[0], mid[1] - ul[1]), (ll[0] - ul[0], ll[1] - ul[1]))):   # left face
-        for k in (1, 2):
-            t = k / 3
+        for k in range(1, n):
+            t = k / n
             line((o[0] + t * u[0], o[1] + t * u[1]), (o[0] + t * u[0] + v[0], o[1] + t * u[1] + v[1]))
             line((o[0] + t * v[0], o[1] + t * v[1]), (o[0] + t * v[0] + u[0], o[1] + t * v[1] + u[1]))
+
+
+def crosshair(board, cx, cy, r, w=0.2, layer=pcbnew.B_SilkS):
+    """Laser-tag sight: four ring arcs with gaps at 0/90/180/270 deg and a tick through every gap."""
+    import math
+    def seg(p, q):
+        sg = pcbnew.PCB_SHAPE(board); sg.SetShape(pcbnew.SHAPE_T_SEGMENT); sg.SetLayer(layer); sg.SetWidth(MM(w))
+        sg.SetStart(pcbnew.VECTOR2I(MM(p[0]), MM(p[1]))); sg.SetEnd(pcbnew.VECTOR2I(MM(q[0]), MM(q[1]))); board.Add(sg)
+    for k in range(4):
+        a0 = math.radians(90 * k + 12)
+        sg = pcbnew.PCB_SHAPE(board); sg.SetShape(pcbnew.SHAPE_T_ARC); sg.SetLayer(layer); sg.SetWidth(MM(w))
+        sg.SetCenter(pcbnew.VECTOR2I(MM(cx), MM(cy)))
+        sg.SetStart(pcbnew.VECTOR2I(MM(cx + r * math.cos(a0)), MM(cy + r * math.sin(a0))))
+        sg.SetArcAngleAndEnd(pcbnew.EDA_ANGLE(66, pcbnew.DEGREES_T), True); board.Add(sg)
+        ux, uy = math.cos(math.radians(90 * k)), math.sin(math.radians(90 * k))
+        seg((cx + ux * (r - 1.6), cy + uy * (r - 1.6)), (cx + ux * (r + 1.2), cy + uy * (r + 1.2)))
 
 
 def meander_v(x, y0, extra, n=3, c=0.2, t=0.2, gap=0.6, side=1):
@@ -1051,6 +1099,7 @@ def build():
     route(rt)
     rt.flush()
     labels(board); logo(board, *LOGO)
+    crosshair(board, *BACK_ART[:3]); logo(board, BACK_ART[0], BACK_ART[1], BACK_ART[3], w=0.2, n=4, layer=pcbnew.B_SilkS)
     print("stitching vias:", stitch(board, netinfo))
     for it in list(board.GetTracks()) + [pd for f in board.GetFootprints() for pd in f.Pads()]:
         if it.GetClass() in ("PCB_VIA", "PAD"):
