@@ -54,6 +54,8 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   Die gefundenen Werte sind Mittelpunkte der Strichkontur; KiCad-Textanker liegt bis 0,1 mm daneben
   (y ≈ +0,036) → nach dem Setzen immer `silk.py --gap=0.12` laufen lassen.
   Unter Labels keine Vias: `stitch()` hält Textflächen frei, `silk.py` prüft Vias mit Leiterbahn. Was vorne keinen Platz hat (Projekt-URL), geht in `BACK_LABELS` auf `B.SilkS`.
+  Herstellerzeichen vorne unter U2: Borg-Würfel (`LOGO`, `logo()`, isometrisch mit 3 × 3-Gitter, Linien 0,15) plus
+  „made by“ / „lucas.giesecke.cc“ in `LABELS`; BOOT steht deshalb links unter SW4.
   Bauteilbezeichner bleiben auf `F.Fab`. Prüfen/platzieren mit `tools/silk.py`.
 - **Teardrops** an allen Pads und Vias (Ausnahme: GND-Stiche auf F.Cu, die in der GND-Fläche liegen).
 - Platine **so klein wie möglich**, Bauteilplatzierung mit 3D-Daten prüfen (Render).

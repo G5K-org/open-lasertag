@@ -377,8 +377,10 @@ LABELS = [  # front silk, horizontal, next to the connector, clear of pads and b
     (19.0, 40.43, "TASTER", 0.8, 0), (13.8, -4.95, "RESET", 0.8, 0),
     (10.65, 32.98, "WS2812", 0.8, 0), (30.2, 37.83, "USB", 0.8, 0), (56.5, 39.3, "SENSOR", 0.8, 0),
     (2.98, 44.98, "LAUTSPR.", 0.8, 0), (49.7, 26.03, "VIB", 0.8, 0), (54.1, 36.95, "1", 0.8, 0), (40.9, 40.13, "SD", 0.8, 0),
-    (31.1, 22.1, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0),
+    (31.1, 22.7, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0),
+    (27.3, 19.2, "made by", 0.8, 0), (26.6, 21.15, "lucas.giesecke.cc", 0.8, 0),  # maker mark below U2, next to LOGO
 ]
+LOGO = (22.75, 18.2, 1.55)  # Borg cube (lucas.giesecke.cc) on the front silk: centre x, y, edge length
 BACK_LABELS = [  # no room on the front
     (41.5, 16.0, "github.com/G5K-org/open-lasertag", 0.8, 0), (41.5, 14.6, "open-lasertag v1", 0.8, 0),
 ]
@@ -501,6 +503,30 @@ def labels(board):
         t.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y))); t.SetTextAngleDegrees(ang)
         t.SetTextSize(pcbnew.VECTOR2I(MM(h), MM(h))); t.SetTextThickness(MM(0.15 if h >= 1 else 0.12))
         board.Add(t)
+
+
+def logo(board, cx, cy, a, w=0.15):
+    """Isometric Borg cube: hexagon outline, the three visible face edges and a 3 x 3 grid on every face."""
+    import math
+    c = a * math.cos(math.radians(30))
+    top, ur, lr, bot, ll, ul, mid = ((cx, cy - a), (cx + c, cy - a / 2), (cx + c, cy + a / 2), (cx, cy + a),
+                                     (cx - c, cy + a / 2), (cx - c, cy - a / 2), (cx, cy))
+    def line(p, q):
+        sg = pcbnew.PCB_SHAPE(board); sg.SetShape(pcbnew.SHAPE_T_SEGMENT); sg.SetLayer(pcbnew.F_SilkS)
+        sg.SetStart(pcbnew.VECTOR2I(MM(p[0]), MM(p[1]))); sg.SetEnd(pcbnew.VECTOR2I(MM(q[0]), MM(q[1])))
+        sg.SetWidth(MM(w)); board.Add(sg)
+    ring = [top, ur, lr, bot, ll, ul]
+    for i in range(6):
+        line(ring[i], ring[(i + 1) % 6])
+    for p in (ul, ur, bot):
+        line(mid, p)
+    for o, u, v in ((ul, (top[0] - ul[0], top[1] - ul[1]), (mid[0] - ul[0], mid[1] - ul[1])),   # top face
+                    (mid, (ur[0] - mid[0], ur[1] - mid[1]), (bot[0] - mid[0], bot[1] - mid[1])),  # right face
+                    (ul, (mid[0] - ul[0], mid[1] - ul[1]), (ll[0] - ul[0], ll[1] - ul[1]))):   # left face
+        for k in (1, 2):
+            t = k / 3
+            line((o[0] + t * u[0], o[1] + t * u[1]), (o[0] + t * u[0] + v[0], o[1] + t * u[1] + v[1]))
+            line((o[0] + t * v[0], o[1] + t * v[1]), (o[0] + t * v[0] + u[0], o[1] + t * v[1] + u[1]))
 
 
 def meander_v(x, y0, extra, n=3, c=0.2, t=0.2, gap=0.6, side=1):
@@ -1006,7 +1032,7 @@ def build():
     rt = Router(board, fps, netinfo)
     route(rt)
     rt.flush()
-    labels(board)
+    labels(board); logo(board, *LOGO)
     print("stitching vias:", stitch(board, netinfo))
     for it in list(board.GetTracks()) + [pd for f in board.GetFootprints() for pd in f.Pads()]:
         if it.GetClass() in ("PCB_VIA", "PAD"):

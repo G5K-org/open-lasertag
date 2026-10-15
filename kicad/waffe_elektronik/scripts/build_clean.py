@@ -693,7 +693,7 @@ def block_weste(ox, oy):
         sh.w(n, c["1"])
         sh.j((cx + 35.56, cy - 12.7)); sh.flag(f"#FLG{4 + k}", (cx + 35.56, cy - 12.7))
         sh.w(c["2"], (cx + 40.64, cy + 10.16)); sh.gnd((cx + 40.64, cy + 10.16))
-        sh.w(u["1"], (cx + 27.94, cy)); sh.lbl((cx + 27.94, cy), f"TSOP{k + 1}_OUT", "R")
+        sh.w(u["1"], (cx + 27.94, cy)); sh.lbl((cx + 27.94, cy), f"TSOP{k + 1}_J", "R")
         sh.w(u["2"], (cx + 25.4, cy + 5.08), (cx + 25.4, cy + 10.16)); sh.gnd((cx + 25.4, cy + 10.16))
         sh.note((cx + 12.7, cy + 15.24), names[k], just="center")
     sh.frame(ox - 10.16, oy - 5.08, ox + 264.16, oy + 50.8, "Weste (nur Sensoren, jenseits des Steckers)")
