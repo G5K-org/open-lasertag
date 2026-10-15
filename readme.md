@@ -109,15 +109,15 @@ flowchart LR
 Eine Platine für die ganze Waffe: 59,6 × 55 mm, 4 Lagen, nur SMD-Bauteile, von
 Hand geroutet und für die Bestückung bei JLCPCB vorbereitet. Alle Peripherie
 hängt an Steckern: Akku, IR-LED, Taster, Motoren, Lautsprecher, WS2812, ein Sensor an der Waffe und
-das Sensorkabel der Weste. Ein- und ausgeschaltet wird mit dem Taster des Drehgebers (ausgeschaltet
-fließen nur wenige µA).
+das Sensorkabel der Weste. Ein- und ausgeschaltet wird mit dem Taster des Drehgebers (kurz drücken = ein,
+2 s = aus; ausgeschaltet fließen ca. 55 µA). Geladen wird über USB-C mit 2 A.
 
 | Oberseite | Unterseite |
 |---|---|
 | <img src="kicad/waffe_elektronik/renders/platine_oben.png" alt="Platine Oberseite" width="420"> | <img src="kicad/waffe_elektronik/renders/platine_unten.png" alt="Platine Unterseite" width="420"> |
 
 **Auf der Platine:** ESP32-S3-WROOM-1 (16 MB Flash, 8 MB PSRAM; optional WROOM-1U mit externer Antenne), USB-C mit
-ESD-Schutz zum Flashen und Laden, Lader MCP73831, Akkuschutz DW01A + FS8205A, 5-V-Boost MT3608,
+ESD-Schutz zum Flashen und Laden, Lade- und 5-V-IC IP5306 (2 A Laden), Akkuschutz DW01A + FS8205A,
 3,3-V-Regler, MOSFETs für IR-LED und Vibrationsmotor, Pegelwandler für
 WS2812, I²S-Verstärker MAX98357A, SPI-NAND-Flash 128 MB und microSD-Slot für Audio-Dateien,
 GX16-Buchse für das Sensorkabel der Weste (TSOP-Leitungen über 100 Ω).
@@ -332,10 +332,9 @@ Stand der Planung: 08.10.2026
 - Zusätzlicher TSOP34838 an der Waffe (eigener Stecker J6, GPIO16, Filter
   100 Ω + 4,7 µF am Sensor, nicht über das Sensorkabel)
 - WS2812(B)-Streifen, echte 5-V-Variante (HP/Treffer/Team-Farbe), an der Waffe
-  montiert. Spannungsumsetzung: kleiner Boost-Converter vom 1S-LiPo (3,7–4,2 V)
-  auf 5 V für die VDD-Versorgung des Strips, plus Pegelwandler (z. B.
+  montiert. 5 V für den Strip aus dem IP5306 (Boost vom 1S-LiPo), plus Pegelwandler (z. B.
   74HCT125) zwischen 3,3-V-GPIO und Datenleitung.
-- I²S-Verstärker (MAX98357A) + Lautsprecher, nutzt denselben 5-V-Boost wie der
+- I²S-Verstärker (MAX98357A) + Lautsprecher, nutzt dieselben 5 V wie der
   WS2812-Strip
 - SPI-NAND-Flash ZD35Q1GC (128 MB) für Audio-Dateien, an IO7/IO15/IO3/IO46
 - microSD-Slot (Push-Pull, TF-018) am selben SPI-Bus, /CS an IO48; Karte nur bei geöffnetem Gehäuse
@@ -344,9 +343,9 @@ Stand der Planung: 08.10.2026
 - ESP32-S3-WROOM-1 direkt auf der Platine, eigene USB-C-Buchse am nativen USB
   (IO19/IO20) zum Flashen, Debuggen und Laden – Auto-Flash über den
   eingebauten USB-Serial-JTAG, BOOT- und RESET-Taster als Rückfallebene
-- Laden über USB-C: MCP73831 an VBUS derselben Buchse, STAT über eine Schottky-Diode
-  (1N5819WS) auf den Lade-Status-GPIO (siehe [pinbelegung.md](pinbelegung.md)); USB speist
-  über eine Schottky-Diode auch die 5-V-Schiene, damit Flashen ohne Akku geht
+- Laden über USB-C mit 2 A: IP5306 (Schaltlader + 5-V-Boost, eigener I²C-Bus, siehe
+  [pinbelegung.md](pinbelegung.md)); USB speist über eine Schottky-Diode auch die 5-V-Schiene, damit Flashen
+  ohne Akku geht
 - WLAN auf Core 0, IR-Auswertung auf Core 1
 
 ### Weste (nur Sensoren, keine eigene Elektronik)
@@ -443,7 +442,7 @@ Komplett an der Waffe montiert (WS2812-Streifen, Vibration, Lautsprecher).
 - Team: Lichtband an der Waffe in Teamfarbe
 - Mündungsfeuer: WS2812-Ringlicht vorne an der MP5, als letztes Glied der
   WS2812-Kette über denselben LED-Stecker (kein eigener Pin), kurzer warmer
-  Blitz bei jedem Schuss, Helligkeit wegen Stromspitze am 5-V-Boost begrenzt
+  Blitz bei jedem Schuss, Helligkeit wegen Stromspitze an der 5-V-Versorgung begrenzt
 - Lokale Anzeige zuerst, Netzmeldung danach
 - Helligkeit per Skalierungsfaktor in der `led_strip`-Pixel-Berechnung
   begrenzen, Diffusor über den LEDs

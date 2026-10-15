@@ -285,87 +285,82 @@ def C(ref, val, x, y, pol=False, fields="right"):
 
 # =================================================================== BLOCKS
 def block_power(ox, oy):
-    rail = oy + 17.78
-    gy = oy + 43.18
-    # battery after the on/off switch (block_softpower)
-    sh.w((ox + 7.62, rail), (ox + 7.62, oy + 12.7)); sh.vcc((ox + 7.62, oy + 12.7), "BAT_SW")
-    # MT3608 boost 3.7 V -> 5.1 V
-    c19 = C("C19", "22u", ox + 15.24, oy + 21.59)
-    sh.j((ox + 15.24, rail)); sh.w(c19["2"], (ox + 15.24, gy)); sh.gnd((ox + 15.24, gy))
-    ux, uy = ox + 33.02, oy + 30.48
-    u1 = sh.part("Regulator_Switching", "MT3608", "U1", "MT3608", ux, uy,
-                 ref_at=(ux - 5.08, oy + 40.64), val_at=(ux - 5.08, oy + 43.18), just="right")
-    sh.w((ox + 22.86, rail), (ox + 22.86, u1["5"][1]), u1["5"]); sh.j((ox + 22.86, rail))
-    sh.w((ox + 22.86, u1["5"][1]), (ox + 22.86, u1["4"][1]), u1["4"]); sh.j((ox + 22.86, u1["5"][1]))
-    sh.w(u1["2"], (ux, gy)); sh.gnd((ux, gy))
-    l1 = sh.part("Device", "L", "L1", "10u", ox + 30.48, rail, angle=90,
-                 ref_at=(ox + 30.48, rail - 4.445), val_at=(ox + 30.48, rail - 2.54))
-    sh.w((ox + 7.62, rail), l1["1"])
-    sw = ox + 43.18
-    sh.w(l1["2"], (sw, rail), (sw, u1["1"][1]), u1["1"]); sh.j((sw, rail))
-    d3 = sh.part("Diode", "SS34", "D3", "SS34", ox + 49.53, rail, angle=180,
-                 ref_at=(ox + 49.53, rail - 4.445), val_at=(ox + 49.53, rail - 2.54))
-    sh.w((sw, rail), d3["2"])
-    k = ox + 53.34
-    r24 = R("R24", "75k", k, oy + 24.13)
-    r25 = R("R25", "10k", k, oy + 36.83)
-    sh.j((k, rail)); sh.w((k, rail), r24["1"])
-    sh.w(r24["2"], r25["1"]); sh.j((k, u1["3"][1])); sh.w((k, u1["3"][1]), u1["3"])
-    sh.w(r25["2"], (k, gy)); sh.gnd((k, gy))
-    # 5 V rail
-    x5, xf, xc20, xc1, xc2 = ox + 58.42, ox + 63.5, ox + 68.58, ox + 78.74, ox + 88.9
-    u2x = ox + 106.68
+    """IP5306-I2C power bank SoC: switching charger (USB VIN -> cell) and 5 V boost (cell -> VOUT) with one inductor,
+    power path (VIN passes to VOUT), on/off key (via D6 from the encoder button). I2C on its own bus (IO18/IO9).
+    VIN snubber R1/C29 and BAT sense filter R2/C5 as in the Injoinic application circuit."""
+    hw, hh = 10.16, 7.62
+    ux, uy = ox + 60.96, oy + 22.86
+    gy = oy + 48.26
+    u1 = sh.box("IP5306", [("SCL", "2", "L", -5.08), ("SDA", "3", "L", -2.54), ("LED3", "4", "L", 0), ("VIN", "1", "L", 5.08),
+                           ("VOUT", "8", "R", -5.08), ("KEY", "5", "R", -2.54), ("SW", "7", "R", 0), ("BAT", "6", "R", 5.08),
+                           ("GND", "9", "B", 0)], hw, hh, "U1", "IP5306-I2C", ux, uy,
+                ref_at=(ux, uy - hh - 3.81), val_at=(ux, uy - hh - 1.27))
+    # I2C (bus IP_SCL / IP_SDA) with 4.7k pull-ups to 3V3
+    sh.nc(u1["4"])
+    for num, net, xl, xr in (("2", "IP_SCL", ox + 43.18, ox + 45.72), ("3", "IP_SDA", ox + 27.94, ox + 30.48)):
+        p = u1[num]
+        sh.w(p, (xl, p[1])); sh.lbl((xl, p[1]), net, "L")
+        r = R("R40" if num == "2" else "R38", "4.7k", xr, p[1] - 3.81, fields="left")
+        sh.j((xr, p[1])); sh.w(r["1"], (xr, oy + 5.08)); sh.vcc((xr, oy + 5.08), "3V3_MCU")
+    # VIN from USB: 10u, snubber 2R + 10u
+    vin = u1["1"]; yv = vin[1]
+    sh.w(vin, (ox + 7.62, yv), (ox + 7.62, yv - 5.08)); sh.vcc((ox + 7.62, yv - 5.08), "VBUS_NATIVE")
+    c4 = C("C4", "10u", ox + 15.24, yv + 3.81)
+    sh.j((ox + 15.24, yv)); sh.w(c4["2"], (ox + 15.24, gy)); sh.gnd((ox + 15.24, gy))
+    r1 = R("R1", "2", ox + 25.4, yv + 3.81)
+    sh.j((ox + 25.4, yv))
+    c29 = C("C29", "10u", ox + 25.4, yv + 11.43)
+    sh.w(c29["2"], (ox + 25.4, gy)); sh.gnd((ox + 25.4, gy))
+    sh.j((ox + 33.02, yv)); sh.flag("#FLG3", (ox + 33.02, yv))
+    sh.w(u1["9"], (ux, gy)); sh.gnd((ux, gy))
+    # KEY -> encoder button (block_onoff)
+    xr = u1["5"][0]
+    sh.w(u1["5"], (ox + 78.74, u1["5"][1])); sh.lbl((ox + 78.74, u1["5"][1]), "IP_KEY", "R")
+    # SW -> L1 -> cell; BAT sense through R2, C5
+    yb = oy + 40.64
+    sh.w(u1["7"], (ox + 91.44, u1["7"][1]))
+    l1 = sh.part("Device", "L", "L1", "1u", ox + 91.44, u1["7"][1] + 3.81,
+                 ref_at=(ox + 93.98, u1["7"][1] + 2.54), val_at=(ox + 93.98, u1["7"][1] + 5.08))
+    sh.w(l1["2"], (ox + 91.44, yb))
+    yn = u1["6"][1]
+    sh.w(u1["6"], (ox + 83.82, yn))
+    c5 = C("C5", "22u", ox + 76.2, yn + 3.81, fields="left")
+    sh.j((ox + 76.2, yn)); sh.w(c5["2"], (ox + 76.2, gy)); sh.gnd((ox + 76.2, gy))
+    r2 = R("R2", "1", ox + 83.82, yn + 6.35)
+    sh.w((ox + 83.82, yn), r2["1"])
+    sh.w(r2["2"], (ox + 83.82, yb), (ox + 104.14, yb)); sh.j((ox + 91.44, yb))
+    c19 = C("C19", "22u", ox + 96.52, yb + 3.81)
+    sh.j((ox + 96.52, yb)); sh.w(c19["2"], (ox + 96.52, gy)); sh.gnd((ox + 96.52, gy))
+    sh.w((ox + 104.14, yb), (ox + 104.14, yb - 5.08)); sh.vcc((ox + 104.14, yb - 5.08), "BAT_P")
+    # 5 V rail (VOUT) with its capacitors, AMS1117 -> 3V3
+    rail = u1["8"][1]
+    x5, xf = ox + 83.82, ox + 88.9
+    u2x = ox + 144.78
     u2 = sh.part("Regulator_Linear", "AMS1117-3.3", "U2", "AMS1117-3.3", u2x, rail,
-                 ref_at=(u2x, oy + 8.89), val_at=(u2x, oy + 11.43), just="center")
-    sh.w(d3["1"], u2["3"])
-    sh.w((x5, rail), (x5, oy + 12.7)); sh.j((x5, rail)); sh.vcc((x5, oy + 12.7), "5V_PERIPH")
+                 ref_at=(u2x, rail - 8.89), val_at=(u2x, rail - 6.35), just="center")
+    sh.w(u1["8"], u2["3"])
+    sh.w((x5, rail), (x5, rail - 5.08)); sh.j((x5, rail)); sh.vcc((x5, rail - 5.08), "5V_PERIPH")
     sh.j((xf, rail)); sh.flag("#FLG2", (xf, rail))
-    for ref, val, x, pol in (("C20", "22u", xc20, False), ("C1", "100u", xc1, False), ("C2", "10u", xc2, False)):
-        c = C(ref, val, x, oy + 24.13, pol=pol)
-        sh.w((x, rail), c["1"]); sh.j((x, rail))
-        sh.w(c["2"], (x, gy)); sh.gnd((x, gy))
-    sh.w(u2["1"], (u2x, gy)); sh.gnd((u2x, gy))
+    for ref, val, x in (("C20", "22u", ox + 96.52), ("C30", "22u", ox + 106.68), ("C1", "100u", ox + 116.84),
+                        ("C2", "10u", ox + 127.0)):
+        c = C(ref, val, x, rail + 3.81)
+        sh.j((x, rail)); sh.w(c["2"], (x, rail + 10.16)); sh.gnd((x, rail + 10.16))
+    sh.w(u2["1"], (u2x, rail + 10.16)); sh.gnd((u2x, rail + 10.16))
     # 3V3 (tantalum on the LDO output: the AMS1117 needs some ESR to stay stable)
-    xc3, x3 = ox + 121.92, ox + 129.54
-    sh.w(u2["2"], (x3, rail), (x3, oy + 12.7)); sh.vcc((x3, oy + 12.7), "3V3_MCU")
-    c3 = C("C3", "10u", xc3, oy + 24.13, pol=True)
-    sh.w((xc3, rail), c3["1"]); sh.j((xc3, rail))
-    sh.w(c3["2"], (xc3, gy)); sh.gnd((xc3, gy))
-    sh.frame(ox - 10.16, oy - 5.08, ox + 139.7, oy + 50.8, "Stromversorgung")
-
-
-def block_charger(ox, oy):
-    gy = oy + 40.64
-    ux = ox + 38.1
-    u3 = sh.part("Battery_Management", "MCP73831-2-OT", "U3", "MCP73831", ux, oy + 25.4,
-                 ref_at=(ux + 2.54, oy + 15.24), val_at=(ux + 2.54, oy + 17.78))
-    sh.w(u3["4"], (ux, oy + 12.7), (ox + 7.62, oy + 12.7))
-    sh.vcc((ox + 7.62, oy + 12.7), "VBUS_NATIVE")
-    c4 = C("C4", "1u", ox + 15.24, oy + 16.51)
-    sh.j((ox + 15.24, oy + 12.7)); sh.w(c4["2"], (ox + 15.24, gy)); sh.gnd((ox + 15.24, gy))
-    sh.j((ox + 22.86, oy + 12.7)); sh.flag("#FLG3", (ox + 22.86, oy + 12.7))
-    r1 = R("R1", "2k", ox + 22.86, oy + 31.75)
-    sh.w(u3["5"], r1["1"]); sh.w(r1["2"], (ox + 22.86, gy)); sh.gnd((ox + 22.86, gy))
-    sh.w(u3["2"], (ux, gy)); sh.gnd((ux, gy))
-    sh.w(u3["3"], (ox + 53.34, oy + 22.86), (ox + 53.34, oy + 12.7), (ox + 66.04, oy + 12.7))
-    sh.vcc((ox + 66.04, oy + 12.7), "BAT_SW")
-    c5 = C("C5", "1u", ox + 60.96, oy + 16.51)
-    sh.j((ox + 60.96, oy + 12.7)); sh.w(c5["2"], (ox + 60.96, oy + 22.86)); sh.gnd((ox + 60.96, oy + 22.86))
-    r2 = R("R2", "10k", ox + 76.2, oy + 24.13)
-    d5 = sh.part("Device", "D_Schottky", "D5", "1N5819WS", ox + 68.58, oy + 27.94,
-                 ref_at=(ox + 68.58, oy + 31.75), val_at=(ox + 68.58, oy + 34.29), just="center")
-    sh.w(u3["1"], d5["1"]); sh.w(d5["2"], (ox + 83.82, oy + 27.94)); sh.j((ox + 76.2, oy + 27.94))
-    sh.lbl((ox + 83.82, oy + 27.94), "CHRG_STAT", "R")
-    sh.w(r2["1"], (ox + 76.2, oy + 17.78)); sh.vcc((ox + 76.2, oy + 17.78), "3V3_MCU")
-    sh.frame(ox - 2.54, oy - 5.08, ox + 99.06, oy + 48.26, "Laden (USB-C)")
+    xc3, x3 = ox + 160.02, ox + 167.64
+    sh.w(u2["2"], (x3, rail), (x3, rail - 5.08)); sh.vcc((x3, rail - 5.08), "3V3_MCU")
+    c3 = C("C3", "10u", xc3, rail + 3.81, pol=True)
+    sh.j((xc3, rail)); sh.w(c3["2"], (xc3, rail + 10.16)); sh.gnd((xc3, rail + 10.16))
+    sh.note((ox + 2.54, oy + 53.34), "Laden 2 A (USB-C), 5 V Boost, Ein/Aus-Taste; Register per I²C (Firmware)")
+    sh.frame(ox - 7.62, oy - 5.08, ox + 175.26, oy + 58.42, "Laden + 5 V (IP5306) + 3,3 V")
 
 
 def block_adc(ox, oy):
     gy = oy + 40.64
     x = ox + 10.16
-    r3 = R("R3", "100k", x, oy + 20.32, fields="left")
-    r4 = R("R4", "100k", x, oy + 31.75, fields="left")
-    sh.w(r3["1"], (x, oy + 12.7)); sh.vcc((x, oy + 12.7), "BAT_SW")
+    r3 = R("R3", "1M", x, oy + 20.32, fields="left")
+    r4 = R("R4", "1M", x, oy + 31.75, fields="left")
+    sh.w(r3["1"], (x, oy + 12.7)); sh.vcc((x, oy + 12.7), "BAT_P")
     sh.w(r3["2"], r4["1"])
     sh.w((x, oy + 25.4), (ox + 27.94, oy + 25.4)); sh.j((x, oy + 25.4))
     sh.lbl((ox + 27.94, oy + 25.4), "ADC_BATT", "R")
@@ -406,17 +401,18 @@ def block_audio(ox, oy):
 # ESP32-S3-WROOM-1 pin numbers (module pads) -> net
 MCU_SIGNALS = {
     "4": "TRIGGER", "5": "RELOAD", "6": "IR_GATE", "12": "ADC_BATT",
-    "10": "WS2812_DIN_3V3", "11": "CHRG_STAT", "13": "USB_D-", "14": "USB_D+",
+    "10": "WS2812_DIN_3V3", "13": "USB_D-", "14": "USB_D+",
     # layout-driven: pad order matches the order of the targets on the board (no crossings)
     "18": "TSOP1_OUT", "19": "TSOP2_OUT", "20": "TSOP3_OUT", "21": "TSOP4_OUT", "22": "TSOP5_OUT",
     "24": "VIB", "31": "I2S_DOUT", "32": "I2S_BCLK", "33": "I2S_LRCLK",
     # OLED (I2C) and rotary encoder: connectors J4/J5 at the right edge next to these pads
-    "39": "I2C_SCL", "38": "I2C_SDA", "35": "ENC_A", "34": "ENC_B", "17": "ENC_SW",
+    "39": "I2C_SCL", "38": "I2C_SDA", "35": "ENC_A", "34": "ENC_B",
     "9": "TSOP6_OUT",  # TSOP 6 on the weapon itself, connector J6 (former second IR LED)
     # SPI-NAND for audio files (SPI2 over the GPIO matrix): left pads 7/8 and bottom pads 15/16
     "7": "FLASH_CS", "8": "SPI_MISO", "15": "SPI_MOSI", "16": "SPI_CLK",
     "25": "SD_CS",  # microSD slot J7 on the same SPI bus
-    "23": "PWR_HOLD",  # IO21: keeps the soft power switch on
+    # IP5306 on its own I2C bus (IO18 SCL, IO9 SDA); encoder button on IO21 (order of the B.Cu lanes to the IP5306)
+    "11": "IP_SCL", "17": "IP_SDA", "23": "ENC_SW",
 }
 # unused: IO45 (strapping), TXD0/RXD0, IO35-37 (octal PSRAM on N16R8)
 MCU_UNUSED = ["37", "36", "28", "29", "30", "26"]
@@ -497,7 +493,7 @@ def block_ir(ox, oy):
     rail, kline = oy + 12.7, oy + 40.64
     gy = oy + 60.96
     sh.w((xa - 7.62, rail), (xc, rail), (xc, oy + 22.86))
-    sh.vcc((xa - 7.62, rail), "BAT_SW")
+    sh.vcc((xa - 7.62, rail), "BAT_P")
     for x, rr, led in ((xa, "R7", "LED1"),):
         r = R(rr, "12", x, oy + 20.32)
         d = sh.part("Device", "LED", led, "TSAL6100", x, oy + 31.75, angle=90,
@@ -728,7 +724,7 @@ def block_sd(ox, oy):
 
 def block_protect(ox, oy):
     """1S protection in the battery minus lead: DW01A + FS8205A (discharge FET at B-, charge FET at P- = GND).
-    D4 feeds 5V_PERIPH from USB, so the board runs (and flashes) without a battery."""
+    D4 feeds 5V_PERIPH from USB, so the board runs (and flashes) without a battery (IP5306 needs a cell)."""
     ux, uy = ox + 45.72, oy + 20.32
     u = sh.part("Battery_Management", "DW01A", "U15", "DW01A", ux, uy,
                 ref_at=(ux, uy - 10.16), val_at=(ux, uy - 7.62), just="center")
@@ -765,43 +761,25 @@ def block_protect(ox, oy):
     sh.frame(ox - 2.54, oy - 5.08, ox + 111.76, oy + 76.2, "Akkuschutz + USB-Versorgung")
 
 
-def block_softpower(ox, oy):
-    """On/off with the encoder push button: the button pulls the gate of the high-side P-FET Q4 low (D6, anode 1),
-    the ESP32 keeps it low via IO21 (PWR_HOLD, Q5) and reads the button through D6 (anode 2 = ENC_SW, internal
-    pull-up). Off: release PWR_HOLD. Everything except the battery protection hangs on BAT_SW; with USB the firmware
-    sets PWR_HOLD so the charger reaches the cell through Q4 (switched off only through its body diode)."""
+def block_onoff(ox, oy):
+    """Battery connector and on/off: the encoder push button (PWR_KEY) reaches the IP5306 KEY input through D6 anode 1
+    and R24 (10k as in the Injoinic circuit), the ESP32 reads it through anode 2 (ENC_SW, internal pull-up)."""
     yr, yg = oy + 25.4, oy + 12.7
     bt = sh.part("Device", "Battery_Cell", "BT1", "1S LiPo 3,7 V", ox + 5.08, oy + 35.56,
                  ref_at=(ox + 1.27, oy + 34.29), val_at=(ox + 1.27, oy + 36.83), just="right")
     sh.w(bt["1"], (ox + 5.08, yr), (ox + 5.08, oy + 7.62)); sh.vcc((ox + 5.08, oy + 7.62), "BAT_P"); sh.j((ox + 5.08, yr))
+    sh.w((ox + 5.08, yr), (ox + 12.7, yr)); sh.flag("#FLG1", (ox + 12.7, yr))
     sh.w(bt["2"], (ox + 5.08, oy + 45.72), (ox + 2.54, oy + 45.72)); sh.lbl((ox + 2.54, oy + 45.72), "BAT_N", "L")
     sh.j((ox + 5.08, oy + 43.18)); sh.w((ox + 5.08, oy + 43.18), (ox + 10.16, oy + 43.18)); sh.flag("#FLG12", (ox + 10.16, oy + 43.18))
-    q4 = sh.part("Transistor_FET", "AO3401A", "Q4", "AO3401A", ox + 35.56, yr - 2.54, angle=270,
-                 ref_at=(ox + 35.56, yr + 5.08), val_at=(ox + 35.56, yr + 7.62), just="center")
-    sh.w((ox + 5.08, yr), q4["2"])
-    sh.j((ox + 12.7, yr)); sh.flag("#FLG1", (ox + 12.7, yr))
-    r38 = R("R38", "100k", ox + 25.4, oy + 19.05)
-    sh.w(r38["1"], (ox + 25.4, yg)); sh.w(r38["2"], (ox + 25.4, yr)); sh.j((ox + 25.4, yr))
-    sh.w(q4["1"], (ox + 35.56, yg)); sh.j((ox + 35.56, yg))
-    # D6: BAT54CW, two Schottkys with a common cathode (button); anode 1 to the gate, anode 2 to IO9
     d6 = sh.part("Diode", "BAT54CW", "D6", "BAT54CW", ox + 76.2, yg, angle=0,
                  ref_at=(ox + 76.2, yg - 6.35), val_at=(ox + 76.2, yg - 3.81), just="center")
-    sh.w((ox + 25.4, yg), d6["1"])
+    r24 = R("R24", "10k", ox + 55.88, yg, horizontal=True, fields="above")
+    sh.w(r24["1"], (ox + 33.02, yg)); sh.lbl((ox + 33.02, yg), "IP_KEY", "L")
+    sh.w(r24["2"], d6["1"])
     sh.w(d6["2"], (ox + 91.44, yg)); sh.lbl((ox + 91.44, yg), "ENC_SW", "R")
     sh.w(d6["3"], (d6["3"][0], yg + 7.62), (ox + 91.44, yg + 7.62)); sh.lbl((ox + 91.44, yg + 7.62), "PWR_KEY", "R")
-    yq = oy + 38.1
-    q5 = sh.part("Transistor_FET", "AO3400A", "Q5", "AO3400A", ox + 53.34, yq,
-                 ref_at=(ox + 58.42, yq - 1.27), val_at=(ox + 58.42, yq + 1.27))
-    sh.w((ox + 55.88, yg), q5["3"]); sh.j((ox + 55.88, yg))
-    sh.w(q5["2"], (ox + 55.88, yq + 10.16)); sh.gnd((ox + 55.88, yq + 10.16))
-    r40 = R("R40", "100k", ox + 43.18, yq + 5.08, fields="left")
-    sh.w(q5["1"], (ox + 38.1, yq)); sh.lbl((ox + 38.1, yq), "PWR_HOLD", "L")
-    sh.j((ox + 43.18, yq)); sh.w((ox + 43.18, yq), r40["1"])
-    sh.w(r40["2"], (ox + 43.18, yq + 12.7)); sh.gnd((ox + 43.18, yq + 12.7))
-    sh.w(q4["3"], (ox + 45.72, yr), (ox + 45.72, yr - 5.08)); sh.vcc((ox + 45.72, yr - 5.08), "BAT_SW")
-    sh.note((ox - 7.62, oy + 58.42), "Ein: Taster am Drehgeber drücken, ESP32 hält über IO21. Aus: IO21 low.")
-    sh.note((ox - 7.62, oy + 62.23), "Mit USB setzt die Firmware IO21 high: Laden über Q4.")
-    sh.frame(ox - 12.7, oy - 5.08, ox + 104.14, oy + 66.04, "Ein/Aus (Taster am Drehgeber)")
+    sh.note((ox + 22.86, oy + 33.02), "Ein: Taster am Drehgeber kurz drücken. Aus: 2 s drücken oder per I²C (Firmware).")
+    sh.frame(ox - 12.7, oy - 5.08, ox + 104.14, oy + 50.8, "Akku + Ein/Aus (Taster am Drehgeber)")
 
 
 def block_tsop_r(ox, oy):
@@ -825,19 +803,20 @@ SH2 = "Connector_JST:JST_SH_SM02B-SRSS-TB_1x02-1MP_P1.00mm_Horizontal"
 PH2 = "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal"
 SH4 = "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
 FOOTPRINTS = {
-    "U1": "Package_TO_SOT_SMD:SOT-23-6", "U2": "Package_TO_SOT_SMD:SOT-223-3_TabPin2",
-    "U3": "Package_TO_SOT_SMD:SOT-23-5", "U4": "RF_Module:ESP32-S3-WROOM-1",
+    "U1": "Package_SO:HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.3x2.3mm_ThermalVias",
+    "U2": "Package_TO_SOT_SMD:SOT-223-3_TabPin2", "U4": "RF_Module:ESP32-S3-WROOM-1",
     "U5": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
     "U6": "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",
     "U12": "Package_TO_SOT_SMD:SOT-23-6",
     "Q1": "Package_TO_SOT_SMD:SOT-23", "Q2": "Package_TO_SOT_SMD:SOT-23",
-    "D1": "Diode_SMD:D_SOD-123", "D3": "Diode_SMD:D_SMA",
+    "D1": "Diode_SMD:D_SOD-123",
     "L1": "Inductor_SMD:L_Sunlord_MWSA0503S",
     "R7": "Resistor_SMD:R_1206_3216Metric",
     "C1": "Capacitor_SMD:C_1210_3225Metric", "C7": "Capacitor_SMD:C_1210_3225Metric",
     "C10": "Capacitor_SMD:C_1210_3225Metric", "C3": "Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A",
     "C2": "Capacitor_SMD:C_0805_2012Metric", "C18": "Capacitor_SMD:C_0805_2012Metric",
     "C19": "Capacitor_SMD:C_0805_2012Metric", "C22": "Capacitor_SMD:C_0805_2012Metric", "C20": "Capacitor_SMD:C_0805_2012Metric",
+    "C30": "Capacitor_SMD:C_0805_2012Metric", "C4": "Capacitor_SMD:C_0805_2012Metric",
     "J1": "Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
     "J2": "Connector_JST:JST_SH_SM07B-SRSS-TB_1x07-1MP_P1.00mm_Horizontal",
     "J3": "lasertag:USB_C_Receptacle_HX_TYPE-C-16P-180-LT-H10.5_Vertical",  # project library, vertical
@@ -848,19 +827,19 @@ FOOTPRINTS = {
     "U14": "Package_SON:WSON-8-1EP_8x6mm_P1.27mm_EP3.4x4.3mm",
     "J7": "lasertag:microSD_TF-018_PushPull",  # project library
     "U15": "Package_TO_SOT_SMD:SOT-23-6", "Q3": "Package_TO_SOT_SMD:SOT-23-6",
-    "D4": "Diode_SMD:D_SOD-123", "D5": "Diode_SMD:D_SOD-323",
-    "Q4": "Package_TO_SOT_SMD:SOT-23", "Q5": "Package_TO_SOT_SMD:SOT-23",
+    "D4": "Diode_SMD:D_SOD-123",
     "D6": "Package_TO_SOT_SMD:SOT-323_SC-70",
     "C26": "Capacitor_SMD:C_0402_1005Metric", "C27": "Capacitor_SMD:C_0402_1005Metric",
 }
 # JLCPCB/LCSC part numbers (checked for stock 2026-10-11); by reference, fallback by value for 0603 R/C
 LCSC = {
-    "U1": "C84817", "U2": "C6186", "U3": "C424093", "U4": "C2913202", "U5": "C131316", "U6": "C910544",
+    "U1": "C488349", "U2": "C6186", "U4": "C2913202", "U5": "C131316", "U6": "C910544",
     "U12": "C7519", "Q1": "C20917", "Q2": "C20917",
-    "D1": "C8598", "D3": "C8678", "L1": "C408412",
+    "D1": "C8598", "L1": "C408355",  # IP5306-I2C (extended), MWSA0503S-1R0MT 1 uH 8.5 A
     "R7": "C17913",  # 12 R 1206: IR-LED peak ~220 mA at a full cell
     "C1": "C23742", "C10": "C23742", "C7": "C23742", "C3": "C7171",  # 100u 10V 1210 / 10u 16V tantalum case A
-    "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783",
+    "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783", "C30": "C45783",
+    "C4": "C15850", "C5": "C59461", "C29": "C19702", "R1": "C22977", "R2": "C22936",  # 10u 0805, 22u 0603, 10u 0603, 2R, 1R
     "J1": "C225234", "J2": "C160406", "J3": "C49261570", "BT1": "C225233", "SP1": "C225233",
     "M1": "C160402", "LED1": "C160402", "SW1": "C160402", "SW2": "C160402",
     "SW3": "C231329", "SW4": "C231329", "J4": "C160404", "J5": "C160404",
@@ -868,15 +847,15 @@ LCSC = {
     "J6": "C7430445",
     "J7": "C961679",  # XKB TF-018, microSD push-pull
     "C28": "C19702",  # 10u 0603 at the card supply
-    "U15": "C351410", "Q3": "C2830320", "D4": "C8598", "D5": "C191023",
-    "Q4": "C15127", "Q5": "C20917", "D6": "C83573",  # soft power; D6 BAT54CW-7-F (extended)
+    "U15": "C351410", "Q3": "C2830320", "D4": "C8598",
+    "D6": "C83573",  # D6 BAT54CW-7-F (extended)
     "C26": "C1525", "C27": "C1525",  # 100n 0402  # ZX-SH1.0-3PWT, JST SM03B-compatible (C160403 out of stock)
 }
 LCSC_0603 = {("R", "10k"): "C25804", ("R", "100k"): "C25803", ("R", "5.1k"): "C23186", ("R", "2k"): "C22975",
              ("R", "330"): "C23138", ("R", "100"): "C22775", ("R", "75k"): "C23242",
-             ("C", "100n"): "C14663", ("C", "1u"): "C15849", ("R", "1k"): "C21190"}
-SMALL = {f"R{i}" for i in range(28, 35)} | {"R37"}  # 0402 where the board is tight
-LCSC_0402 = {"100": "C25076", "10k": "C25744", "1k": "C11702"}
+             ("C", "100n"): "C14663", ("C", "1u"): "C15849", ("R", "1k"): "C21190", ("R", "1M"): "C22935"}
+SMALL = {f"R{i}" for i in range(28, 35)} | {"R37", "R38", "R40"}  # 0402 where the board is tight
+LCSC_0402 = {"100": "C25076", "10k": "C25744", "1k": "C11702", "4.7k": "C25900"}
 VEST = {f"U{i}" for i in range(7, 12)} | {f"R{i}" for i in range(16, 21)} | {f"C{i}" for i in range(11, 16)}
 VEST |= {"U13", "R26", "C24"}  # TSOP 6 sits on the weapon, filter at the sensor
 
@@ -916,7 +895,7 @@ def assign_footprints():
 # one A3 page per function, root page with the sheet symbols; blocks keep their frames
 PAGES = [
     ("Stromversorgung", "stromversorgung.kicad_sch",
-     [(block_power, 22.86, 38.1), (block_charger, 175.26, 38.1), (block_adc, 309.88, 38.1), (block_protect, 30.48, 124.46), (block_softpower, 190.5, 124.46)]),
+     [(block_power, 22.86, 38.1), (block_adc, 309.88, 38.1), (block_protect, 30.48, 124.46), (block_onoff, 190.5, 124.46)]),
     ("ESP32-S3 und USB", "mcu_usb.kicad_sch", [(block_mcu, 10.16, 38.1), (block_usb, 132.08, 38.1)]),
     ("Bedienung und Aktoren", "bedienung_aktoren.kicad_sch",
      [(block_ir, 10.16, 38.1), (block_buttons, 109.22, 38.1), (block_ws2812, 177.8, 38.1),

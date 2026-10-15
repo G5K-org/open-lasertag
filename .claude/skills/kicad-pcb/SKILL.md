@@ -125,15 +125,24 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   S2 = GND mit zwei Vias. B− (`BAT_N`): BT1.2 → zwei Vias → B.Cu x 5,4 (0,8 mm) → zwei Vias über Q3.1;
   F.Cu-Leitung y −4,3 verbindet C27 (VSS), U15.6 (45°-Abzweig) und Q3.1. VCC über C27/R28 (y −2,4), R28.1 über ein
   Via (14,2/−1,0) an die In2-Leitung `BAT_P`.
-- **Ein/Aus (Lasche, Reihe y −6,7):** R40, D6 (BAT54CW), Q5, R38, Q4 von links nach rechts. Q4.S über Via
-  (12,3/−5,75) und In2 (`BAT_P`: Via neben BT1.1 (8,6/2,9), R28-Via) zum Akku; Q4.D (0,8 mm) im Streifen rechts
-  von R28 senkrecht nach unten und diagonal in U1.4 (`BAT_SW`). BT1.1 hängt nicht mehr direkt an C19.
-  PWR_KEY, PWR_HOLD und ENC_SW laufen nur auf B.Cu: von J5 bzw. Vias unter IO21/IO9 senkrecht unter dem Modul
-  nach oben, an der Oberkante (y 0,45/0,9/1,35) nach links, bei x 18,05/17,6/17,15 in die Lasche und waagerecht
-  zu den Vias an D6/Q5. Dafür sind die GND-Vias an C17/C18 entfallen (beide hängen direkt am Modul-GND-Pad)
-  und IO0 läuft auf B.Cu unter dem IO21-Via (y 18,7) zu BOOT. D4 (VBUS → 5 V) waagerecht bei (24,4/27,0): Anode an Via auf der VBUS-B.Cu-Leitung,
-  Kathode zu C21.1. D5 (STAT) senkrecht über U3.1 (21,36/19,1), Kathode unten; U4.11 und R2.2 enden an der
-  Anode. C7.2 = GND (Via unter C7), LED-Kathode direkt zu Q1.3.
+- **IP5306 (U1, Laden + 5 V) oben links, HSOP-8 mit Thermal-Vias, 180° bei (19,6/3,5):** linke Padreihe
+  KEY/BAT/SW/VOUT, rechte NC/SDA/SCL/VIN. L1 (1 µH, 270°) links daneben zwischen BT1 und U1: SW U1.7 → L1.1
+  gerade (1,0 mm), Akku BT1.1 → L1.2 1,2 mm unter 45°, weiter C19 (22 µ) → R7 (IR) → R3 (Teiler 1 M/1 M, R4/C6 bei
+  y 18,5 unter H1). BAT-Messeingang: Via (8,6/2,9) → R2 (1 Ω, oben in der Lasche) → C5 (22 µ) → U1.6 auf y 2,45.
+  VOUT → C20/C30 (22 µ, unter U1) → Via (18,15/7,15) in den In2-5V-Stamm (y 7,15 → Diagonale x − y = 17,9).
+  VIN: Pad 1 senkrecht x 22,7 (C4 unter 45°, Dämpfung R1/C29 darunter) zu zwei Vias (22,7/11,4), (24,0/11,4) unter
+  dem B.Cu-Bündel (x + y > 33); In2 1,6 mm um das 3V3-Via (26,3/15,0) herum zu den Vias (28,6/17,2), (27,9/17,9);
+  B.Cu 1,0 mm senkrecht x 25,2 hinunter zur USB-C-Buchse (vl). GND-Vias unter U1/C4 nur außerhalb des Bündels
+  (x + y 28,75…32,65 frei halten). I²C: SDA-Via (23,6/2,865), SCL-Via (24,0/4,135) rechts von U1; Pull-up R40 (SCL)
+  rechts von C3 an R21.1 (3V3), Via (27,0/2,6) auf der SCL-Bahn; Pull-up R38 (SDA) direkt unter IO9 (38,05/21,6),
+  3V3 vom R27-Via.
+- **Ein/Aus (Lasche):** D6 (BAT54CW, 6,0/−6,7) und R24 (10 k, 9,5/−6,05); KEY F.Cu von U1.5 die Lasche hinauf
+  (x 16,6) und waagerecht zu R24. B.Cu-Bahnen an der Oberkante (oben → unten = Riser rechts → links): PWR_KEY
+  y 0,45 (J5, Riser x 50,0), ENC_SW y 0,9 (IO21, x 45,68) – beide in die Lasche (x 18,05/17,6) zu D6 –, IP_SDA
+  y 1,35 (IO9, x 38,05) und IP_SCL y 1,8 (IO18, Via (35,6/14,19) unter dem Modul, Riser x 35,6) zu den U1-Vias.
+  GPIO-Zuordnung folgt dieser Reihenfolge (sonst Kreuzungen). IO0 läuft auf B.Cu unter dem IO21-Via (y 18,7) zu
+  BOOT. D4 (VBUS → 5 V) waagerecht bei (24,4/27,0): Anode an Via auf der VBUS-B.Cu-Leitung, Kathode zu C21.1.
+  C7.2 = GND (Via unter C7), LED-Kathode direkt zu Q1.3. In2 `BAT_P` nur noch BT1-Via → R28-Via (DW01A VCC).
 - **TSOP-Serienwiderstände:** R30–R34 (0402, 100 Ω) bei x 52,0 auf y 33,7 … 29,7 zwischen den Vias und den
   J2-Pads (J2 bei x 56,5); J2.1-3V3-Via (52,8/35,7), J2.2-GND-Via (52,8/34,7).
 - **Bedienteil-Routing:** SCL/SDA (IO1/IO2) auf F.Cu direkt in J4; 3V3 für J4 über In2 von einem Via an
@@ -173,11 +182,11 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
    - `python3 tools/angles.py w.kicad_pcb [-v]` → 0 non-octilinear, 0 bends>45, 0 T-joins>45
    - `python3 tools/detour.py w.kicad_pcb [--layers=F,2,B] [--min=0.5]` → Umwege: jeder Lauf zwischen
      Vias/Pads/Abzweigen gegen den kürzesten 0/45/90°-Weg. Jeder Fund ist entweder behoben oder hat einen
-     Grund (Hindernis, Bündelreihenfolge, Paar-Längenausgleich). Stand (begründet): F.Cu CHRG_STAT (U2-Pins
-     + BAT_P-Via an R3), I²S (Modul-Padreihe, Motortreiber; Rückseite bräuchte 6 Vias), B.Cu SPI_CLK/SPI_MOSI (links um das
+     Grund (Hindernis, Bündelreihenfolge, Paar-Längenausgleich). Stand (begründet): F.Cu IP_KEY (Akkuschutz-Reihe in der
+     Lasche), F.Cu U1-BAT (C5.2), In2 VBUS (um das 3V3-Via), I²S (Modul-Padreihe, Motortreiber; Rückseite bräuchte 6 Vias), B.Cu SPI_CLK/SPI_MOSI (links um das
      IO0-Via und dessen B.Cu-Diagonale), B.Cu SD_CS (rechts um die TSOP-4/5-Vias), B.Cu SPI_MOSI am Slot
-     (Kreuzung mit CLK), In2 SD_DAT12 (um die Kontakt-Vias), B.Cu PWR_KEY/PWR_HOLD/ENC_SW (über die
-     Oberkante in die Lasche), F.Cu Gate Q4→D6 und PWR_HOLD (um Q5/D6), B.Cu TSOP4/5 (Vias rechts von J2), USB D+ (Mäander),
+     (Kreuzung mit CLK), In2 SD_DAT12 (um die Kontakt-Vias), B.Cu PWR_KEY/ENC_SW/IP_SDA/IP_SCL (über die
+     Oberkante), B.Cu TSOP4/5 (Vias rechts von J2), USB D+ (Mäander),
      USB D− (außen um U12.4/VBUS-Via), 5V an U6 (um unbelegte IC-Pins), OUTP/OUTN (verschachtelt),
      J1→C10 (GND-Via J1.3), R15 (U5-Padreihe), GND-Stiche an U5, BAT_P-Ende (Abzweig); In2 5V am
      U6-Abzweig (+0,2); B.Cu EN/TRIGGER/RELOAD (Bündel), VBUS-Ring (um die USB-Pads)

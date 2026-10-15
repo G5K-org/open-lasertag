@@ -7,9 +7,8 @@
 #define PIN_TRIGGER     GPIO_NUM_4   // active low, 10k pull-up + 100n
 #define PIN_RELOAD      GPIO_NUM_5   // active low, 10k pull-up + 100n
 #define PIN_IR_GATE     GPIO_NUM_6   // AO3400 gate, high = IR LED on
-#define PIN_BAT_ADC     GPIO_NUM_8   // ADC1_CH7, 100k/100k divider from BAT_P
+#define PIN_BAT_ADC     GPIO_NUM_8   // ADC1_CH7, 1M/1M divider straight from the cell (BAT_P)
 #define PIN_WS2812      GPIO_NUM_17  // via 74HCT125 to the strip
-#define PIN_CHRG_STAT   GPIO_NUM_18  // MCP73831 STAT, 10k pull-up, low = charging
 #define PIN_I2S_DOUT    GPIO_NUM_38
 #define PIN_I2S_BCLK    GPIO_NUM_39
 #define PIN_I2S_LRCLK   GPIO_NUM_40
@@ -22,7 +21,12 @@
 #define PIN_I2C_SDA     GPIO_NUM_2
 #define PIN_ENC_A       GPIO_NUM_42
 #define PIN_ENC_B       GPIO_NUM_41
-#define PIN_ENC_SW      GPIO_NUM_9
+#define PIN_ENC_SW      GPIO_NUM_21  // also switches the board on (IP5306 KEY through D6)
+
+// IP5306-I2C charger + 5 V boost (U1) on its own I2C bus, 4.7k pull-ups
+#define PIN_IP5306_SCL  GPIO_NUM_18
+#define PIN_IP5306_SDA  GPIO_NUM_9
+#define IP5306_ADDR     0x75
 
 // TSOP34838 outputs, idle high, low while a 38 kHz burst is received.
 // Index = sensor number - 1.

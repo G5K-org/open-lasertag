@@ -1,5 +1,5 @@
 ﻿Referenz;Menge;Hersteller;Herstellernummer;LCSC Part #;Beschreibung
-U1;12;Aerosemi;MT3608;C84817;Boost-Wandler SOT-23-6
+U1;12;INJOINIC;IP5306-I2C;C488349;Lade- und 5-V-Boost-IC mit I²C ESOP-8
 U15;12;PUOLOP;DW01A;C351410;Akkuschutz-IC SOT-23-6
 Q3;12;TECH PUBLIC;FS8205A;C2830320;Doppel-N-MOSFET SOT-23-6
 J3;12;hanxia;HX-TYPE-C 16P 180 LT H10.5;C49261570;USB-C senkrecht, 10,5 mm

@@ -29,7 +29,7 @@ dann flashen.
 | `leds.c` | WS2812-Kette (HP → Munition → Team → Ringlicht vorne): Mündungsfeuer auf dem Ring bei jedem Schuss (~120 ms, warm flackernd, eigene Helligkeitsgrenze), HP-Balken (grün → gelb → rot, blinkt unter 20 %), Munition, Teamfarbe; Treffer-Blitz, rotes Pulsieren als tot, Lade-/Akku-/Offline-Anzeige | 1 |
 | `haptics.c` | Rückstoß- und Treffer-Motor per LEDC-PWM (20 kHz), Muster per `esp_timer` | – |
 | `audio.c` | MAX98357A über I²S, Effekte synthetisch (keine Sound-Dateien) | 0 |
-| `battery.c` | Akkuspannung (ADC1_CH7, Teiler 1:2, Kurven-Kalibrierung), Ladestatus MCP73831 | 0 |
+| `battery.c` | Akkuspannung (ADC1_CH7, Teiler 1:2, Kurven-Kalibrierung); IP5306 per I²C (IO18/IO9): beim Start Ladestrom 2 A, Aus per 2 s Tastendruck, keine Abschaltung bei kleiner Last; Ladestatus; `battery_power_off()` | 0 |
 | `net.c` | WLAN-STA ohne Power-Save, optional statische IP, eigenes Roaming (RSSI-Prüfung alle 1,5 s, Wechsel unter −75 dBm bei ≥ 8 dB besserem AP), UDP | 0 |
 | `proto.c` | Paketformat + HMAC-SHA256 (PSA-API), auf 16 Byte gekürzt | – |
 | `espnow.c` | ESP-NOW-Transport: Trefferbestätigung Waffe → Schütze, Fallback zum Server über das [Gateway](../gateway/) | 0 |
@@ -86,6 +86,6 @@ gcc -I main test/test_nec.c main/nec.c -o /tmp/test_nec && /tmp/test_nec
 - Alles nur gebaut, noch nicht auf der Platine getestet.
 - TSOP 6 (an der Waffe, GPIO16, Stecker J6) wird wie TSOP 5 per GPIO-Interrupt ausgewertet.
 - Pixelzahlen der WS2812-Kette (`LT_LEDS_*`) an die realen Streifen und den Ring anpassen.
-- Stromspitze im Schuss (Ring + Rückstoß-Motor + Sound auf `5V_PERIPH`) am MT3608 messen,
+- Stromspitze im Schuss (Ring + Rückstoß-Motor + Sound auf `5V_PERIPH`) am IP5306 messen (Akkuschutz trennt bei ca. 3 A),
   ggf. `LT_MUZZLE_BRIGHTNESS` senken.
 - OTA: Partitionstabelle hat bereits zwei OTA-Slots, der Update-Weg fehlt noch.

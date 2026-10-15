@@ -30,7 +30,7 @@ der Platine (kreuzungsfreies Routing).
 | I²C SDA – OLED | GPIO2 | J4 Pin 3 |
 | Drehgeber A | GPIO42 | J5 Pin 4 (GND, Taster, B, A), interner Pull-up |
 | Drehgeber B | GPIO41 | J5 Pin 3, interner Pull-up |
-| Drehgeber Taster | GPIO9 | J5 Pin 2 über D6 (BAT54CW, Anode 2), interner Pull-up; der Taster ist zugleich der Ein-Taster |
+| Drehgeber Taster | GPIO21 | J5 Pin 2 über D6 (BAT54CW, Anode 2), interner Pull-up; der Taster ist zugleich der Ein/Aus-Taster (IP5306 KEY) |
 | Vibrationsmotor (Rückstoß + Treffer) | GPIO47 | PWM/LEDC, MOSFET + Freilaufdiode, Stecker M1 |
 | TSOP 1 – Stirnband vorn | GPIO10 | RMT-Eingang, über Sensorkabel; TSOP 1–5 je über 100 Ω (R30–R34) an J2 |
 | TSOP 2 – Stirnband hinten | GPIO11 | RMT-Eingang |
@@ -38,8 +38,9 @@ der Platine (kreuzungsfreies Routing).
 | TSOP 4 – Rücken | GPIO13 | RMT-Eingang |
 | TSOP 5 – Schultern (optional) | GPIO14 | RMT-Eingang |
 | TSOP 6 – an der Waffe | GPIO16 | J6 (1 VS, 2 GND, 3 OUT), Filter 100 Ω + 4,7 µF am Sensor; GPIO-Interrupt |
-| WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, 74HCT125) + 330 Ω; VDD über kleinen 5-V-Boost-Converter vom 1S-LiPo |
-| USB-C Lade-Status | GPIO18 | STAT des MCP73831 über Schottky 1N5819WS (D5, sperrt 5 V), 10 kΩ Pull-up R2 auf 3V3; low = lädt |
+| WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, 74HCT125) + 330 Ω; VDD 5 V vom IP5306 |
+| I²C SCL – IP5306 | GPIO18 | eigener Bus zum Lade-/Boost-IC U1 (Adresse 0x75), 4,7 kΩ Pull-up R40 |
+| I²C SDA – IP5306 | GPIO9 | 4,7 kΩ Pull-up R38 |
 | I²S DOUT | GPIO38 | zu MAX98357A |
 | I²S BCLK | GPIO39 | zu MAX98357A |
 | I²S LRCLK/WS | GPIO40 | zu MAX98357A |
@@ -51,12 +52,16 @@ der Platine (kreuzungsfreies Routing).
 | USB D− / D+ | GPIO19 / GPIO20 | nativer USB (USB-Serial-JTAG), über ESD-Schutz an die USB-C-Buchse |
 | BOOT-Taster | GPIO0 | Download-Modus, nur als Rückfallebene nötig |
 | RESET | EN | 10 kΩ Pull-up + 1 µF, RESET-Taster |
-| Ein/Aus halten (PWR_HOLD) | GPIO21 | high hält Q4 über Q5 eingeschaltet, 100 kΩ Pull-down (R40) |
 
-Firmware Ein/Aus: GPIO21 direkt nach dem Start high setzen (der Taster muss bis dahin gedrückt bleiben); Ausschalten
-mit GPIO21 low (z. B. langer Druck auf den Drehgeber-Taster, die Waffe geht nach dem Loslassen aus). Mit USB
-(VBUS über GPIO18/Ladestatus erkennbar) GPIO21 high halten, sonst lädt der Akku nur über die Body-Diode von Q4.
-GPIO8 misst die geschaltete Akkuspannung (`BAT_SW`).
+Firmware Ein/Aus und Laden (IP5306-I2C, Register lesen → Bit ändern → zurückschreiben, bei jedem Start):
+- `0x00` Bit 1 = 1 (keine Abschaltung bei kleiner Last), Bit 0 = 1 (Ausschalten per Taster)
+- `0x01` Bit 7 = 1 (Aus = 2 s drücken statt Doppelklick), Bit 2 = 1 (5 V bleiben nach dem Abziehen von USB)
+- `0x24` Ladestrom auf der USB-Seite: `0x10` ≈ 1,65 A (≈ 2 A in den Akku)
+- `0x70` Bit 3 = lädt, `0x71` Bit 3 = voll
+- Ausschalten aus der Firmware: `0x00` Bit 1 = 0, dann Deep Sleep; der IP5306 schaltet nach 8 s kleiner Last ab
+  (`0x02` Bit 3:2 = 00)
+
+GPIO8 misst die Akkuspannung direkt an der Zelle (Teiler 1 MΩ / 1 MΩ).
 
 Firmware am SPI-Bus: die microSD-Karte zuerst initialisieren (CMD0 mit /CS low → SPI-Modus), erst danach
 den Flash ansprechen; interne Pull-ups an GPIO48 (SD /CS) und GPIO15 (MISO) einschalten.

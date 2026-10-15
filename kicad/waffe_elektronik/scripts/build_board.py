@@ -51,10 +51,13 @@ PROJ_FPLIB = os.path.join(PROJ, "footprints")  # footprint libraries of this pro
 # Connector rotation: 0 = opening faces down, 90 = right, 180 = up, 270 = left.
 PLACE = {
     "U4": (MX, MY, 0),
-    # --- power: battery in, MT3608 boost (tight SW loop), AMS1117
+    # --- power: battery in, IP5306 (charger + boost, SW loop U1.7 - L1 straight), AMS1117
     "BT1": (PH_IN, 5.2, 270),
-    "C19": (11.0, 3.2, 90), "U1": (14.3, 3.2, 180), "L1": (13.05, 8.8, 0),
-    "D3": (19.9, 4.4, 180), "C20": (19.4, 7.2, 180), "R24": (21.2, 1.3, 180), "R25": (18.0, 1.3, 180),
+    "U1": (19.6, 3.5, 180), "L1": (12.95, 6.185, 270), "C19": (13.9, 10.6, 0),
+    "R2": (11.0, 1.4, 270), "C5": (13.4, 1.25, 0),                     # BAT sense filter (1R / 22u)
+    "C20": (17.125, 8.1, 270), "C30": (19.2, 8.1, 270), "C4": (21.3, 8.1, 270),  # VOUT 2x 22u, VIN 10u
+    "C29": (17.9, 10.6, 180), "R1": (21.1, 10.6, 180),                 # VIN snubber 2R + 10u
+    "R40": (27.0, 1.3, 270),                                            # IP_SCL pull-up, 3V3 from R21.1
     "U2": (26.3, 10.7, 90), "C2": (31.2, 11.8, 90), "C3": (25.2, 3.488, 90),
     # --- module: 100n + 10u right at pin 2, EN RC right at pin 3
     "C18": (30.1, 2.1, 90), "C17": (31.95, 2.1, 90), "R21": (28.25, 3.95, 270), "C16": (30.7, 5.3, 270),
@@ -76,10 +79,9 @@ PLACE = {
     "U5": (16.0, 29.5, 0), "C21": (20.85, 27.2, 90), "R15": (10.85, 26.0, 90), "C10": (16.1, 33.9, 0),
     # --- USB: ESD (connector side down) + CC
     "U12": (JX, 31.5, 90), "R23": (JX - 2.325, JY - 3.7, 180), "R22": (JX + 2.325, JY + 3.85, 0),
-    # --- charger
-    "U3": (22.5, 23.0, 0), "C4": (25.4, 23.6, 90), "C5": (19.6, 24.2, 90), "R1": (24.6, 20.1, 0), "R2": (19.6, 20.9, 270),
-    # --- battery voltage divider
-    "R3": (26.2, 17.6, 0), "R4": (27.3, 19.9, 270), "C6": (29.0, 18.6, 270),
+    # --- battery voltage divider (fed from the IR battery line)
+    "R3": (15.6, 16.75, 0), "R4": (18.0, 18.5, 270), "C6": (19.6, 18.5, 270),
+    "R38": (38.05, 21.6, 90),                                           # IP_SDA pull-up below IO9
     # --- EN (RESET) / BOOT buttons
     "SW3": (16.2, 13.6, 0), "SW4": (35.0, 22.1, 0), "C1": (32.2, 28.5, 90),
     # --- vibration drivers: top channel HIT (pad 24) -> M2, bottom channel RECOIL (pad 25) -> M1
@@ -93,11 +95,10 @@ PLACE = {
     # --- battery protection in the tab above BT1: FS8205A, DW01A (gates face each other), CS resistor between
     "Q3": (4.2, -2.4, 0), "U15": (10.8, -2.4, 0), "R29": (7.78, -2.4, 180), "C27": (13.8, -2.88, 90),
     "R28": (15.1, -1.92, 90),
-    # --- on/off (soft power) in a row above the protection: Q4 high side, R38 gate pull-up, Q5 hold, D6 button
-    "Q4": (15.6, -6.7, 0), "R38": (12.8, -6.7, 270), "Q5": (10.0, -6.7, 0), "D6": (6.0, -6.7, 180),
-    "R40": (3.7, -6.7, 270),
-    # --- charger status through a Schottky, USB feed into 5 V
-    "D5": (21.36, 19.1, 90), "D4": (24.4, 27.0, 0),
+    # --- on/off above the protection: D6 (button -> KEY / IO21), R24 to the IP5306 KEY
+    "D6": (6.0, -6.7, 180), "R24": (9.5, -6.05, 180),
+    # --- USB feed into 5 V (runs without a battery)
+    "D4": (24.4, 27.0, 0),
     # --- series resistors in the sensor cable lines, right before J2
     "R30": (52.0, 33.7, 0), "R31": (52.0, 32.7, 0), "R32": (52.0, 31.7, 0), "R33": (52.0, 30.7, 0), "R34": (52.0, 29.7, 0),
 }
@@ -132,7 +133,7 @@ RULES = {
 NETCLASSES = [
     # name, track, clearance, via dia, via drill, diff width, diff gap, patterns
     ("Default", 0.2, 0.15, 0.5, 0.3, 0.2, 0.2, []),
-    ("Power", 0.5, 0.15, 0.6, 0.3, 0.2, 0.2, ["GND", "BAT_P", "BAT_SW", "5V_PERIPH", "VBUS_NATIVE", "Net-(D3-A)",
+    ("Power", 0.5, 0.15, 0.6, 0.3, 0.2, 0.2, ["GND", "BAT_P", "5V_PERIPH", "VBUS_NATIVE", "Net-(U1-SW)",
                                               "Net-(D1-A)", "Net-(D2-A)", "Net-(LED1-K)", "Net-(LED*-A)", "Net-(U6-OUT*)"]),
     ("3V3", 0.6, 0.15, 0.6, 0.3, 0.2, 0.2, ["3V3_MCU"]),
     ("USB", 0.2, 0.15, 0.5, 0.3, 0.2, 0.2, ["USB_D*", "Net-(J3-D*)"]),
@@ -367,8 +368,8 @@ OWN_MODELS = {"JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
               "WSON-8-1EP_8x6mm_P1.27mm_EP3.4x4.3mm"}  # scripts/gen_3d_wson8_8x6.py
 
 LABELS = [  # front silk, horizontal, next to the connector, clear of pads and bodies (tools/silk.py): (x, y, text, height, angle)
-    (11.2, 5.35, "AKKU", 0.8, 0), (4.2, 15.59, "LED1", 0.8, 0), (4.2, 17.04, "TSOP", 0.8, 0),
-    (12.35, 39.43, "ABZUG", 0.8, 0), (18.5, 39.43, "NACHL.", 0.8, 0), (17.85, 11.53, "RESET", 0.8, 0),
+    (7.0, 0.0, "AKKU", 0.8, 0), (4.2, 15.59, "LED1", 0.8, 0), (4.2, 17.04, "TSOP", 0.8, 0),
+    (12.35, 39.43, "ABZUG", 0.8, 0), (18.5, 39.43, "NACHL.", 0.8, 0), (19.9, 11.88, "RESET", 0.8, 0),
     (10.65, 32.98, "WS2812", 0.8, 0), (30.2, 37.83, "USB", 0.8, 0), (56.5, 39.3, "SENSOR", 0.8, 0),
     (2.98, 44.98, "LAUTSPR.", 0.8, 0), (49.7, 26.03, "VIB", 0.8, 0), (54.1, 36.95, "1", 0.8, 0), (40.9, 40.13, "SD", 0.8, 0),
     (31.1, 22.1, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0),
@@ -516,25 +517,38 @@ def meander_v(x, y0, extra, n=3, c=0.2, t=0.2, gap=0.6, side=1):
 def route(r):
     """Hand routing. Coordinates in mm, board origin top-left."""
     F, B, I2 = "F", "B", "2"
-    # ================= boost converter (MT3608): tight loops on F.Cu =================
-    # input: BT1 -> (In2) -> Q4 in the tab -> U1 IN/EN, C19, L1 (BAT_SW)
-    r.t(F, 0.8, "BT1.1", (8.6, 4.2), (8.6, 2.9)); r.v((8.6, 2.9), net="BAT_P", d=0.8, h=0.4)
-    r.t(F, 0.6, "C19.1", ("U1.5", -0.3, 0), "U1.5")
-    r.t(F, 0.4, "U1.5", "U1.4")
-    r.t(F, 0.8, "C19.1", (11.2, 4.9), ("L1.1", 0, -1.2))
-    r.gnd("C19.2", -1.0, -0.6); r.t(F, 0.8, "BT1.2", (5.4, 6.2), net="BAT_N")
+    # ================= IP5306: battery, SW loop, BAT sense, VOUT, VIN =================
+    BP = "BAT_P"
+    r.t(F, 0.8, "BT1.1", (8.6, 4.2), (8.6, 2.9)); r.v((8.6, 2.9), net=BP, d=0.8, h=0.4)    # cell -> In2 (DW01A VCC)
+    r.t(F, 1.2, "BT1.1", (9.65, 4.2), (12.95, 7.5), "L1.2")                              # cell -> L1
+    r.t(F, 1.2, "L1.2", "C19.1"); r.gnd("C19.2", 0, 0.95)
+    r.t(F, 1.0, "C19.1", (12.95, 10.86), "R7.1")                                         # on to the IR LED
+    r.t(F, 0.8, "BT1.2", (5.4, 6.2), net="BAT_N")
     r.v((6.2, 6.2), net="BAT_N", d=0.6); r.v((5.4, 6.2), net="BAT_N", d=0.6)
-    # switch node: U1 SW -> D3 anode and L1 (short and wide)
-    r.t(F, 1.0, "U1.1", ("D3.2", -0.6, 0))
-    r.t(F, 1.0, "U1.1", (15.3, 4.9), ("L1.2", 0, -1.2))
-    r.gnd("U1.2", 0.85, -0.3)
-    # output: D3 -> C20, divider R24/R25 -> FB
-    r.t(F, 0.8, ("D3.1", -0.6, 0.6), ("C20.1", 0, -0.5), "C20.1")
-    r.gnd("C20.2", -0.95, 0)
-    r.t(F, 0.4, "D3.1", "R24.1")
-    r.t(F, 0.25, "U1.3", (18.1, 2.25), ("R25.1", -0.3, 0.45), "R25.1", "R24.2")
-    r.gnd("R25.2", -0.7, -0.55)
-    r.t(F, 0.6, "C20.1", (21.3, 5.95)); r.v((21.3, 5.95), net="5V_PERIPH", d=0.6)
+    r.t(F, 1.0, "U1.7", "L1.1")                                                          # SW, straight
+    # BAT sense: cell -> R2 -> C5 / U1.6
+    r.t(F, 0.4, (8.6, 2.9), (10.275, 2.9), "R2.2", net=BP)
+    r.t(F, 0.4, "R2.1", (11.625, 0.625), (12.25, 1.25), "C5.1")
+    r.t(F, 0.4, "C5.1", (12.625, 2.45), (15.6, 2.45), (16.015, 2.865), "U1.6")
+    r.gnd("C5.2", 0, -1.05)
+    # VOUT -> C20, C30 -> via into the In2 5 V trunk
+    P5 = "5V_PERIPH"
+    r.t(F, 0.8, "U1.8", "C20.1"); r.t(F, 0.8, "C20.1", "C30.1")
+    r.v((18.15, 7.15), net=P5, d=0.6)
+    r.t(F, 0.6, "C20.2", "C30.2", "C4.2", net="GND"); r.v((18.15, 9.05), net="GND")   # C4.2: B.Cu bundle below
+    # VIN: pad 1 down the strip right of C4 (In2 vias), C4 on a 45 deg branch, snubber R1 -> C29
+    V = "VBUS_NATIVE"
+    # vias below the B.Cu bundle (x + y > 33)
+    r.t(F, 0.8, "U1.1", (22.7, 6.03), (22.7, 11.4), (24.0, 11.4))
+    r.t(F, 0.6, "C4.1", (22.0, 7.15), (22.7, 7.85))
+    r.t(F, 0.4, "R1.1", (22.2, 10.6), (22.7, 11.1))
+    r.v((22.7, 11.4), net=V, d=0.8, h=0.4); r.v((24.0, 11.4), net=V, d=0.8, h=0.4)
+    r.t(F, 0.4, "R1.2", "C29.1"); r.gnd("C29.2", -0.95, 0)
+    # I2C: SDA via right of pad 3, SCL via right of pad 2 with the pull-up R40 below (3V3 island)
+    r.t(F, 0.2, "U1.3", (23.6, 2.865)); r.v((23.6, 2.865), net="IP_SDA")
+    r.t(F, 0.2, "U1.2", (24.0, 4.135)); r.v((24.0, 4.135), net="IP_SCL")
+    r.t(F, 0.2, "R40.2", (27.0, 2.6)); r.v((27.0, 2.6), net="IP_SCL")
+    r.t(F, 0.25, "R40.1", (27.75, 0.82), (28.25, 1.32), "R21.1")
     # ================= LDO + module supply =================
     r.t(F, 0.8, "U2.3", (29.9, 12.55), (29.9, 12.0)); r.v((29.9, 12.0), net="5V_PERIPH", d=0.6)
     r.t(F, 0.8, (29.9, 12.0), (30.65, 12.75), "C2.1", net="5V_PERIPH")
@@ -582,10 +596,9 @@ def route(r):
     r.gnd("C7.2", 1.47, 0)
     r.t(F, 0.3, "Q1.1", "R5.2"); r.t(F, 0.3, "R6.1", (11.95, 20.05))
     r.gnd("Q1.2", 0.65, -0.55); r.gnd("R6.2", 0, -0.85)
-    # BAT: L1 -> R7 -> C7, bus on the right down to R8 and on to the charger
-    r.t(F, 0.8, ("L1.1", 0, 1.0), "R7.1", (10.28, 14.4), "C7.1")
-    r.t(F, 1.0, "R7.1", (14.3, 16.187), (14.3, 20.6))
-    r.t(F, 0.8, (14.3, 20.6), (18.68, 24.98), "C5.1", (20.4, 24.98), ("U3.3", -0.3, 0.05), "U3.3")
+    # BAT: R7 -> C7, on to the battery divider R3
+    r.t(F, 0.8, "R7.1", (10.28, 14.4), "C7.1")
+    r.t(F, 0.4, "R7.1", (14.3, 16.19), "R3.1")
 
     # ================= TSOP 6 on the weapon (J6: 1 VS, 2 GND, 3 OUT) =================
     r.t(F, 0.3, "J6.1", (6.0, 19.6), (6.4, 19.2)); r.v((6.4, 19.2), net="3V3_MCU")
@@ -615,21 +628,14 @@ def route(r):
     r.gnd("J1.3", 2.55, 0); r.gnd("C10.2", 0, -1.4)
     r.drop("C10.1", 0.2, 1.6)
 
-    # ================= charger (MCP73831) + battery divider =================
-    ya = r.pt("D5.2")[1]
-    r.t(F, 0.25, "U4.11", (31.7, 14.19), (30.2, 15.69), (25.6, 15.69), (25.6 - (ya - 15.69), ya), "D5.2")
-    r.t(F, 0.25, "D5.1", "U3.1")
-    r.t(F, 0.25, "R2.2", (20.5, 20.83), (20.5, ya + 0.86), "D5.2")
-    r.drop("R2.1", 0, -0.87)
-    r.t(F, 0.25, "U3.5", "R1.1")
-    r.t(F, 0.4, "R1.2", (26.35, 21.2), "R4.2"); r.v((26.35, 21.2), net="GND")
-    r.t(F, 0.5, "U3.4", "C4.1"); r.gnd("C4.2", 0.95, 0)
-    r.t(F, 0.5, "U3.2", (20.03, 23.0), "C5.2"); r.v((18.7, 22.8), net="GND"); r.t(F, 0.4, "C5.2", (18.7, 22.8))
-    r.t(F, 0.25, "U4.12", (31.365, 15.46), "C6.1")
-    r.t(F, 0.25, "C6.1", (28.25, 17.82), (27.3, 18.77), "R4.1")
-    r.t(F, 0.25, "R4.1", ("R4.1", -0.28, -0.28), "R3.2")
-    r.gnd("C6.2", -0.7, 1.0)
-    r.drop("R3.1", 0, -0.85)
+    # ================= battery divider R3/R4/C6 -> ADC (IO8) =================
+    r.t(F, 0.25, "U4.12", (31.6, 15.46), (31.37, 15.69), (25.96, 15.69), (23.925, 17.725), "C6.1", "R4.1",
+        (17.35, 17.725), "R3.2")
+    r.t(F, 0.4, "R4.2", (17.025, 18.3), (16.6, 18.3)); r.v((16.6, 18.3), net="GND")   # clear of In2 3V3 / B.Cu diagonals
+    r.t(F, 0.4, "C6.2", (20.6, 20.275)); r.v((20.6, 20.275), net="GND")
+    # IP_SDA pull-up R38 right below IO9, 3V3 from the R27 via
+    r.t(F, 0.2, "U4.17", "R38.2")
+    r.t(F, 0.25, "R38.1", (38.05, 23.025), (37.375, 23.7))
 
     # ================= USB: pair 0.2/0.2, 45 deg into the ESD chip =================
     r.t(F, 0.2, "U4.13", (31.3, 16.73), (30.85, 17.18), (30.85, 23.5), (27.25, 27.1), "U12.6")
@@ -666,9 +672,12 @@ def route(r):
     r.t(F, 0.4, "J3.A4", vl, "J3.B9"); r.v(vl, net=V, d=0.6)
     r.t(F, 0.4, "J3.A9", vr, "J3.B4"); r.v(vr, net=V, d=0.6)
     r.t(F, 0.3, "U12.5", ve); r.v(ve, net=V, d=0.6)
-    r.t(B, 0.4, vl, (vl[0] - 0.5, vl[1] - 0.5), (vl[0] - 0.5, 25.5), (25.4, 25.3), net=V); r.v((25.4, 25.3), net=V)
-    r.t(B, 0.4, ve, (vl[0] - 0.5, ve[1] - (ve[0] - vl[0] + 0.5)), net=V)
-    r.t(F, 0.4, (25.4, 25.3), "C4.1")
+    # left one up on B.Cu (1.0) to the In2 VIN line of the IP5306
+    r.t(B, 0.4, vl, (vl[0] - 0.5, vl[1] - 0.5), (vl[0] - 0.5, 39.5), net=V)
+    r.t(B, 1.0, (vl[0] - 0.5, 39.5), (vl[0] - 0.5, 20.6), (27.9, 17.9), (28.6, 17.2), net=V)
+    r.v((28.6, 17.2), net=V, d=0.8, h=0.4); r.v((27.9, 17.9), net=V, d=0.8, h=0.4)
+    r.t(I2, 1.6, (27.9, 17.9), (28.6, 17.2), (28.6, 14.3), (25.7, 11.4), (22.7, 11.4), net=V)
+    r.t(B, 0.6, ve, (vl[0] - 0.5, ve[1] - (ve[0] - vl[0] + 0.5)), net=V)
     r.t(I2, 0.4, vr, (vr[0], 36.2), (vr[0] - 0.5, 35.7), (vr[0] - 0.5, 33.5), ve, net=V)
     # GND: outer pins (shell tabs overlap them) through the row gap, via in the gap
     for xg in (JX - 3.5, JX + 3.5):
@@ -738,8 +747,7 @@ def route(r):
     r.gnd("U4.40", 1.45, 0)
 
     # ================= In2: 5V / 3V3 / BAT distribution =================
-    P5 = "5V_PERIPH"
-    r.t(I2, 0.8, (21.3, 5.95), (23.85, 5.95), (29.9, 12.0), (30.2, 12.3), (30.2, 29.39), (32.2, 31.39), net=P5)
+    r.t(I2, 0.8, (18.15, 7.15), (25.05, 7.15), (29.9, 12.0), (30.2, 12.3), (30.2, 29.39), (32.2, 31.39), net=P5)
     r.t(I2, 0.6, (30.2, 27.4), (29.6, 28.0), (22.28, 28.0), (21.8, 28.48), (20.05, 28.48), (14.83, 33.7), ("C10.1", 0.2, 1.6), net=P5)
     r.t(I2, 0.6, (32.2, 31.39), (40.51, 31.39), (46.7, 25.2), (48.3, 25.2), net=P5)  # through the D1 via to the motor
     r.t(I2, 0.6, (34.0, 31.39), (34.51, 31.9), (34.51, 34.95), (37.75, 38.19), (38.75, 38.19), net=P5)
@@ -755,12 +763,13 @@ def route(r):
     r.t(F, 0.2, "U4.34", (52.4, 9.11)); r.v((52.4, 9.11))                # ENC_B over B.Cu
     r.t(B, 0.2, (52.4, 9.11), (52.4, 9.2), (56.2, 13.0), net="ENC_B"); r.v((56.2, 13.0), net="ENC_B")
     r.t(F, 0.2, (56.2, 13.0), "J5.3")
-    x17 = r.pt("U4.17")[0]                                                 # ENC_SW from the bottom pad row
+    x17 = r.pt("U4.17")[0]                                                 # IO9 (IP_SDA) from the bottom pad row
     r.t(F, 0.2, "U4.17", (x17, 18.0)); r.v((x17, 18.0))
     r.v((56.2, 14.0), net="PWR_KEY")
     r.t(F, 0.2, (56.2, 14.0), "J5.2")
-    x23 = r.pt("U4.23")[0]                                                 # IO21 (PWR_HOLD) from the bottom pad row
+    x23 = r.pt("U4.23")[0]                                                 # IO21 (ENC_SW) from the bottom pad row
     r.t(F, 0.2, "U4.23", (x23, 18.0)); r.v((x23, 18.0))
+    r.t(F, 0.2, "U4.11", (35.6, 14.19)); r.v((35.6, 14.19))               # IO18 (IP_SCL) under the module
     r.gnd("J5.1", 1.7, 0)
 
     # ================= SPI-NAND U14: four lines over B.Cu down the left of SW4 =================
@@ -844,28 +853,19 @@ def route(r):
     # DW01A supply from the cell side (BAT_P) over In2
     r.t(F, 0.3, "R28.1", (14.61, -1.41), (14.2, -1.0)); r.v((14.2, -1.0), net="BAT_P")
 
-    # ================= on/off: Q4 (P-FET) between the cell and BAT_SW, Q5 holds the gate low (PWR_HOLD) =================
-    # cell -> In2 -> Q4 source; drain down the strip right of R28 straight into U1 IN (BAT_SW)
-    r.t(F, 0.6, "R38.2", (12.8, -5.75), "Q4.2")
-    r.t(F, 0.6, (12.8, -5.75), (12.3, -5.75)); r.v((12.3, -5.75), net="BAT_P", d=0.8, h=0.4)
-    r.t(I2, 1.0, (12.3, -5.75), (12.3, -2.9), (14.2, -1.0), (13.4, -0.2), (9.4, -0.2), (8.6, 0.6), (8.6, 2.9), net="BAT_P")
-    r.t(F, 0.8, "Q4.3", (16.5375, -1.0), (13.2875, 2.25), "U1.4")
-    # gate: R38 to the source, Q5 drain, D6 anode 1
-    r.t(F, 0.25, "Q4.1", (12.8, -7.65), "R38.1")
-    r.t(F, 0.25, (12.8, -7.65), (11.8875, -7.65), (10.9375, -6.7), "Q5.3")
-    r.t(F, 0.25, "Q5.3", (10.9375, -5.0), (6.8875, -5.0), "D6.1")
-    r.t(F, 0.3, "Q5.2", (7.95, -5.75)); r.v((7.95, -5.75), net="GND")
-    # PWR_HOLD: Q5 gate, R40 to GND
-    r.t(F, 0.25, "Q5.1", (9.0625, -7.9375), (8.5, -8.5), (3.7, -8.5), "R40.1")
-    r.t(F, 0.3, "R40.2", (3.7, -5.4)); r.v((3.7, -5.4), net="GND")
-    # PWR_KEY (D6 cathode) and ENC_SW (D6 anode 2)
+    # ================= on/off: D6 in the tab, KEY over R24 down the tab to U1.5 =================
+    r.t(I2, 0.6, (14.2, -1.0), (13.4, -0.2), (9.4, -0.2), (8.6, 0.6), (8.6, 2.9), net=BP)   # DW01A VCC from the cell
+    r.t(F, 0.25, "U1.5", (16.6, 1.07), (16.6, -4.6), (15.15, -6.05), "R24.1")
+    r.t(F, 0.25, "R24.2", "D6.1")
     r.v((4.75, -5.45), net="PWR_KEY"); r.t(F, 0.2, (4.75, -5.45), (5.1125, -5.8125), "D6.3")
     r.v((6.0, -6.85), net="ENC_SW"); r.t(F, 0.2, (6.0, -6.85), (6.5, -7.35), "D6.2")
-    r.v((10.5, -7.4), net="PWR_HOLD"); r.t(F, 0.2, (10.5, -7.4), (10.25, -7.65), "Q5.1")
-    # KEY, ENC_SW and PWR_HOLD over B.Cu: up under the module, left along the top edge, up the strip into the tab
+    # B.Cu lanes along the top edge (top -> bottom = right -> left of their risers): PWR_KEY (J5), ENC_SW (IO21) into
+    # the tab; IP_SDA (IO9) and IP_SCL (IO18) drop to the vias right of U1
     r.t(B, 0.2, (56.2, 14.0), (53.6, 16.6), (50.6, 16.6), (50.0, 16.0), (50.0, 0.45), (18.05, 0.45), (18.05, -7.95), (4.75, -7.95), (4.75, -5.45), net="PWR_KEY")
-    r.t(B, 0.2, (45.68, 18.0), (45.68, 0.9), (17.6, 0.9), (17.6, -7.4), (10.5, -7.4), net="PWR_HOLD")
-    r.t(B, 0.2, (38.05, 18.0), (38.05, 1.35), (17.15, 1.35), (17.15, -6.85), (6.0, -6.85), net="ENC_SW")
+    r.t(B, 0.2, (45.68, 18.0), (45.68, 0.9), (17.6, 0.9), (17.6, -6.85), (6.0, -6.85), net="ENC_SW")
+    r.t(B, 0.2, (38.05, 18.0), (38.05, 1.35), (23.6, 1.35), (23.6, 2.865), net="IP_SDA")
+    r.t(B, 0.2, (35.6, 14.19), (35.6, 1.8), (28.6, 1.8), (27.8, 2.6), (25.465, 2.6), (24.0, 4.065), (24.0, 4.135),
+        net="IP_SCL")
 
     # ================= USB -> 5 V (D4) =================
     r.t(F, 0.5, "D4.2", (25.2, 26.0)); r.v((25.2, 26.0), net="VBUS_NATIVE", d=0.6)
@@ -875,7 +875,6 @@ def route(r):
     r.t(I2, 0.4, (34.0, w3), (r.pt("R27.1")[0], w3 + 34.0 - r.pt("R27.1")[0]), (r.pt("R27.1")[0], 23.7), net=P3)
     r.t(I2, 0.5, (26.3, 15.0), (19.6, 19.205), (9.425, 27.45), (9.425, 37.0), (10.375, 37.95), ("R10.1", 0, 0.95), net=P3)
     r.t(I2, 0.5, (51.0, 2.76), (51.6, 3.36), (51.6, 34.5), (52.8, 35.7), net=P3)
-    r.t(I2, 0.6, ("R3.1", 0, -0.85), (25.38, 18.2), (18.6, 24.98), net="BAT_SW"); r.v((18.6, 24.98), net="BAT_SW", d=0.6)
 
 
 def build():
@@ -1004,6 +1003,8 @@ def build():
     pcbnew.SaveBoard(OUT, board)
     # KiCad ships no STEP for the EP1.23 TQFN: same 3x3 body with the EP1.6 model
     t = open(OUT).read().replace("TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm.step", "TQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm.step")
+    # same for the IP5306 (HSOP-8 EP2.3: same body as the EP2.41x3.1 model)
+    t = t.replace("HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.3x2.3mm.step", "HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.1mm.step")
     # mark the generated teardrop zones as KiCad teardrops (enum not exposed to Python)
     t = t.replace('(name "$teardrop_padvia$")', '(name "$teardrop_padvia$")\n\t\t(attr\n\t\t\t(teardrop\n\t\t\t\t(type padvia)\n\t\t\t)\n\t\t)')
     open(OUT, "w").write(t)

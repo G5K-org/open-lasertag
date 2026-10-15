@@ -9,3 +9,5 @@ uint16_t battery_mv(void);
 uint8_t battery_percent(void);
 bool battery_low(void);
 bool battery_charging(void);
+// Lets the IP5306 switch the board off: call, then enter deep sleep (off after ~8 s at light load).
+void battery_power_off(void);
