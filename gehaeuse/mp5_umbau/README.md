@@ -172,7 +172,7 @@ Alle Wege sind frei. Jeder Stecker der Platine zeigt in die Zone am Platinenrand
 abgeht: links (vorn) in den Hauptschacht, unten in den Kanal zum Abzugsschalter, rechts (hinten) in den
 Motorschacht, rechts oben in OLED- und Motorschacht. Die microSD-Karte (J7) ragt unten rechts ~8,6 mm in
 den Kanal zum Abzugsschalter (Tasche dort bis 9,5 mm unter die Platine); die Abzugskabel liegen über ihr.
-Die Tasche folgt der Platinenkontur mit der Lasche oben links (Akkuschutz); das Westenkabel geht von J2 an der
+Die Tasche folgt der Platinenkontur mit der Lasche oben links (Akkuschutz, Ein/Aus); das Westenkabel geht von J2 an der
 rechten Kante nach oben in die VIB-Zone und von dort in den Motorschacht.
 
 | Leitung | Stecker | Adern | Weg | Länge ca. |

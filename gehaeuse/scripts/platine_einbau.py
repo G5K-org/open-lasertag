@@ -29,8 +29,8 @@ STANDOFF = 2.5           # Luft unter der Platine (Dome)
 DEPTH_R = STANDOFF + T_PCB   # Tasche rechte Hälfte (Platinenrückseite)
 DEPTH_L = 6.0            # Tasche linke Hälfte (Bauteile bis 4,85 über der Platine)
 CLR = 0.3                # Spiel um die Platinenkontur
-BOARD = [(0, -5.0), (17.0, -5.0), (17.0, 0), (59.6, 0), (59.6, 18.5), (54.0, 18.5), (54.0, 26.5), (59.6, 26.5),
-         (59.6, 46.0), (0, 46.0)]   # Lasche oben links: Akkuschutz; Aussparung rechts nur noch für VIB
+BOARD = [(0, -9.0), (18.6, -9.0), (18.6, 0), (59.6, 0), (59.6, 18.5), (54.0, 18.5), (54.0, 26.5), (59.6, 26.5),
+         (59.6, 46.0), (0, 46.0)]   # Lasche oben links: Akkuschutz und Ein/Aus; Aussparung rechts nur noch für VIB
 HOLES = [(20.4, 14.8), (37.0, 42.5)]   # M2, ISO 7380
 BOSS_D = 3.6             # innerhalb der Kupfer-Sperrfläche (Ø 3,7)
 PILOT_D = 1.6            # M2 selbstformend in PLA/PETG
