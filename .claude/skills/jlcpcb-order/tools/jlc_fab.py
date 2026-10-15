@@ -10,7 +10,8 @@ Creates in OUT_DIR:
   <name>_cpl.csv         Designator, Mid X, Mid Y, Layer, Rotation (mm, JLC rotation corrections applied)
 --check queries JLCPCB for every LCSC part: stock vs. N boards, basic/extended, unit price.
 Footprints need an "LCSC" field; parts without it are listed and left out of BOM/CPL. Parts with an "LCSC Hand"
-field instead (hand-soldered by default) go only into <name>_bom_komplett.csv / <name>_cpl_komplett.csv.
+field instead (hand-soldered by default) go only into <name>_bom_komplett.csv / <name>_cpl_komplett.csv, parts with
+an "LCSC Option" field (optional, not assembled by default) only into the *_flash variants.
 ESP32-S3-WROOM-1 boards also get *_externe_antenne variants with the WROOM-1U (same footprint).
 """
 import csv
@@ -73,16 +74,17 @@ def main():
             z.write(os.path.join(gdir, f), f)
 
     board = pcbnew.LoadBoard(pcb)
-    parts, missing = [], []   # (ref, footprint, lcsc, value, cpl row, hand)
+    parts, missing = [], []   # (ref, footprint, lcsc, value, cpl row, hand, option)
     for fp in board.GetFootprints():
         ref = fp.GetReference()
         if fp.IsDNP() or fp.IsExcludedFromBOM():
             continue
         lcsc = fp.GetFieldText("LCSC") if fp.HasField("LCSC") else ""
         hand = fp.GetFieldText("LCSC Hand") if fp.HasField("LCSC Hand") else ""
+        opt = fp.GetFieldText("LCSC Option") if fp.HasField("LCSC Option") else ""
         if not lcsc:
             missing.append(ref)
-            if not hand:
+            if not hand and not opt:
                 continue
         fpname = fp.GetFPID().GetLibItemName().wx_str()
         rot, dx, dy = 0, 0.0, 0.0
@@ -94,7 +96,7 @@ def main():
         bottom = fp.GetLayer() == pcbnew.B_Cu
         row = (ref, round(p.x / 1e6 + dx, 4), round(-p.y / 1e6 + dy, 4), "Bottom" if bottom else "Top",
                round((fp.GetOrientationDegrees() + rot) % 360, 2))
-        parts.append((ref, fpname, lcsc or hand, fp.GetValue(), row, not lcsc))
+        parts.append((ref, fpname, lcsc or hand or opt, fp.GetValue(), row, bool(hand) and not lcsc, bool(opt) and not lcsc))
 
     def natkey(r):
         m = re.match(r"([A-Za-z]+)(\d+)", r)
@@ -105,10 +107,10 @@ def main():
     ALT = {"C2913202": ("C3013946", "ESP32-S3-WROOM-1U-N16R8")}
     ALT_SHIFT = {"C3013946": 3.15}
 
-    def write(suffix, hand, alt):
+    def write(suffix, hand, alt, opt=False):
         groups = {}
-        for ref, fpname, lcsc, val, row, is_hand in parts:
-            if is_hand and not hand:
+        for ref, fpname, lcsc, val, row, is_hand, is_opt in parts:
+            if (is_hand and not hand) or (is_opt and not opt):
                 continue
             code, v = ALT.get(lcsc, (lcsc, val)) if alt else (lcsc, val)
             g = groups.setdefault((fpname, code), {"refs": [], "vals": [], "rows": []})
@@ -133,15 +135,24 @@ def main():
                 w.writerow(row)
         return groups
 
-    has_alt = any(lcsc in ALT for _, _, lcsc, _, _, _ in parts)
-    has_hand = any(h for *_, h in parts)
+    has_alt = any(p[2] in ALT for p in parts)
+    has_hand = any(p[5] for p in parts)
+    has_opt = any(p[6] for p in parts)
     groups = check = write("", False, False)
-    if has_alt:
-        write("_externe_antenne", False, True)
-    if has_hand:  # hand-solder parts (field "LCSC Hand") assembled by JLCPCB as well
-        check = write("_komplett", True, False)
+    for opt in ([False, True] if has_opt else [False]):
+        f = "_flash" if opt else ""
+        if opt:
+            write(f, False, False, True)
         if has_alt:
-            write("_komplett_externe_antenne", True, True)
+            write("_externe_antenne" + f, False, True, opt)
+        if has_hand:  # hand-solder parts (field "LCSC Hand") assembled by JLCPCB as well
+            c = write("_komplett" + f, True, False, opt)
+            if opt:
+                check = c
+            elif not has_opt:
+                check = c
+            if has_alt:
+                write("_komplett_externe_antenne" + f, True, True, opt)
     bom = os.path.join(out, f"{name}_bom.csv")
     cpl = [r for g in groups.values() for r in g["rows"]]
 
@@ -151,7 +162,10 @@ def main():
     hand = sorted((r[0] for r in parts if r[5]), key=natkey)
     if hand:
         print("LCSC Hand (only in *_komplett):", ", ".join(hand))
-    nolcsc = sorted(set(missing) - set(hand), key=natkey)
+    opts = sorted((r[0] for r in parts if r[6]), key=natkey)
+    if opts:
+        print("LCSC Option (only in *_flash):", ", ".join(opts))
+    nolcsc = sorted(set(missing) - set(hand) - set(opts), key=natkey)
     if nolcsc:
         print("NO LCSC field (not assembled):", ", ".join(nolcsc))
 

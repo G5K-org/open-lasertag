@@ -119,7 +119,7 @@ das Sensorkabel der Weste. Ein- und ausgeschaltet wird mit dem Taster des Drehge
 **Auf der Platine:** ESP32-S3-WROOM-1 (16 MB Flash, 8 MB PSRAM; optional WROOM-1U mit externer Antenne), USB-C mit
 ESD-Schutz zum Flashen und Laden, Lade- und 5-V-IC IP5306 (2 A Laden), Akkuschutz DW01A + FS8205A,
 3,3-V-Regler, MOSFETs für IR-LED und Vibrationsmotor, Pegelwandler für
-WS2812, I²S-Verstärker MAX98357A, SPI-NAND-Flash 128 MB und microSD-Slot für Audio-Dateien,
+WS2812, I²S-Verstärker MAX98357A, microSD-Slot für Audio-Dateien (optional SPI-NAND-Flash 128 MB),
 GX16-Buchse für das Sensorkabel der Weste (TSOP-Leitungen über 100 Ω).
 
 <a href="kicad/waffe_elektronik/renders/schaltplan.png"><img src="kicad/waffe_elektronik/renders/schaltplan.png" alt="Schaltplan der Waffen-Elektronik, fünf Seiten"></a>
@@ -324,19 +324,19 @@ Stand der Planung: 08.10.2026
 
 ### Waffe (ESP32-S3, zentrale Elektronik – einziger Chip)
 - IR-LED (TSAL6100 o. ä.) über N-MOSFET (AO3400 / IRLZ44N), Gate 100 Ω, Pulldown 100 kΩ
-- 100 µF Keramik (C7) als Puffer zwischen Akku und GND, direkt an LED und MOSFET
+- 2 × 22 µF Keramik (C7, C19) als Puffer zwischen Akku und GND
 - Abzug und Nachladen (Mikrotaster, RC-Entprellung 10 kΩ + 100 nF)
 - Munitionszähler: WS2812-Kette, dazu kleines OLED (I²C) und Drehdrück-Geber, je an eigenem Stecker
 - Ein Vibrationsmotor für Rückstoß und Treffer (MOSFET, Freilaufdiode, PWM)
 - 4–5× TSOP34838-Signale von der Weste, lokale RMT-Auswertung
-- Zusätzlicher TSOP34838 an der Waffe (eigener Stecker J6, GPIO16, Filter
+- Zusätzlicher TSOP34838 an der Waffe (Stecker J6 zusammen mit der IR-LED, GPIO16, Filter
   100 Ω + 4,7 µF am Sensor, nicht über das Sensorkabel)
 - WS2812(B)-Streifen, echte 5-V-Variante (HP/Treffer/Team-Farbe), an der Waffe
   montiert. 5 V für den Strip aus dem IP5306 (Boost vom 1S-LiPo), plus Pegelwandler (z. B.
-  74HCT125) zwischen 3,3-V-GPIO und Datenleitung.
+  ein N-MOSFET in Gateschaltung) zwischen 3,3-V-GPIO und Datenleitung.
 - I²S-Verstärker (MAX98357A) + Lautsprecher, nutzt dieselben 5 V wie der
   WS2812-Strip
-- SPI-NAND-Flash ZD35Q1GC (128 MB) für Audio-Dateien, an IO7/IO15/IO3/IO46
+- SPI-NAND-Flash ZD35Q1GC (128 MB) für Audio-Dateien, optional (Standard: nur microSD), an IO7/IO15/IO3/IO46
 - microSD-Slot (Push-Pull, TF-018) am selben SPI-Bus, /CS an IO48; Karte nur bei geöffnetem Gehäuse
   erreichbar
 - 1S-LiPo oder 18650, Akkuschutz (DW01A + FS8205A) auf der Platine, Akkuspannung per ADC, im Waffengehäuse
@@ -396,7 +396,7 @@ kein Protokoll.
 ### Reichweite (IR)
 - Linse Ø 25 mm, f ≈ 40–50 mm, LED knapp hinter dem Brennpunkt
 - Spitzenstrom 150–300 mA gepulst, Tastgrad 25–33 %
-- Eine IR-LED (TSAL6100) mit Vorwiderstand 12 Ω
+- Eine IR-LED (TSAL6100) mit Vorwiderstand 2 × 22 Ω parallel (11 Ω), Kabel über J6 zusammen mit TSOP 6
 - Schuss 2× kurz hintereinander senden
 - Ziel: 30–50 m frei
 
@@ -461,7 +461,7 @@ Komplett an der Waffe montiert (WS2812-Streifen, Vibration, Lautsprecher).
 | TSOP-Signale über längeres Kabel anfälliger für Störungen | kurz halten, geschirmt/verdrillt, RC-Filter direkt am Sensor |
 | Team-/HP-Anzeige an der Waffe schlechter sichtbar als am Körper | im Praxistest prüfen, ggf. Sensorkabel später um WS2812-Datenader erweitern |
 | Gewicht/Balance der Waffe (Akku, Lautsprecher, LED jetzt alle dort) | früh mit Gesamtgewicht prototypisch testen, ggf. Akku in den Griff/Schaft verlegen |
-| WS2812-Datensignal bei 3,3 V unzuverlässig | Pegelwandler (74HCT125) einplanen |
+| WS2812-Datensignal bei 3,3 V unzuverlässig | Pegelwandler (N-MOSFET in Gateschaltung) |
 | Augen | IR-LED-Datenblatt und IEC 62471 prüfen, nicht aus der Nähe in die Optik schauen |
 | LiPo in der Halle | Schutzschaltung, geschütztes Laden (LiPo-Beutel), nie unbeaufsichtigt |
 | Unfallgefahr | nur gehen, Schutzschuhe, Staplerbereiche sperren |

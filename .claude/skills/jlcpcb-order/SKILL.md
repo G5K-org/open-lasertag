@@ -38,7 +38,10 @@ Erzeugt in `fertigung/jlcpcb/`:
 - `waffe_elektronik_cpl.csv` – `Designator, Mid X, Mid Y, Layer, Rotation` (mm, Top/Bottom, JLC-Rotationskorrektur)
 - `*_externe_antenne.csv` – BOM/CPL mit ESP32-S3-WROOM-1U statt WROOM-1 (gleicher Footprint)
 - `*_komplett.csv`, `*_komplett_externe_antenne.csv` – zusätzlich alle Teile mit Feld `LCSC Hand` (Stecker, SW3/SW4)
-- `--check`: Lager je Teil gegen Bedarf, basic/ext, Anzahl Extended-Teile, Teilekosten (für die Komplett-Variante)
+- `*_flash.csv` (jede Variante) – zusätzlich die Teile mit Feld `LCSC Option` (`OPTION` in build_clean.py: SPI-NAND
+  U14 mit C25/R27), Standard ist ohne
+- `--check`: Lager je Teil gegen Bedarf, basic/ext, Anzahl Extended-Teile, Teilekosten (für die Komplett-Variante
+  mit Flash, also alle Teile); Anzahl Platinen mit `--boards=N`
 
 Rotationskorrekturen (`ROTATIONS` in `jlc_fab.py`) stammen aus der Datenbank von matthewlai/JLCKicadTools
 (auch in Bouni/kicad-jlcpcb-tools). Neue Gehäuse dort ergänzen.
@@ -52,12 +55,12 @@ Rotationskorrekturen (`ROTATIONS` in `jlc_fab.py`) stammen aus der Datenbank von
 3. „PCB Assembly“ an → Economic/Standard, **Top Side**, Menge wählen.
 4. BOM und CPL hochladen; nicht platzierte Teile prüfen (es sollen 0 sein). Stecker und SW3/SW4 haben das Feld
    `LCSC Hand` statt `LCSC` (`HAND` in build_clean.py) und fehlen in der Standard-BOM/CPL: selbst löten, spart
-   7 Extended-Gebühren. Von JLC mitbestücken: `*_bom_komplett.csv` + `*_cpl_komplett.csv`.
+   8 Extended-Gebühren. Von JLC mitbestücken: `*_bom_komplett.csv` + `*_cpl_komplett.csv`.
    Externe Antenne: `*_bom_externe_antenne.csv` + `*_cpl_externe_antenne.csv` hochladen (WROOM-1U, Mitte 3,15 mm
    versetzt; `ALT`/`ALT_SHIFT` in jlc_fab.py).
 5. **Platzierungsvorschau Bauteil für Bauteil prüfen**, vor allem Pin 1 / Polarität bei:
-   U4 (ESP32-Modul, keine Korrektur in der DB), U5, U6, U14 (WSON-8, Pin 1 oben links), J7 (microSD, Öffnung zur Unterkante), U15/Q3 (SOT-23-6), D4, U1 (IP5306, HSOP-8, Korrektur 270° wie SOIC, ungeprüft), U12 (SOT-23-6), D1,
-   C3 (Tantal), Q1/Q2 (SOT-23), D6 (SOT-323, Korrektur −90° wie SOT-23, ungeprüft), J1–J3, BT1/SP1, M1/LED1/SW1/SW2 (JST), J2/J4/J5/J6 (JST-SH, Korrektur 180° ungeprüft), SW3/SW4. Falsche Drehung in der Vorschau korrigieren und
+   U4 (ESP32-Modul, keine Korrektur in der DB), U6, U14 (WSON-8, Pin 1 oben links), J7 (microSD, Öffnung zur Unterkante), U15/Q3 (SOT-23-6), D4, U1 (IP5306, HSOP-8, Korrektur 270° wie SOIC, ungeprüft), U12 (SOT-23-6), D1,
+   C3 (Tantal), Q1/Q2/Q4 (SOT-23), D6 (SOT-323, Korrektur −90° wie SOT-23, ungeprüft), J1–J3, BT1/SP1, M1 (JST), J2/J4/J5/J6/J8 (JST-SH, Korrektur 180° ungeprüft), SW3/SW4. Falsche Drehung in der Vorschau korrigieren und
    die Korrektur in `ROTATIONS` nachtragen.
 6. Bestellung erst nach Freigabe durch den User abschicken (kostenpflichtig, externe Aktion).
 

@@ -80,7 +80,6 @@ def _hidden_pins(path, entry):
 PROJECT_SYMS = {
     ("Memory_Flash", "W25Q32JVZP"): {"3": "passive", "7": "passive"},  # /WP, /HOLD tied to 3V3
     ("Audio", "MAX98357A"): {"17": "power_in"},                       # exposed pad = GND
-    ("74xx", "74AHCT125"): {},
 }
 PROJECT_LIB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "symbols", "lasertag.kicad_sym")
 
@@ -335,24 +334,24 @@ def block_power(ox, oy):
     # 5 V rail (VOUT) with its capacitors, AMS1117 -> 3V3
     rail = u1["8"][1]
     x5, xf = ox + 83.82, ox + 88.9
-    u2x = ox + 144.78
+    u2x = ox + 154.94
     u2 = sh.part("Regulator_Linear", "AMS1117-3.3", "U2", "AMS1117-3.3", u2x, rail,
                  ref_at=(u2x, rail - 8.89), val_at=(u2x, rail - 6.35), just="center")
     sh.w(u1["8"], u2["3"])
     sh.w((x5, rail), (x5, rail - 5.08)); sh.j((x5, rail)); sh.vcc((x5, rail - 5.08), "5V_PERIPH")
     sh.j((xf, rail)); sh.flag("#FLG2", (xf, rail))
-    for ref, val, x in (("C20", "22u", ox + 96.52), ("C30", "22u", ox + 106.68), ("C1", "100u", ox + 116.84),
-                        ("C2", "10u", ox + 127.0)):
+    for ref, val, x in (("C20", "22u", ox + 96.52), ("C30", "22u", ox + 106.68), ("C1", "22u", ox + 116.84),
+                        ("C31", "22u", ox + 127.0), ("C2", "10u", ox + 137.16)):
         c = C(ref, val, x, rail + 3.81)
         sh.j((x, rail)); sh.w(c["2"], (x, rail + 10.16)); sh.gnd((x, rail + 10.16))
     sh.w(u2["1"], (u2x, rail + 10.16)); sh.gnd((u2x, rail + 10.16))
     # 3V3 (tantalum on the LDO output: the AMS1117 needs some ESR to stay stable)
-    xc3, x3 = ox + 160.02, ox + 167.64
+    xc3, x3 = ox + 170.18, ox + 177.8
     sh.w(u2["2"], (x3, rail), (x3, rail - 5.08)); sh.vcc((x3, rail - 5.08), "3V3_MCU")
     c3 = C("C3", "10u", xc3, rail + 3.81, pol=True)
     sh.j((xc3, rail)); sh.w(c3["2"], (xc3, rail + 10.16)); sh.gnd((xc3, rail + 10.16))
     sh.note((ox + 2.54, oy + 53.34), "Laden 2 A (USB-C), 5 V Boost, Ein/Aus-Taste; Register per I²C (Firmware)")
-    sh.frame(ox - 7.62, oy - 5.08, ox + 175.26, oy + 58.42, "Laden + 5 V (IP5306) + 3,3 V")
+    sh.frame(ox - 7.62, oy - 5.08, ox + 185.42, oy + 58.42, "Laden + 5 V (IP5306) + 3,3 V")
 
 
 def block_adc(ox, oy):
@@ -489,19 +488,25 @@ def block_usb(ox, oy):
 
 
 def block_ir(ox, oy):
-    xa, xb, xc = ox + 40.64, ox + 55.88, ox + 73.66
+    """IR LED (on the weapon, connector J6 pins 1/4) with 2 x 22R in parallel, driven by Q1."""
+    xa, xc = ox + 40.64, ox + 73.66
     rail, kline = oy + 12.7, oy + 40.64
     gy = oy + 60.96
     sh.w((xa - 7.62, rail), (xc, rail), (xc, oy + 22.86))
     sh.vcc((xa - 7.62, rail), "BAT_P")
-    for x, rr, led in ((xa, "R7", "LED1"),):
-        r = R(rr, "12", x, oy + 20.32)
-        d = sh.part("Device", "LED", led, "TSAL6100", x, oy + 31.75, angle=90,
-                    ref_at=(x + 7.62, oy + 30.48), val_at=(x + 7.62, oy + 33.02))
+    ya = oy + 26.67
+    for x, rr in ((xa, "R7"), (xa + 7.62, "R8")):
+        r = R(rr, "22", x, oy + 20.32)
         sh.w((x, rail), r["1"]); sh.j((x, rail))
-        sh.w(r["2"], d["2"])
-        sh.w(d["1"], (x, kline))
-    c7 = C("C7", "100u", xc, oy + 26.67)
+        sh.w(r["2"], (x, ya))
+    sh.w((xa + 7.62, ya), (xa - 7.62, ya)); sh.j((xa, ya))
+    sh.lbl((xa - 7.62, ya), "IR_LED_A", "L")
+    d = sh.part("Device", "LED", "LED1", "TSAL6100", xa, oy + 31.75, angle=90,
+                ref_at=(xa + 7.62, oy + 30.48), val_at=(xa + 7.62, oy + 33.02))
+    sh.w((xa, ya), d["2"])
+    sh.w(d["1"], (xa, kline)); sh.j((xa, kline))
+    sh.w((xa, kline), (xa - 7.62, kline)); sh.lbl((xa - 7.62, kline), "IR_LED_K", "L")
+    c7 = C("C7", "22u", xc, oy + 26.67)
     sh.w(c7["2"], (xc, oy + 33.02)); sh.gnd((xc, oy + 33.02))
     q = sh.part("Transistor_FET", "AO3400A", "Q1", "AO3400A", xa - 2.54, oy + 50.8,
                 ref_at=(xa + 2.54, oy + 49.53), val_at=(xa + 2.54, oy + 52.07))
@@ -512,6 +517,7 @@ def block_ir(ox, oy):
     r6 = R("R6", "100k", xa - 10.16, oy + 54.61, fields="left")
     sh.j((xa - 10.16, oy + 50.8)); sh.w(r6["2"], (xa - 10.16, gy)); sh.gnd((xa - 10.16, gy))
     sh.w(r5["1"], (xa - 24.13, oy + 50.8)); sh.lbl((xa - 24.13, oy + 50.8), "IR_GATE", "L")
+    sh.note((xa + 12.7, oy + 38.1), "LED an der Waffe (J6)")
     sh.frame(ox + 2.54, oy - 5.08, ox + 86.36, oy + 68.58, "IR-Sender (TSAL6100)")
 
 
@@ -528,42 +534,45 @@ def block_buttons(ox, oy):
         sh.w(r["1"], (tx + 7.62, ty - 10.16)); sh.vcc((tx + 7.62, ty - 10.16), "3V3_MCU")
         sh.w(c["2"], (tx + 15.24, ty + 10.16)); sh.gnd((tx + 15.24, ty + 10.16))
         sh.w(s["2"], (tx + 33.02, ty + 10.16)); sh.gnd((tx + 33.02, ty + 10.16))
-    sh.frame(ox - 2.54, oy - 5.08, ox + 53.34, oy + 68.58, "Abzug / Nachladen")
+    # both switches sit in the weapon, one cable to J8
+    jx, jy = ox + 33.02, oy + 73.66
+    j8 = sh.part("Connector_Generic", "Conn_01x03", "J8", "Abzug + Nachladen", jx, jy,
+                 ref_at=(jx + 2.54, jy - 1.27), val_at=(jx + 2.54, jy + 1.27))
+    sh.w(j8["1"], (ox + 17.78, j8["1"][1])); sh.lbl((ox + 17.78, j8["1"][1]), "TRIGGER", "L")
+    sh.w(j8["2"], (ox + 22.86, j8["2"][1])); sh.gnd((ox + 22.86, j8["2"][1]), side="left")
+    sh.w(j8["3"], (ox + 17.78, j8["3"][1])); sh.lbl((ox + 17.78, j8["3"][1]), "RELOAD", "L")
+    sh.frame(ox - 2.54, oy - 5.08, ox + 53.34, oy + 83.82, "Abzug / Nachladen")
 
 
 def block_ws2812(ox, oy):
-    ux, uy = ox + 20.32, oy + 12.7
-    ua = sh.part("74xx", "74AHCT125", "U5", "74HCT125", ux, uy, unit=1,
-                 ref_at=(ux, uy - 6.35), val_at=(ux - 7.62, uy - 3.81), just="center", hide_val=True)
-    sh.w(ua["2"], (ux - 10.16, uy)); sh.lbl((ux - 10.16, uy), "WS2812_DIN_3V3", "L")
-    sh.w(ua["1"], (ux, uy + 10.16)); sh.gnd((ux, uy + 10.16))
-    r15 = R("R15", "330", ux + 17.78, uy, horizontal=True, fields="above")
-    sh.w(ua["3"], r15["1"])
-    jx = ox + 55.88
+    """Level shifter 3.3 -> 5 V with one N-MOSFET in common gate: GPIO low pulls the line low, GPIO high leaves it
+    to the 1k pull-up on 5 V (non-inverting)."""
+    oy += 5.08
+    uy = oy + 12.7
+    qx, qy = ox + 20.32, oy + 25.4
+    q = sh.part("Transistor_FET", "2N7002", "Q4", "2N7002", qx, qy,
+                ref_at=(qx + 5.08, qy - 1.27), val_at=(qx + 5.08, qy + 1.27))
+    d, src, g = q["3"], q["2"], q["1"]
+    r15 = R("R15", "330", ox + 38.1, uy, horizontal=True, fields="above")
+    sh.w(d, (d[0], uy), r15["1"])
+    r25 = R("R25", "1k", d[0] + 5.08, uy - 3.81)
+    sh.j((d[0] + 5.08, uy)); sh.w(r25["1"], (d[0] + 5.08, oy + 2.54)); sh.vcc((d[0] + 5.08, oy + 2.54), "5V_PERIPH")
+    sh.w(g, (ox + 10.16, g[1]), (ox + 10.16, oy + 17.78)); sh.vcc((ox + 10.16, oy + 17.78), "3V3_MCU")
+    sh.w(src, (src[0], oy + 35.56), (ox + 7.62, oy + 35.56)); sh.lbl((ox + 7.62, oy + 35.56), "WS2812_DIN_3V3", "L")
+    jx = ox + 60.96
     j1 = sh.part("Connector_Generic", "Conn_01x03", "J1", "WS2812 HP-Streifen", jx, oy + 27.94,
                  ref_at=(jx + 2.54, oy + 26.67), val_at=(jx + 2.54, oy + 29.21))
-    sh.w(r15["2"], (ox + 48.26, uy), (ox + 48.26, j1["1"][1]), j1["1"])
-    sh.w(j1["2"], (ox + 40.64, j1["2"][1]), (ox + 40.64, oy + 22.86)); sh.vcc((ox + 40.64, oy + 22.86), "5V_PERIPH")
-    c10 = C("C10", "100u", ox + 45.72, oy + 31.75, fields="left")
-    sh.j((ox + 45.72, j1["2"][1])); sh.w(c10["2"], (ox + 45.72, oy + 38.1)); sh.gnd((ox + 45.72, oy + 38.1))
-    sh.w(j1["3"], (ox + 49.53, j1["3"][1]), (ox + 49.53, oy + 38.1)); sh.gnd((ox + 49.53, oy + 38.1))
-    py = oy + 50.8
-    ue = sh.part("74xx", "74AHCT125", "U5", "74HCT125", ux, py, unit=5,
-                 ref_at=(ux + 6.35, py), val_at=None, hide_val=True)
-    sh.w(ue["14"], (ux, py - 15.24)); sh.vcc((ux, py - 15.24), "5V_PERIPH")
-    sh.w((ux, py - 15.24), (ux - 7.62, py - 15.24)); sh.j((ux, py - 15.24))
-    c21 = C("C21", "100n", ux - 7.62, py - 11.43, fields="left")
-    sh.w(c21["2"], (ux - 7.62, py - 5.08)); sh.gnd((ux - 7.62, py - 5.08))
-    sh.w(ue["7"], (ux, py + 15.24)); sh.gnd((ux, py + 15.24))
-    for k, (unit, a, y, oe) in enumerate(((2, "5", "6", "4"), (3, "9", "8", "10"), (4, "12", "11", "13"))):
-        gx = ox + 45.72 + k * 20.32
-        u = sh.part("74xx", "74AHCT125", "U5", "74HCT125", gx, py, unit=unit,
-                    ref_at=(gx, py - 6.35), val_at=None, just="center", hide_val=True)
-        sh.w(u[a], (gx - 10.16, py), (gx - 10.16, py + 10.16)); sh.gnd((gx - 10.16, py + 10.16))
-        sh.w(u[oe], (gx, py + 10.16)); sh.gnd((gx, py + 10.16))
-        sh.nc(u[y])
-    sh.note((ox + 22.86, oy + 69.85), "unbenutzte Gatter: Eingänge + /OE auf GND")
-    sh.frame(ox - 5.08, oy - 5.08, ox + 96.52, oy + 73.66, "WS2812 (5 V) über Pegelwandler")
+    sh.w(r15["2"], (ox + 50.8, uy), (ox + 50.8, j1["1"][1]), j1["1"])
+    y2 = j1["2"][1]
+    sh.w(j1["2"], (ox + 35.56, y2)); sh.w((ox + 40.64, y2), (ox + 40.64, oy + 22.86)); sh.j((ox + 40.64, y2))
+    sh.vcc((ox + 40.64, oy + 22.86), "5V_PERIPH")
+    for ref, x in (("C10", ox + 45.72), ("C32", ox + 35.56)):
+        c = C(ref, "22u", x, y2 + 3.81, fields="left")
+        if ref == "C10":
+            sh.j((x, y2))
+        sh.w(c["2"], (x, oy + 40.64)); sh.gnd((x, oy + 40.64))
+    sh.w(j1["3"], (ox + 53.34, j1["3"][1]), (ox + 53.34, oy + 40.64)); sh.gnd((ox + 53.34, oy + 40.64))
+    sh.frame(ox - 5.08, oy - 10.16, ox + 96.52, oy + 50.8, "WS2812 (5 V) über Pegelwandler (MOSFET)")
 
 
 def block_vibration(ox, oy):
@@ -612,22 +621,23 @@ def block_ui(ox, oy):
 
 
 def block_tsop6(ox, oy):
-    """TSOP34838 mounted on the weapon (front), cable to J6 like the vest sensors:
-    J6 = 1 VS (3V3), 2 GND, 3 OUT; supply filter 100R + 4.7u at the sensor."""
+    """IR LED and TSOP34838 at the front of the weapon share one cable to J6:
+    1 LED anode, 2 LED cathode (pair next to each other, twisted in the cable), 3 GND between the LED and the sensor
+    lines, 4 VS (3V3 over R36), 5 OUT; supply filter 100R + 4.7u at the sensor."""
     jx, jy = ox + 20.32, oy + 25.4
-    j6 = sh.part("Connector_Generic", "Conn_01x03", "J6", "TSOP 6 (Waffe)", jx, jy,
-                 ref_at=(jx + 2.54, jy - 5.08), val_at=(jx + 2.54, jy - 2.54))
-    sh.w(j6["1"], (ox + 10.16, j6["1"][1]), (ox + 10.16, oy + 12.7)); sh.vcc((ox + 10.16, oy + 12.7), "3V3_MCU")
-    sh.w(j6["2"], (ox + 12.7, j6["2"][1])); sh.gnd((ox + 12.7, j6["2"][1]), side="left")
-    sh.w(j6["3"], (ox + 10.16, j6["3"][1])); sh.lbl((ox + 10.16, j6["3"][1]), "TSOP6_OUT", "L")
-    sh.note((ox + 2.54, oy + 40.64), "Kabel zum Sensor an der Waffe")
+    j6 = sh.part("Connector_Generic", "Conn_01x05", "J6", "IR-LED + TSOP 6", jx, jy,
+                 ref_at=(jx + 2.54, jy - 7.62), val_at=(jx + 2.54, jy - 10.16))
+    for n, net in (("1", "IR_LED_A"), ("2", "IR_LED_K"), ("4", "3V3_J6"), ("5", "TSOP6_OUT")):
+        sh.w(j6[n], (ox + 5.08, j6[n][1])); sh.lbl((ox + 5.08, j6[n][1]), net, "L")
+    sh.w(j6["3"], (ox + 10.16, j6["3"][1])); sh.gnd((ox + 10.16, j6["3"][1]), side="left")
+    sh.note((ox - 7.62, oy + 40.64), "Kabel zu IR-LED und Sensor vorn an der Waffe")
     cx, cy = ox + 40.64, oy + 30.48
     u = sh.part("Interface_Optical", "TSOP348xx", "U13", "TSOP34838", cx + 12.7, cy,
                 ref_at=(cx + 11.43, cy + 8.89), val_at=(cx + 11.43, cy + 11.43), just="center")
     n = (cx + 25.4, cy - 12.7)
     sh.w(u["3"], (cx + 25.4, cy - 5.08), n)
     r = R("R26", "100", cx + 25.4, cy - 16.51)
-    sh.w(r["1"], (cx + 25.4, cy - 22.86)); sh.vcc((cx + 25.4, cy - 22.86), "3V3_MCU")
+    sh.w(r["1"], (cx + 25.4, cy - 22.86), (cx + 22.86, cy - 22.86)); sh.lbl((cx + 22.86, cy - 22.86), "3V3_J6", "L")
     sh.j(n)
     c = C("C24", "4.7u", cx + 40.64, cy - 8.89, pol=True, fields="left")
     sh.w(n, c["1"])
@@ -636,14 +646,14 @@ def block_tsop6(ox, oy):
     sh.w(u["1"], (cx + 27.94, cy)); sh.lbl((cx + 27.94, cy), "TSOP6_OUT", "R")
     sh.w(u["2"], (cx + 25.4, cy + 5.08), (cx + 25.4, cy + 10.16)); sh.gnd((cx + 25.4, cy + 10.16))
     sh.note((cx + 12.7, cy + 15.24), "Waffe vorne", just="center")
-    sh.frame(ox - 10.16, oy - 5.08, ox + 88.9, oy + 50.8, "TSOP 6 (an der Waffe, jenseits des Steckers)")
+    sh.frame(ox - 10.16, oy - 5.08, ox + 88.9, oy + 50.8, "IR-LED + TSOP 6 (an der Waffe, Stecker J6)")
 
 
 def block_weste(ox, oy):
     jx, jy = ox + 20.32, oy + 25.4
     j2 = sh.part("Connector_Generic", "Conn_01x07", "J2", "GX16 7-polig", jx, jy,
                  ref_at=(jx + 2.54, jy - 1.27), val_at=(jx + 2.54, jy + 1.27))
-    sh.w(j2["1"], (ox + 10.16, j2["1"][1]), (ox + 10.16, oy + 12.7)); sh.vcc((ox + 10.16, oy + 12.7), "3V3_MCU")
+    sh.w(j2["1"], (ox + 7.62, j2["1"][1])); sh.lbl((ox + 7.62, j2["1"][1]), "3V3_WESTE", "L")
     sh.w(j2["2"], (ox + 12.7, j2["2"][1])); sh.gnd((ox + 12.7, j2["2"][1]), side="left")
     for k in range(5):
         p = j2[str(k + 3)]
@@ -657,7 +667,7 @@ def block_weste(ox, oy):
         n = (cx + 25.4, cy - 12.7)
         sh.w(u["3"], (cx + 25.4, cy - 5.08), n)
         r = R(f"R{16 + k}", "100", cx + 25.4, cy - 16.51)
-        sh.w(r["1"], (cx + 25.4, cy - 22.86)); sh.vcc((cx + 25.4, cy - 22.86), "3V3_MCU")
+        sh.w(r["1"], (cx + 25.4, cy - 22.86), (cx + 22.86, cy - 22.86)); sh.lbl((cx + 22.86, cy - 22.86), "3V3_WESTE", "L")
         sh.j(n)
         c = C(f"C{11 + k}", "4.7u", cx + 40.64, cy - 8.89, pol=True, fields="left")
         sh.w(n, c["1"])
@@ -771,6 +781,7 @@ def block_onoff(ox, oy):
     sh.w((ox + 5.08, yr), (ox + 12.7, yr)); sh.flag("#FLG1", (ox + 12.7, yr))
     sh.w(bt["2"], (ox + 5.08, oy + 45.72), (ox + 2.54, oy + 45.72)); sh.lbl((ox + 2.54, oy + 45.72), "BAT_N", "L")
     sh.j((ox + 5.08, oy + 43.18)); sh.w((ox + 5.08, oy + 43.18), (ox + 10.16, oy + 43.18)); sh.flag("#FLG12", (ox + 10.16, oy + 43.18))
+    # low-leakage dual Schottky (common cathode): a power Schottky would leak from KEY into the unpowered IO21
     d6 = sh.part("Diode", "BAT54CW", "D6", "BAT54CW", ox + 76.2, yg, angle=0,
                  ref_at=(ox + 76.2, yg - 6.35), val_at=(ox + 76.2, yg - 3.81), just="center")
     r24 = R("R24", "10k", ox + 55.88, yg, horizontal=True, fields="above")
@@ -789,7 +800,13 @@ def block_tsop_r(ox, oy):
         r = R(f"R{30 + k}", "100", ox + 25.4, y, horizontal=True, fields="above" if k == 0 else "right")
         sh.w((ox + 10.16, y), r["1"]); sh.lbl((ox + 10.16, y), f"TSOP{k + 1}_OUT", "L")
         sh.w(r["2"], (ox + 40.64, y)); sh.lbl((ox + 40.64, y), f"TSOP{k + 1}_J", "R")
-    sh.frame(ox - 12.7, oy - 5.08, ox + 58.42, oy + 35.56, "Sensorkabel: Serienwiderstände")
+    # 3V3 into the cables over 10R: a short in a cable (GX16 plugged in live) does not pull down 3V3_MCU
+    for k, (ref, net) in enumerate((("R35", "3V3_WESTE"), ("R36", "3V3_J6"))):
+        y = oy + 38.1 + k * 7.62
+        r = R(ref, "10", ox + 25.4, y, horizontal=True, fields="above")
+        sh.w((ox + 12.7, y), r["1"]); sh.vcc((ox + 12.7, y), "3V3_MCU", side="left")
+        sh.w(r["2"], (ox + 40.64, y)); sh.lbl((ox + 40.64, y), net, "R")
+    sh.frame(ox - 12.7, oy - 5.08, ox + 58.42, oy + 50.8, "Sensorkabel: Serienwiderstände")
 
 
 # ================================================================== LAYOUT
@@ -805,15 +822,15 @@ SH4 = "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
 FOOTPRINTS = {
     "U1": "Package_SO:HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.3x2.3mm_ThermalVias",
     "U2": "Package_TO_SOT_SMD:SOT-223-3_TabPin2", "U4": "RF_Module:ESP32-S3-WROOM-1",
-    "U5": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
     "U6": "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",
     "U12": "Package_TO_SOT_SMD:SOT-23-6",
-    "Q1": "Package_TO_SOT_SMD:SOT-23", "Q2": "Package_TO_SOT_SMD:SOT-23",
+    "Q1": "Package_TO_SOT_SMD:SOT-23", "Q2": "Package_TO_SOT_SMD:SOT-23", "Q4": "Package_TO_SOT_SMD:SOT-23",
     "D1": "Diode_SMD:D_SOD-123",
     "L1": "Inductor_SMD:L_Sunlord_MWSA0503S",
-    "R7": "Resistor_SMD:R_1206_3216Metric",
-    "C1": "Capacitor_SMD:C_1210_3225Metric", "C7": "Capacitor_SMD:C_1210_3225Metric",
-    "C10": "Capacitor_SMD:C_1210_3225Metric", "C3": "Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A",
+    "R7": "Resistor_SMD:R_1206_3216Metric", "R8": "Resistor_SMD:R_1206_3216Metric",
+    "C1": "Capacitor_SMD:C_0805_2012Metric", "C7": "Capacitor_SMD:C_0805_2012Metric",
+    "C10": "Capacitor_SMD:C_0805_2012Metric", "C31": "Capacitor_SMD:C_0805_2012Metric",
+    "C32": "Capacitor_SMD:C_0805_2012Metric", "C3": "Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A",
     "C2": "Capacitor_SMD:C_0805_2012Metric", "C18": "Capacitor_SMD:C_0805_2012Metric",
     "C19": "Capacitor_SMD:C_0805_2012Metric", "C22": "Capacitor_SMD:C_0805_2012Metric", "C20": "Capacitor_SMD:C_0805_2012Metric",
     "C30": "Capacitor_SMD:C_0805_2012Metric", "C4": "Capacitor_SMD:C_0805_2012Metric",
@@ -821,9 +838,9 @@ FOOTPRINTS = {
     "J2": "Connector_JST:JST_SH_SM07B-SRSS-TB_1x07-1MP_P1.00mm_Horizontal",
     "J3": "lasertag:USB_C_Receptacle_HX_TYPE-C-16P-180-LT-H10.5_Vertical",  # project library, vertical
     "BT1": PH2, "SP1": PH2,
-    "M1": SH2, "LED1": SH2, "SW1": SH2, "SW2": SH2,
+    "M1": SH2, "J8": "Connector_JST:JST_SH_SM03B-SRSS-TB_1x03-1MP_P1.00mm_Horizontal",
     "SW3": "Button_Switch_SMD:SW_SPST_B3U-1000P", "SW4": "Button_Switch_SMD:SW_SPST_B3U-1000P",
-    "J4": SH4, "J5": SH4, "J6": "Connector_JST:JST_SH_SM03B-SRSS-TB_1x03-1MP_P1.00mm_Horizontal",
+    "J4": SH4, "J5": SH4, "J6": "Connector_JST:JST_SH_SM05B-SRSS-TB_1x05-1MP_P1.00mm_Horizontal",
     "U14": "Package_SON:WSON-8-1EP_8x6mm_P1.27mm_EP3.4x4.3mm",
     "J7": "lasertag:microSD_TF-018_PushPull",  # project library
     "U15": "Package_TO_SOT_SMD:SOT-23-6", "Q3": "Package_TO_SOT_SMD:SOT-23-6",
@@ -833,36 +850,41 @@ FOOTPRINTS = {
 }
 # JLCPCB/LCSC part numbers (checked for stock 2026-10-11); by reference, fallback by value for 0603 R/C
 LCSC = {
-    "U1": "C488349", "U2": "C6186", "U4": "C2913202", "U5": "C131316", "U6": "C910544",
+    "U1": "C488349", "U2": "C6186", "U4": "C2913202", "U6": "C910544",
     "U12": "C7519", "Q1": "C20917", "Q2": "C20917",
     "D1": "C8598", "L1": "C408355",  # IP5306-I2C (extended), MWSA0503S-1R0MT 1 uH 8.5 A
-    "R7": "C17913",  # 12 R 1206: IR-LED peak ~220 mA at a full cell
-    "C1": "C23742", "C10": "C23742", "C7": "C23742", "C3": "C7171",  # 100u 10V 1210 / 10u 16V tantalum case A
+    "R7": "C17958", "R8": "C17958",  # 2 x 22R 1206 in parallel (basic): IR-LED peak ~240 mA at a full cell
+    "Q4": "C8545",  # level shifter WS2812: 2N7002 (basic), small Coss -> fast rising edge
+    "C1": "C45783", "C10": "C45783", "C7": "C45783", "C31": "C45783", "C32": "C45783",  # 22u 0805 (basic)
+    "C3": "C7171",  # 10u 16V tantalum case A
     "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783", "C30": "C45783",
     "C4": "C15850", "C5": "C59461", "C29": "C19702", "R1": "C22977", "R2": "C22936",  # 10u 0805, 22u 0603, 10u 0603, 2R, 1R
     "J1": "C225234", "J2": "C160406", "J3": "C49261570", "BT1": "C225233", "SP1": "C225233",
-    "M1": "C160402", "LED1": "C160402", "SW1": "C160402", "SW2": "C160402",
+    "M1": "C160402", "J8": "C7430445",
     "SW3": "C231329", "SW4": "C231329", "J4": "C160404", "J5": "C160404",
     "U14": "C2928927",  # Zetta ZD35Q1GC-IB, supported by espressif/spi_nand_flash
-    "J6": "C7430445",
+    "J6": "C7430447",  # ZX-SH1.0-5PWT (JST SM05B-compatible)
     "J7": "C961679",  # XKB TF-018, microSD push-pull
     "C28": "C19702",  # 10u 0603 at the card supply
     "U15": "C351410", "Q3": "C2830320", "D4": "C8598",
-    "D6": "C83573",  # D6 BAT54CW-7-F (extended)
+    "D6": "C57891",  # LBAT54CWT1G, dual Schottky common cathode, low leakage (extended)
     "C26": "C1525", "C27": "C1525",  # 100n 0402  # ZX-SH1.0-3PWT, JST SM03B-compatible (C160403 out of stock)
 }
 LCSC_0603 = {("R", "10k"): "C25804", ("R", "100k"): "C25803", ("R", "5.1k"): "C23186", ("R", "2k"): "C22975",
              ("R", "330"): "C23138", ("R", "100"): "C22775", ("R", "75k"): "C23242",
-             ("C", "100n"): "C14663", ("C", "1u"): "C15849", ("R", "1k"): "C21190", ("R", "1M"): "C22935"}
-SMALL = {f"R{i}" for i in range(28, 35)} | {"R37", "R38", "R40"}  # 0402 where the board is tight
-LCSC_0402 = {"100": "C25076", "10k": "C25744", "1k": "C11702", "4.7k": "C25900"}
+             ("C", "100n"): "C14663", ("C", "1u"): "C15849", ("R", "1k"): "C21190", ("R", "1M"): "C22935", ("R", "10"): "C22859"}
+SMALL = {f"R{i}" for i in range(28, 36)} | {"R37", "R38", "R40"}  # 0402 where the board is tight
+LCSC_0402 = {"100": "C25076", "10k": "C25744", "1k": "C11702", "4.7k": "C25900", "10": "C25077"}
 VEST = {f"U{i}" for i in range(7, 12)} | {f"R{i}" for i in range(16, 21)} | {f"C{i}" for i in range(11, 16)}
 VEST |= {"U13", "R26", "C24"}  # TSOP 6 sits on the weapon, filter at the sensor
+VEST |= {"LED1", "SW1", "SW2"}   # IR LED (cable on J6), trigger and reload switch (cable on J8): in the weapon
 
 
 # Soldered by hand (connectors, fallback buttons): field "LCSC Hand" instead of "LCSC" -> not in the standard JLC
 # BOM/CPL, only in the *_komplett variant; the separate parts order is fertigung/lcsc/waffe_lose_teile.csv
-HAND = {"J1", "J2", "J4", "J5", "J6", "BT1", "SP1", "LED1", "M1", "SW1", "SW2", "SW3", "SW4"}
+HAND = {"J1", "J2", "J4", "J5", "J6", "J8", "BT1", "SP1", "M1", "SW3", "SW4"}
+# optional, not assembled by default (field "LCSC Option", only in the *_flash variants): SPI-NAND with /CS pull-up and 100n
+OPTION = {"U14", "C25", "R27"}
 
 
 def assign_footprints():
@@ -884,7 +906,7 @@ def assign_footprints():
         val = next(p.value for p in inst.properties if p.key == "Value")
         part = LCSC.get(ref) or (LCSC_0402.get(val) if ref in SMALL else LCSC_0603.get((inst.entryName, val)))
         assert part, f"no LCSC part for {ref} ({val})"
-        key = "LCSC Hand" if ref in HAND else "LCSC"
+        key = "LCSC Hand" if ref in HAND else "LCSC Option" if ref in OPTION else "LCSC"
         if not any(p.key == key for p in inst.properties):
             lp = copy.deepcopy(fprop)
             lp.key, lp.value = key, part

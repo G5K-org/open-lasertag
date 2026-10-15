@@ -4,6 +4,7 @@
 
 #include "board.h"
 #include "driver/i2c_master.h"
+#include "driver/usb_serial_jtag.h"
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 #include "esp_adc/adc_oneshot.h"
@@ -21,6 +22,7 @@ static adc_oneshot_unit_handle_t s_adc;
 static adc_cali_handle_t s_cali;
 static volatile uint16_t s_mv;
 static volatile bool s_charging;
+static bool s_host;
 static i2c_master_dev_handle_t s_ip;
 
 // IP5306 registers (read -> change the bit -> write back, other bits keep their value)
@@ -29,7 +31,8 @@ static i2c_master_dev_handle_t s_ip;
 #define REG_SYS_CTL2 0x02     // bit 3:2 light load off time, 00 = 8 s
 #define REG_CHG_DIG  0x24     // bit 4:0 charge current on the USB side: 0.05 A + n * 0.1 A
 #define REG_READ0    0x70     // bit 3 charging
-#define CHG_CURRENT  0x10     // 1.65 A from USB, about 2 A into the cell
+#define CHG_CURRENT  0x10     // 1.65 A from USB, about 2 A into the cell (USB charger)
+#define CHG_HOST     0x04     // 0.45 A: data connection to a computer, its port only guarantees 0.5 A
 
 static esp_err_t ip_read(uint8_t reg, uint8_t *val)
 {
@@ -62,7 +65,8 @@ static esp_err_t ip5306_setup(void)
     ESP_RETURN_ON_ERROR(ip_update(REG_SYS_CTL0, 0x03, 0x03), TAG, "ctl0");
     ESP_RETURN_ON_ERROR(ip_update(REG_SYS_CTL1, 0x84, 0x84), TAG, "ctl1");
     ESP_RETURN_ON_ERROR(ip_update(REG_SYS_CTL2, 0x0c, 0x00), TAG, "ctl2");
-    return ip_update(REG_CHG_DIG, 0x1f, CHG_CURRENT);
+    s_host = usb_serial_jtag_is_connected();
+    return ip_update(REG_CHG_DIG, 0x1f, s_host ? CHG_HOST : CHG_CURRENT);
 }
 
 void battery_power_off(void)
@@ -134,6 +138,13 @@ static void battery_task(void *arg)
         s_mv = (s_mv * 7 + mv) / 8;  // IR pulses and motors cause dips
         uint8_t r;
         s_charging = s_ip && ip_read(REG_READ0, &r) == ESP_OK && (r & 0x08);
+        // charge current: full only on a charger; a computer port (USB data, SOF seen) may cut off above 0.5 A
+        bool host = usb_serial_jtag_is_connected();
+        if (s_ip && host != s_host) {
+            if (ip_update(REG_CHG_DIG, 0x1f, host ? CHG_HOST : CHG_CURRENT) == ESP_OK) {
+                s_host = host;
+            }
+        }
     }
 }
 

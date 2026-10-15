@@ -1,10 +1,11 @@
 Comment,Anschluss,Menge je Waffe,Hersteller-Nr.,LCSC Part #,Einbau
-Nachladetaster 6x6x5 THT runder Stoessel,SW2 (NACHL.),1,K2-1102DP-C4SW-04,C110153,liegend unter dem Nachladehebel
-Abzugsschalter Mikroschalter,SW1 (ABZUG),1,Omron D2F-01,C397278,Tasche ueber dem Abzugshebel
+Nachladetaster 6x6x5 THT runder Stoessel,SW2 (Kabel an J8),1,K2-1102DP-C4SW-04,C110153,liegend unter dem Nachladehebel
+Abzugsschalter Mikroschalter,SW1 (Kabel an J8),1,Omron D2F-01,C397278,Tasche ueber dem Abzugshebel
 JST-PH 2-polig liegend SMD,"BT1 (AKKU), SP1 (LAUTSPR.)",2,CJT A2001WR-S-2P,C225233,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett)
 JST-PH 3-polig liegend SMD,J1 (WS2812),1,CJT A2001WR-S-3P,C225234,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett)
-JST-SH 2-polig liegend SMD,"LED1, M1 (VIB), SW1 (ABZUG), SW2 (NACHL.)",4,JST SM02B-SRSS-TB(LF)(SN),C160402,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett)
-JST-SH 3-polig liegend SMD,J6 (TSOP),1,Megastar ZX-SH1.0-3PWT,C7430445,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett)
+JST-SH 2-polig liegend SMD,M1 (VIB),1,JST SM02B-SRSS-TB(LF)(SN),C160402,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett)
+JST-SH 3-polig liegend SMD,J8 (TASTER: Abzug + Nachladen),1,Megastar ZX-SH1.0-3PWT,C7430445,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett)
+JST-SH 5-polig liegend SMD,J6 (LED/TSOP: IR-LED + TSOP 6),1,Megastar ZX-SH1.0-5PWT,C7430447,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett)
 JST-SH 4-polig liegend SMD,"J4 (OLED), J5 (GEBER)",2,JST SM04B-SRSS-TB(LF)(SN),C160404,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett)
 JST-SH 7-polig liegend SMD,J2 (SENSOR),1,JST SM07B-SRSS-TB(LF)(SN),C160406,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett)
 Taster 3x2.5 SMD,"SW3 (RESET), SW4 (BOOT)",2,Omron B3U-1000P,C231329,auf der Platine selbst loeten (entfaellt mit JLC-BOM _komplett) (nur fuer Notfall-Flashen noetig)

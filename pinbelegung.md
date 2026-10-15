@@ -37,14 +37,14 @@ der Platine (kreuzungsfreies Routing).
 | TSOP 3 – Brust | GPIO12 | RMT-Eingang |
 | TSOP 4 – Rücken | GPIO13 | RMT-Eingang |
 | TSOP 5 – Schultern (optional) | GPIO14 | RMT-Eingang |
-| TSOP 6 – an der Waffe | GPIO16 | J6 (1 VS, 2 GND, 3 OUT), Filter 100 Ω + 4,7 µF am Sensor; GPIO-Interrupt |
-| WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, 74HCT125) + 330 Ω; VDD 5 V vom IP5306 |
+| TSOP 6 – an der Waffe | GPIO16 | J6 (1 LED-Anode, 2 LED-Kathode, 3 GND, 4 VS über 10 Ω, 5 OUT), Filter 100 Ω + 4,7 µF am Sensor; GPIO-Interrupt |
+| WS2812 Data | GPIO17 | über Pegelwandler (3,3→5 V, N-MOSFET Q4 2N7002 in Gateschaltung, 1 kΩ auf 5 V) + 330 Ω; VDD 5 V vom IP5306 |
 | I²C SCL – IP5306 | GPIO18 | eigener Bus zum Lade-/Boost-IC U1 (Adresse 0x75), 4,7 kΩ Pull-up R40 |
 | I²C SDA – IP5306 | GPIO9 | 4,7 kΩ Pull-up R38 |
 | I²S DOUT | GPIO38 | zu MAX98357A |
 | I²S BCLK | GPIO39 | zu MAX98357A |
 | I²S LRCLK/WS | GPIO40 | zu MAX98357A |
-| Flash /CS | GPIO7 | SPI-NAND U14 (ZD35Q1GC-IB, 128 MB), SPI2 über GPIO-Matrix, 10 kΩ Pull-up |
+| Flash /CS | GPIO7 | SPI-NAND U14 (ZD35Q1GC-IB, 128 MB, optional bestückt), SPI2 über GPIO-Matrix, 10 kΩ Pull-up |
 | microSD /CS | GPIO48 | Slot J7 (TF-018) am selben Bus, interner Pull-up |
 | SPI MISO | GPIO15 | U14 DO, J7 DAT0 (interner Pull-up) |
 | SPI MOSI | GPIO3 | U14 DI, J7 CMD (Strapping-Pin, JTAG-eFuse bleibt ungebrannt) |
@@ -56,7 +56,8 @@ der Platine (kreuzungsfreies Routing).
 Firmware Ein/Aus und Laden (IP5306-I2C, Register lesen → Bit ändern → zurückschreiben, bei jedem Start):
 - `0x00` Bit 1 = 1 (keine Abschaltung bei kleiner Last), Bit 0 = 1 (Ausschalten per Taster)
 - `0x01` Bit 7 = 1 (Aus = 2 s drücken statt Doppelklick), Bit 2 = 1 (5 V bleiben nach dem Abziehen von USB)
-- `0x24` Ladestrom auf der USB-Seite: `0x10` ≈ 1,65 A (≈ 2 A in den Akku)
+- `0x24` Ladestrom auf der USB-Seite: `0x10` ≈ 1,65 A (≈ 2 A in den Akku) an einem Ladegerät; besteht eine
+  USB-Datenverbindung zu einem Rechner (`usb_serial_jtag_is_connected()`), `0x04` ≈ 0,45 A
 - `0x70` Bit 3 = lädt, `0x71` Bit 3 = voll
 - Ausschalten aus der Firmware: `0x00` Bit 1 = 0, dann Deep Sleep; der IP5306 schaltet nach 8 s kleiner Last ab
   (`0x02` Bit 3:2 = 00)

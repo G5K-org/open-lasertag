@@ -62,21 +62,23 @@ PLACE = {
     # --- module: 100n + 10u right at pin 2, EN RC right at pin 3
     "C18": (30.1, 2.1, 90), "C17": (31.95, 2.1, 90), "R21": (28.25, 3.95, 270), "C16": (30.7, 5.3, 270),
     # --- left edge connectors
-    "LED1": (SH_IN, 12.8, 270), "J6": (SH_IN, 20.6, 270),  # J6: TSOP 6 on the weapon
+    "J6": (SH_IN, 18.1, 270),  # J6: IR LED + TSOP 6 at the front of the weapon (1 A, 2 K, 3 GND, 4 3V3, 5 OUT)
+    "R36": (12.0, 22.0, 180),    # 10R into the J6 3V3 line
     # --- left edge, lower part: WS2812 and speaker (cables run forward to the barrel)
     "J1": (PH_IN, 29.8, 270), "SP1": (PH_IN, 40.2, 270),
     # --- IR driver
-    "R7": (9.5, 12.85, 180), "Q1": (8.6, 19.1, 180), "C7": (8.8, 15.65, 180),
+    "R7": (8.6, 12.9, 270), "R8": (10.95, 12.9, 270), "Q1": (8.6, 19.1, 180), "C7": (4.0, 11.4375, 180),
     "R5": (12.3, 20.05, 180), "R6": (11.95, 17.7, 90),
     # --- bottom edge: trigger and reload (cables run along the bottom to the switch), USB-C upright
-    "SW1": (13.0, H - SH_IN, 0), "SW2": (18.9, H - SH_IN, 0), "J3": (JX, JY, 0),
+    "J8": (15.45, H - SH_IN, 0), "J3": (JX, JY, 0),  # J8: trigger + reload switch (1 TRIGGER, 2 GND, 3 RELOAD)
     "R9": (11.675, 37.0, 0), "C8": (13.9, 37.0, 90), "R10": (17.575, 37.0, 0), "C9": (19.8, 37.0, 90),
     # --- right edge: motor, sensor cable below it (both cables run back into the motor channel)
     "M1": (W0 - SH_IN, 23.2, 90), "J2": (W - SH_IN, 32.7, 90),
     # --- right strip: OLED (I2C, Qwiic) above, rotary encoder below
     "J4": (W - SH_IN, 5.5, 90), "J5": (W - SH_IN, 13.5, 90),
     # --- WS2812 level shifter
-    "U5": (16.0, 29.5, 0), "C21": (20.85, 27.2, 90), "R15": (10.85, 26.0, 90), "C10": (16.1, 33.9, 0),
+    "Q4": (13.6, 26.82, 180), "R25": (10.85, 29.025, 90), "R15": (10.85, 26.0, 90),  # Q4 common gate, R25 1k to 5 V
+    "C10": (15.57, 33.9, 0), "C32": (15.57, 31.8, 0), "C31": (20.85, 27.2, 90),
     # --- USB: ESD (connector side down) + CC
     "U12": (JX, 31.5, 90), "R23": (JX - 2.325, JY - 3.7, 180), "R22": (JX + 2.325, JY + 3.85, 0),
     # --- battery voltage divider (fed from the IR battery line)
@@ -100,6 +102,7 @@ PLACE = {
     # --- USB feed into 5 V (runs without a battery)
     "D4": (24.4, 27.0, 0),
     # --- series resistors in the sensor cable lines, right before J2
+    "R35": (52.4, 37.1, 270),  # 10R into the vest 3V3 line
     "R30": (52.0, 33.7, 0), "R31": (52.0, 32.7, 0), "R32": (52.0, 31.7, 0), "R33": (52.0, 30.7, 0), "R34": (52.0, 29.7, 0),
 }
 
@@ -113,7 +116,7 @@ def parse_netlist(path):
         fp = re.search(r'\(footprint "([^"]*)"\)', block)
         ts = re.findall(r'\(tstamps "([^"]*)"\)', block)  # [sheet path, symbol UUID] -> footprint path
         ts = (ts[0].rstrip("/") + "/" + ts[-1]).lstrip("/") if len(ts) > 1 else ts[-1]
-        lcsc = dict(re.findall(r'\(name "(LCSC(?: Hand)?)"\) "([^"]*)"', block))
+        lcsc = dict(re.findall(r'\(name "(LCSC(?: Hand| Option)?)"\) "([^"]*)"', block))
         if fp and fp.group(1):
             comps[ref] = (val, fp.group(1), ts, lcsc)
     nets = {}
@@ -134,7 +137,7 @@ NETCLASSES = [
     # name, track, clearance, via dia, via drill, diff width, diff gap, patterns
     ("Default", 0.2, 0.15, 0.5, 0.3, 0.2, 0.2, []),
     ("Power", 0.5, 0.15, 0.6, 0.3, 0.2, 0.2, ["GND", "BAT_P", "5V_PERIPH", "VBUS_NATIVE", "Net-(U1-SW)",
-                                              "Net-(D1-A)", "Net-(D2-A)", "Net-(LED1-K)", "Net-(LED*-A)", "Net-(U6-OUT*)"]),
+                                              "Net-(D1-A)", "Net-(D2-A)", "IR_LED_A", "IR_LED_K", "Net-(U6-OUT*)"]),
     ("3V3", 0.6, 0.15, 0.6, 0.3, 0.2, 0.2, ["3V3_MCU"]),
     ("USB", 0.2, 0.15, 0.5, 0.3, 0.2, 0.2, ["USB_D*", "Net-(J3-D*)"]),
 ]
@@ -368,8 +371,8 @@ OWN_MODELS = {"JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
               "WSON-8-1EP_8x6mm_P1.27mm_EP3.4x4.3mm"}  # scripts/gen_3d_wson8_8x6.py
 
 LABELS = [  # front silk, horizontal, next to the connector, clear of pads and bodies (tools/silk.py): (x, y, text, height, angle)
-    (7.0, 0.0, "AKKU", 0.8, 0), (4.2, 15.59, "LED1", 0.8, 0), (4.2, 17.04, "TSOP", 0.8, 0),
-    (12.35, 39.43, "ABZUG", 0.8, 0), (18.5, 39.43, "NACHL.", 0.8, 0), (19.9, 11.88, "RESET", 0.8, 0),
+    (7.0, 0.0, "AKKU", 0.8, 0), (4.2, 23.4, "LED/TSOP", 0.8, 0),
+    (19.0, 40.43, "TASTER", 0.8, 0), (19.9, 11.88, "RESET", 0.8, 0),
     (10.65, 32.98, "WS2812", 0.8, 0), (30.2, 37.83, "USB", 0.8, 0), (56.5, 39.3, "SENSOR", 0.8, 0),
     (2.98, 44.98, "LAUTSPR.", 0.8, 0), (49.7, 26.03, "VIB", 0.8, 0), (54.1, 36.95, "1", 0.8, 0), (40.9, 40.13, "SD", 0.8, 0),
     (31.1, 22.1, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0),
@@ -522,9 +525,10 @@ def route(r):
     r.t(F, 0.8, "BT1.1", (8.6, 4.2), (8.6, 2.9)); r.v((8.6, 2.9), net=BP, d=0.8, h=0.4)    # cell -> In2 (DW01A VCC)
     r.t(F, 1.2, "BT1.1", (9.65, 4.2), (12.95, 7.5), "L1.2")                              # cell -> L1
     r.t(F, 1.2, "L1.2", "C19.1"); r.gnd("C19.2", 0, 0.95)
-    r.t(F, 1.0, "C19.1", (12.95, 10.86), "R7.1")                                         # on to the IR LED
-    r.t(F, 0.8, "BT1.2", (5.4, 6.2), net="BAT_N")
-    r.v((6.2, 6.2), net="BAT_N", d=0.6); r.v((5.4, 6.2), net="BAT_N", d=0.6)
+    r.t(F, 1.0, "C19.1", (12.95, 11.4375), "R8.1", "R7.1", "C7.1")                      # on to the IR LED, C7
+    r.gnd("C7.2", -0.95, 0)
+    r.t(F, 1.2, "BT1.2", (4.6, 6.2), net="BAT_N")                                    # cell minus: 3 vias, 1.2 mm on B.Cu
+    r.v((6.2, 6.2), net="BAT_N", d=0.6); r.v((5.4, 6.2), net="BAT_N", d=0.6); r.v((4.6, 6.2), net="BAT_N", d=0.6)
     r.t(F, 1.0, "U1.7", "L1.1")                                                          # SW, straight
     # BAT sense: cell -> R2 -> C5 / U1.6
     r.t(F, 0.4, (8.6, 2.9), (10.275, 2.9), "R2.2", net=BP)
@@ -534,7 +538,9 @@ def route(r):
     # VOUT -> C20, C30 -> via into the In2 5 V trunk
     P5 = "5V_PERIPH"
     r.t(F, 0.8, "U1.8", "C20.1"); r.t(F, 0.8, "C20.1", "C30.1")
-    r.v((18.15, 7.15), net=P5, d=0.6)
+    r.v((18.15, 7.15), net=P5, d=0.6); r.v((17.125, 6.3), net=P5, d=0.6)            # three vias into In2 (up to 2 A)
+    r.t(F, 0.6, "C30.1", (19.2, 6.2)); r.v((19.2, 6.2), net=P5, d=0.6)
+    r.t(I2, 0.8, (19.2, 6.2), (20.15, 7.15), net=P5)
     r.t(F, 0.6, "C20.2", "C30.2", "C4.2", net="GND"); r.v((18.15, 9.05), net="GND")   # C4.2: B.Cu bundle below
     # VIN: pad 1 down the strip right of C4 (In2 vias), C4 on a 45 deg branch, snubber R1 -> C29
     V = "VBUS_NATIVE"
@@ -574,59 +580,57 @@ def route(r):
         r.t(F, 0.25, pin, (32.25, yy)); r.v((32.25, yy))
     r.t(B, 0.25, (32.25, 5.30), (24.95, 5.30), (7.8, 22.45), (7.8, 31.4), (12.5, 36.1), net="TRIGGER")
     r.v((12.5, 36.1), net="TRIGGER")
-    r.t(F, 0.25, (12.5, 36.1), "R9.2", "SW1.1")
+    r.t(F, 0.25, (12.5, 36.1), "R9.2", (12.5, 38.9), "J8.1")
     r.t(F, 0.25, "C8.1", (13.2, 37.77), (12.5, 38.47))
     r.t(B, 0.25, (32.25, 6.57), (24.58, 6.57), (8.6, 22.55), (8.6, 26.3), (18.4, 36.1), net="RELOAD")
     r.v((18.4, 36.1), net="RELOAD")
-    r.t(F, 0.25, (18.4, 36.1), "R10.2", "SW2.1")
+    r.t(F, 0.25, (18.4, 36.1), "R10.2", (18.4, 38.9), "J8.3")
     r.t(F, 0.25, "C9.1", (19.1, 37.77), (18.4, 38.47))
     r.t(B, 0.25, (32.25, 7.84), (24.21, 7.84), (13.1, 18.95), net="IR_GATE"); r.v((13.1, 18.95), net="IR_GATE")
     r.t(F, 0.25, (13.1, 18.95), "R5.1")
     r.t(F, 0.25, "U4.10", (32.4, 12.92)); r.v((32.4, 12.92))
-    r.t(B, 0.25, (32.4, 12.92), (26.88, 12.92), (11.9, 27.9), net="WS2812_DIN_3V3")
-    r.v((11.9, 27.9), net="WS2812_DIN_3V3"); r.t(F, 0.25, (11.9, 27.9), (12.2, 28.2), "U5.2")
+    r.t(B, 0.25, (32.4, 12.92), (26.88, 12.92), (15.6, 24.2), net="WS2812_DIN_3V3")
+    r.v((15.6, 24.2), net="WS2812_DIN_3V3"); r.t(F, 0.25, (15.6, 24.2), "Q4.2")
 
     # ================= IR driver =================
-    K = "Net-(LED1-K)"
-    r.t(F, 0.6, "R7.2", "LED1.2")
-    # LED1 cathode hops under its own anode trace on B.Cu
-    r.t(F, 0.6, "LED1.1", (5.3, 12.3), (6.0, 11.6)); r.v((6.0, 11.6), net=K, d=0.6)
-    r.t(B, 0.6, (6.0, 11.6), (6.0, 15.65), net=K); r.v((6.0, 15.65), net=K, d=0.6)
-    r.t(F, 0.8, (6.0, 15.65), (6.0, 17.44), "Q1.3", net=K)
-    r.gnd("C7.2", 1.47, 0)
+    # J6: 1 LED anode (R7 || R8), 2 GND, 3 3V3, 4 LED cathode (Q1), 5 TSOP 6 OUT
+    r.t(F, 0.6, "R8.2", "R7.2", (6.86, 16.1), "J6.1")
+    r.t(F, 0.6, "J6.2", (7.662, 17.1), "Q1.3")                                      # LED cathode next to the anode
+    r.t(F, 0.3, "J6.3", (6.3, 18.1)); r.v((6.3, 18.1), net="GND")
+    r.t(F, 0.3, "J6.4", (5.9, 19.1), (6.3, 19.5)); r.v((6.3, 19.5), net="3V3_J6")
+    # 3V3_J6 over R36 (10R) from the In2 3V3 diagonal
+    r.t(I2, 0.4, (6.3, 19.5), (7.8, 19.5), (10.3, 22.0), net="3V3_J6"); r.v((10.3, 22.0), net="3V3_J6")
+    r.t(F, 0.3, (10.3, 22.0), "R36.2", net="3V3_J6"); r.t(F, 0.3, "R36.1", (13.7, 22.0)); r.v((13.7, 22.0), net="3V3_MCU")
+    r.t(I2, 0.4, (14.875, 22.0), (13.7, 22.0), net="3V3_MCU")
     r.t(F, 0.3, "Q1.1", "R5.2"); r.t(F, 0.3, "R6.1", (11.95, 20.05))
     r.gnd("Q1.2", 0.65, -0.55); r.gnd("R6.2", 0, -0.85)
-    # BAT: R7 -> C7, on to the battery divider R3
-    r.t(F, 0.8, "R7.1", (10.28, 14.4), "C7.1")
-    r.t(F, 0.4, "R7.1", (14.3, 16.19), "R3.1")
+    # BAT: on to the battery divider R3, right of R8
+    r.t(F, 0.4, "C19.1", (12.95, 15.5), (14.2, 16.75), "R3.1")
 
-    # ================= TSOP 6 on the weapon (J6: 1 VS, 2 GND, 3 OUT) =================
-    r.t(F, 0.3, "J6.1", (6.0, 19.6), (6.4, 19.2)); r.v((6.4, 19.2), net="3V3_MCU")
-    r.t(I2, 0.4, (17.18, 19.7), (6.9, 19.7), (6.4, 19.2), net="3V3_MCU")  # branch off the In2 3V3 diagonal
-    r.gnd("J6.2", 1.5, 0)
+    # ================= TSOP 6 on the weapon (J6 pins 2/3/5) =================
     # OUT: IO16 -> B.Cu channel between the IR and WS2812 diagonals -> F.Cu into the bottom pin
     r.t(F, 0.2, "U4.9", (32.25, 11.65)); r.v((32.25, 11.65))
     # diagonal x + y = 38.0: between the H1 keep-out and the R2 3V3 via
     r.t(B, 0.2, (32.25, 11.65), (31.0, 10.4), (27.6, 10.4), (14.3, 23.7), net="TSOP6_OUT"); r.v((14.3, 23.7), net="TSOP6_OUT")
-    r.t(F, 0.2, (14.3, 23.7), (7.2, 23.7), (5.3, 21.8), "J6.3")
+    r.t(F, 0.2, (14.3, 23.7), (7.2, 23.7), (5.6, 22.1), (5.6, 20.6), "J6.5")
 
     # ================= trigger / reload / reset =================
     r.gnd("C8.2", 0.95, 0); r.gnd("C9.2", 0.95, 0)
-    r.gnd("SW1.2", 1.2, 0.4); r.gnd("SW2.2", 1.2, 0.4); r.gnd("SW3.1", 0, 1.2)
+    r.t(F, 0.3, "J8.2", (15.45, 39.6)); r.v((15.45, 39.6), net="GND"); r.gnd("SW3.1", 0, 1.2)
     r.drop("R9.1", 0, 0.95); r.drop("R10.1", 0, 0.95)
 
     # ================= WS2812 level shifter =================
-    r.t(F, 0.25, "U5.3", (12.05, 28.85), (10.85, 27.65), "R15.1")
+    # Q4 drain -> R15 / R25 (1k to 5 V); gate on 3V3 over an In2 branch
+    r.t(F, 0.25, "Q4.3", "R15.1", "R25.2")
     r.t(F, 0.4, "R15.2", (8.23, 27.8), "J1.1")
-    for pins, via in ((("U5.1",), (14.7, 27.55)), (("U5.4", "U5.5"), (14.7, 30.15)), (("U5.7",), (14.7, 31.45)),
-                      (("U5.12", "U5.13"), (17.3, 28.2)), (("U5.9", "U5.10"), (17.3, 30.15))):
-        r.t(F, 0.3, *pins, via, net="GND")
-        r.v(via, net="GND")
-    r.t(F, 0.5, "U5.14", (20.1, 27.55), "C21.1"); r.gnd("C21.2", 0.9, 0)
-    r.drop("C21.1", 0.95, 0.5)
-    r.t(F, 0.8, "J1.2", (9.5, 29.8), (13.6, 33.9), "C10.1")
-    r.gnd("J1.3", 2.55, 0); r.gnd("C10.2", 0, -1.4)
+    r.t(F, 0.3, "Q4.1", (16.2, 28.075)); r.v((16.2, 28.075), net="3V3_MCU")
+    r.t(I2, 0.4, (13.6, 23.275), (13.6, 26.0), (15.675, 28.075), (16.2, 28.075), net="3V3_MCU")
+    # strip supply: J1.2 -> R25, C32, C10 (2 x 22u)
+    r.t(F, 0.4, "J1.2", "R25.1")
+    r.t(F, 0.8, "J1.2", (9.5, 29.8), (11.5, 31.8), "C32.1", "C10.1")
+    r.gnd("J1.3", 2.55, 0); r.gnd("C10.2", 0.95, 0); r.gnd("C32.2", 0.95, 0.9)
     r.drop("C10.1", 0.2, 1.6)
+    r.drop("C31.1", 0.95, 0.33); r.gnd("C31.2", 0, -0.95)
 
     # ================= battery divider R3/R4/C6 -> ADC (IO8) =================
     r.t(F, 0.25, "U4.12", (31.6, 15.46), (31.37, 15.69), (25.96, 15.69), (23.925, 17.725), "C6.1", "R4.1",
@@ -705,7 +709,8 @@ def route(r):
         r.t(F, 0.2, f"{rs}.2", f"J2.{k + 3}")
     r.gnd("J2.2", -1.7, 0)
     # sensor 3V3 from In2 (branch of the module 3V3 line down the right edge)
-    r.v((52.8, 35.7), net="3V3_MCU", d=0.6); r.t(F, 0.4, (52.8, 35.7), "J2.1")
+    r.v((52.8, 35.7), net="3V3_MCU", d=0.6); r.t(F, 0.3, (52.8, 35.7), "R35.1")      # vest 3V3 over R35 (10R)
+    r.t(F, 0.3, "R35.2", (52.85, 37.58), (54.5, 35.93), "J2.1")
 
     # ================= vibration drivers =================
     # one motor for recoil and hit feedback (IO47)
@@ -741,14 +746,15 @@ def route(r):
     r.v((9.95, 39.2), net=OP, d=0.6); r.t(F, 0.4, (9.95, 39.2), "SP1.1")
     r.v((9.95, 41.2), net=ON, d=0.6); r.t(F, 0.4, (9.95, 41.2), "SP1.2")
     r.gnd("C22.2", 1.0, 0); r.drop("C22.1", 0, 0.95)
-    r.gnd("C1.2", 0, -1.42); r.drop("C1.1", 0, 1.42)
+    r.gnd("C1.2", 0, -1.95); r.drop("C1.1", 0, 1.94)
 
     # ================= module GND pad 40 =================
     r.gnd("U4.40", 1.45, 0)
 
     # ================= In2: 5V / 3V3 / BAT distribution =================
-    r.t(I2, 0.8, (18.15, 7.15), (25.05, 7.15), (29.9, 12.0), (30.2, 12.3), (30.2, 29.39), (32.2, 31.39), net=P5)
-    r.t(I2, 0.6, (30.2, 27.4), (29.6, 28.0), (22.28, 28.0), (21.8, 28.48), (20.05, 28.48), (14.83, 33.7), ("C10.1", 0.2, 1.6), net=P5)
+    r.t(I2, 1.2, (17.125, 6.3), (17.975, 7.15), (25.05, 7.15), (29.9, 12.0), (30.2, 12.3), (30.2, 29.39), (32.2, 31.39), net=P5)
+    r.t(I2, 1.0, (30.2, 27.4), (29.6, 28.0), (22.28, 28.0), (21.8, 28.48), (20.05, 28.48), (14.83, 33.7), net=P5)
+    r.t(I2, 0.6, (14.83, 33.7), ("C10.1", 0.2, 1.6), net=P5)
     r.t(I2, 0.6, (32.2, 31.39), (40.51, 31.39), (46.7, 25.2), (48.3, 25.2), net=P5)  # through the D1 via to the motor
     r.t(I2, 0.6, (34.0, 31.39), (34.51, 31.9), (34.51, 34.95), (37.75, 38.19), (38.75, 38.19), net=P5)
     r.t(I2, 0.6, (34.51, 34.6), (32.71, 36.4), (32.3, 36.4), net=P5)
@@ -840,11 +846,14 @@ def route(r):
     r.t(F, 0.25, "Q3.2", "Q3.5")                                          # common drain under the body
     r.t(F, 0.2, "R29.1", "U15.2"); r.gnd("R29.2", -0.7, 0)                 # CS -> 1k -> P- (GND)
     r.gnd("Q3.3", 0, 1.0, w=0.6, d=0.6); r.gnd("Q3.3", -1.15, 0, w=0.6, d=0.6)  # S2 = P- = GND, full battery current
+    r.gnd("Q3.3", -1.0, 1.0, w=0.6, d=0.6)
     yb = -4.3
-    r.t(F, 0.6, "Q3.1", (r.pt("Q3.1")[0], yb), net=BN)
+    r.t(F, 0.8, "Q3.1", (r.pt("Q3.1")[0], yb), net=BN)
     r.v((r.pt("Q3.1")[0], yb), net=BN, d=0.6); r.v((r.pt("Q3.1")[0] - 0.9, yb), net=BN, d=0.6)
-    r.t(F, 0.6, (r.pt("Q3.1")[0] - 0.9, yb), (r.pt("Q3.1")[0], yb), net=BN)
-    r.t(B, 0.8, (6.2, 6.2), (5.4, 6.2), (5.4, yb + 0.7), (4.7, yb), (r.pt("Q3.1")[0] - 0.9, yb), net=BN)
+    r.v((r.pt("Q3.1")[0] + 0.9, yb), net=BN, d=0.6)
+    r.t(F, 0.8, (r.pt("Q3.1")[0] - 0.9, yb), (r.pt("Q3.1")[0] + 0.9, yb), net=BN)
+    r.t(B, 1.2, (6.2, 6.2), (4.6, 6.2), net=BN)
+    r.t(B, 1.2, (5.4, 6.2), (5.4, yb + 0.7), (4.7, yb), (r.pt("Q3.1")[0] - 0.9, yb), net=BN)
     # B- along the top: C27 (VSS side) -> DW01A VSS (45 deg branch) -> FET source S1
     xc = r.pt("C27.2")[0]; u6 = r.pt("U15.6")
     r.t(F, 0.3, "C27.2", (xc, yb + 0.7), (xc - 0.7, yb), (r.pt("Q3.1")[0], yb), net=BN)
@@ -869,7 +878,7 @@ def route(r):
 
     # ================= USB -> 5 V (D4) =================
     r.t(F, 0.5, "D4.2", (25.2, 26.0)); r.v((25.2, 26.0), net="VBUS_NATIVE", d=0.6)
-    r.t(F, 0.5, "D4.1", (22.02, 27.98), "C21.1")
+    r.t(F, 0.5, "D4.1", "C31.1")
     r.t(I2, 0.5, (51.6, 23.0), (50.9, 23.7), (r.pt("R27.1")[0], 23.7), net=P3)
     w3 = r.pt("U14.3")[1]
     r.t(I2, 0.4, (34.0, w3), (r.pt("R27.1")[0], w3 + 34.0 - r.pt("R27.1")[0]), (r.pt("R27.1")[0], 23.7), net=P3)

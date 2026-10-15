@@ -68,9 +68,9 @@ def routes(M):
     return {
         "Akku (BT1)": (2, AWG24, [(81.2, 97.8, 2), (81.2, 89.5, 2)] + trunk_in
                        + [(81, mag_top[1], 0), (88, mag_top[1], 0), tuple(mag_top + [3, 0, 0])], ["Hauptschacht Gehäuse"]),
-        "IR-LED (LED1)": (2, AWG28, [(88.8, 96, 2), (88.8, 89.5, 2)] + trunk_in + hg
+        "IR-LED (J6)": (2, AWG28, [(94.1, 96, 2), (94.1, 89.5, 2)] + trunk_in + hg
                           + [(81, -193.4, 0), (ax, -197, 0)], ["Hauptschacht Gehäuse", "Hauptschacht Handschutz"]),
-        "TSOP 6 (J6)": (3, AWG28, [(96.6, 96, 2), (96.6, 89.5, 2)] + trunk_in + hg[:5]
+        "TSOP 6 (J6)": (3, AWG28, [(94.1, 96, 2), (94.1, 89.5, 2)] + trunk_in + hg[:5]
                         + [(81, -129.4, 0), (59.3, -129.4, 0)], ["Hauptschacht Gehäuse", "Hauptschacht Handschutz"]),
         "Ringlicht (J1)": (3, AWG28, [g(-0.5, 29.8), (P.X0 + 29.8, left, 2), (82, left, 1)] + trunk_in + hg
                            + [(81, -193.4, 0), (ax + U.WIRE_R, -193.4, 0), (ax + U.WIRE_R, -236, 0)],
@@ -78,8 +78,8 @@ def routes(M):
         "Lautsprecher (SP1)": (2, AWG28, [g(-0.5, 40.2), (P.X0 + 40.2, left, 2), (82, left, 1)] + trunk_in
                                + hg[:4] + [(U.LOBE[0], spk[1], U.LOBE[1]), spk],
                                ["Hauptschacht Gehäuse", "Hauptschacht Handschutz"]),
-        "Abzug (SW1)": (2, AWG28, [g(13.0, 46.5), (125.5, P.Y0 + 13.0, 2), (125.5, 145, 0), (128.7, 152, 0)], []),
-        "Nachladen (SW2)": (2, AWG28, [g(18.9, 46.5), (124.5, P.Y0 + 18.9, 2), (125.5, 145, 0), (128.7, 152, 0)]
+        "Abzug (J8)": (2, AWG28, [g(15.45, 46.5), (125.5, P.Y0 + 15.45, 2), (125.5, 145, 0), (128.7, 152, 0)], []),
+        "Nachladen (J8)": (2, AWG28, [g(15.45, 46.5), (124.5, P.Y0 + 15.45, 2), (125.5, 145, 0), (128.7, 152, 0)]
                             + [tuple(p) for p in U.RELOAD_WIRE[::-1]] + [LEVER["wire0"]], []),
         "Weste (J2)": (7, AWG28, [g(60.1, 32.7), (P.X0 + 32.7, 156.1, 2), (P.X0 + 30.0, 156.1, 1), (P.X0 + 24.0, 156.1, 1)] + motor[:2] + [tuple(p) for p in U.GX_PATH[::-1]] + [tuple(inner + a * 2), tuple(inner + a * 4)],
                        ["Motorschacht", "Westenschacht"]),

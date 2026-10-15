@@ -46,9 +46,9 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   (oben/unten/neben) als ein senkrechtes Label. Pin 1 von Steckern mit „1“ markieren, wenn die
   Footprint-Silk es nicht schon tut.
   **Mehrere Stecker in einer Reihe/Spalte:** ihre Labels gemeinsam ausrichten – in einer Spalte (links
-  LED1/TSOP) gleiche Mittelpunkt-x (horizontal zentriert untereinander), jedes Label direkt am eigenen
+  früher LED1/TSOP) gleiche Mittelpunkt-x (horizontal zentriert untereinander), jedes Label direkt am eigenen
   Stecker (nie zwei Labels zwischen zwei Steckern so, dass beide zum selben zu gehören scheinen); lückenlos
-  aneinander liegende PH-Stecker (J1/SP1) bekommen ihr Label daneben bzw. darunter. Reihe (unten SW1/SW2):
+  aneinander liegende PH-Stecker (J1/SP1) bekommen ihr Label daneben bzw. darunter. Reihe (früher unten SW1/SW2):
   gemeinsame y über den Steckern; bei unterschiedlichen Steckerhöhen jedes Label mittig über seinem Stecker.
   Suche: `silk.py --column "A=REF" ...` bzw. `--row`; Mindestabstand Label ↔ Pad/Via/Körper/Silk 0,12 mm.
   Die gefundenen Werte sind Mittelpunkte der Strichkontur; KiCad-Textanker liegt bis 0,1 mm daneben
@@ -85,15 +85,17 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   Antennen-Sperrbereich des Moduls (x ≥ 18,5 für y < 0: dort keine Leiterbahnen/Vias); höher als 9 mm wird die
   rechte Gehäusewand zu dünn. Modul `MX = W0 − 11,5`; J4/J5/J2 an `W`. Masseflächen und
   Stitching (`on_board()`) folgen der Kontur. Neue Teile an der Kante: `W` bzw. `W0` je nach Höhe.
-- **TSOP 6 (J6, links unter LED1, JST-SH 3 = ZX-SH1.0-3PWT):** 1 VS (3V3 über Via + In2-Abzweig der
-  3V3-Diagonale), 2 GND (Via rechts), 3 OUT von IO16: B.Cu-Kanal Diagonale x + y = 38,0 (zwischen
-  H1-Sperrfläche und R2-3V3-Via, H1 dafür auf 20,4/14,8, U2-GND-Via auf (−1,2/0,3)), letztes Stück
-  F.Cu von unten rechts. Filter 100 Ω + 4,7 µF sitzt am Sensor (U13/R26/C24 nicht auf der Platine).
+- **IR-LED + TSOP 6 (J6, links bei y 18,1, JST-SH 5 = ZX-SH1.0-5PWT):** 1 LED-Anode (R7/R8 22 Ω parallel,
+  senkrecht nebeneinander bei x 8,6/10,95, Akku oben, Anode unten), 2 LED-Kathode (y 17,1 nach rechts, x 7,66
+  hinunter in Q1.3), 3 GND (Via 6,3/18,1), 4 VS (`3V3_J6`: Via 6,3/19,5 → In2 → Via 10,3/22,0 → R36 (10 Ω,
+  12,0/22,0) → Via 13,7/22,0 → In2 an die 3V3-Diagonale), 5 OUT von IO16: B.Cu-Kanal Diagonale x + y = 38,0
+  (zwischen H1-Sperrfläche und R2-3V3-Via, H1 dafür auf 20,4/14,8, U2-GND-Via auf (−1,2/0,3)), letztes Stück
+  F.Cu von unten rechts. C7 (22 µ) in der Ecke über J6 (4,0/11,44). Filter 100 Ω + 4,7 µF sitzt am Sensor (U13/R26/C24 nicht auf der Platine).
   Linker Rand ist auf B.Cu durch das Abzug/Nachladen/IR-Bündel abgetrennt → Signale zu linken
   Steckern immer zuletzt auf F.Cu.
 - **Steckerplätze nach Kabelweg im Gehäuse** (Zonen in `gehaeuse/scripts/platine_einbau.py`): links (vorn,
-  Hauptschacht) BT1, LED1, J6, J1 (WS2812), SP1 (Lautsprecher); unten (Kanal zum Abzugsschalter) SW1, SW2
-  mit R9/C8, R10/C9 waagerecht darüber; rechts (hinten, Motorschacht) M1, darunter J2 (Weste); rechts oben
+  Hauptschacht) BT1, J6 (IR-LED + TSOP 6), J1 (WS2812), SP1 (Lautsprecher); unten (Kanal zum Abzugsschalter)
+  J8 (Abzug + Nachladen, 15,45) mit R9/C8, R10/C9 waagerecht darüber; rechts (hinten, Motorschacht) M1, darunter J2 (Weste); rechts oben
   J4/J5. SW3 (RESET) sitzt auf der EN-Diagonale oben links. Abzug/Nachladen laufen im B.Cu-Bündel die linke
   Spalte (x 7,8/8,6) hinunter und unter 45° zu Vias über den Tastern; Lautsprecher OUTP/OUTN von Vias rechts
   von H2 auf B.Cu entlang der Unterkante (y 44,95/45,5) zu Vias neben SP1; TSOP 1–5 von Vias unter den
@@ -127,22 +129,27 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   Via (14,2/−1,0) an die In2-Leitung `BAT_P`.
 - **IP5306 (U1, Laden + 5 V) oben links, HSOP-8 mit Thermal-Vias, 180° bei (19,6/3,5):** linke Padreihe
   KEY/BAT/SW/VOUT, rechte NC/SDA/SCL/VIN. L1 (1 µH, 270°) links daneben zwischen BT1 und U1: SW U1.7 → L1.1
-  gerade (1,0 mm), Akku BT1.1 → L1.2 1,2 mm unter 45°, weiter C19 (22 µ) → R7 (IR) → R3 (Teiler 1 M/1 M, R4/C6 bei
+  gerade (1,0 mm), Akku BT1.1 → L1.2 1,2 mm unter 45°, weiter C19 (22 µ) → R8/R7 → C7 (IR, y 11,44), Abzweig rechts von R8 (x 12,95) → R3 (Teiler 1 M/1 M, R4/C6 bei
   y 18,5 unter H1). BAT-Messeingang: Via (8,6/2,9) → R2 (1 Ω, oben in der Lasche) → C5 (22 µ) → U1.6 auf y 2,45.
-  VOUT → C20/C30 (22 µ, unter U1) → Via (18,15/7,15) in den In2-5V-Stamm (y 7,15 → Diagonale x − y = 17,9).
+  VOUT → C20/C30 (22 µ, unter U1) → drei Vias (17,125/6,3), (18,15/7,15), (19,2/6,2) in den In2-5V-Stamm (1,2 mm,
+  y 7,15 → Diagonale x − y = 17,9); Abzweig zu WS2812/C10 1,0 mm. Akku-Minus B.Cu 1,2 mm, je drei Vias an BT1.2
+  und Q3.1. Weste-3V3 über R35 (10 Ω, 0402, 52,4/37,1) zwischen dem 3V3-Via (52,8/35,7) und J2.1.
   VIN: Pad 1 senkrecht x 22,7 (C4 unter 45°, Dämpfung R1/C29 darunter) zu zwei Vias (22,7/11,4), (24,0/11,4) unter
   dem B.Cu-Bündel (x + y > 33); In2 1,6 mm um das 3V3-Via (26,3/15,0) herum zu den Vias (28,6/17,2), (27,9/17,9);
   B.Cu 1,0 mm senkrecht x 25,2 hinunter zur USB-C-Buchse (vl). GND-Vias unter U1/C4 nur außerhalb des Bündels
   (x + y 28,75…32,65 frei halten). I²C: SDA-Via (23,6/2,865), SCL-Via (24,0/4,135) rechts von U1; Pull-up R40 (SCL)
   rechts von C3 an R21.1 (3V3), Via (27,0/2,6) auf der SCL-Bahn; Pull-up R38 (SDA) direkt unter IO9 (38,05/21,6),
   3V3 vom R27-Via.
-- **Ein/Aus (Lasche):** D6 (BAT54CW, 6,0/−6,7) und R24 (10 k, 9,5/−6,05); KEY F.Cu von U1.5 die Lasche hinauf
+- **Ein/Aus (Lasche):** D6 (BAT54CW, kleiner Sperrstrom, 6,0/−6,7) und R24 (10 k, 9,5/−6,05); KEY F.Cu von U1.5 die Lasche hinauf
   (x 16,6) und waagerecht zu R24. B.Cu-Bahnen an der Oberkante (oben → unten = Riser rechts → links): PWR_KEY
   y 0,45 (J5, Riser x 50,0), ENC_SW y 0,9 (IO21, x 45,68) – beide in die Lasche (x 18,05/17,6) zu D6 –, IP_SDA
   y 1,35 (IO9, x 38,05) und IP_SCL y 1,8 (IO18, Via (35,6/14,19) unter dem Modul, Riser x 35,6) zu den U1-Vias.
   GPIO-Zuordnung folgt dieser Reihenfolge (sonst Kreuzungen). IO0 läuft auf B.Cu unter dem IO21-Via (y 18,7) zu
-  BOOT. D4 (VBUS → 5 V) waagerecht bei (24,4/27,0): Anode an Via auf der VBUS-B.Cu-Leitung, Kathode zu C21.1.
-  C7.2 = GND (Via unter C7), LED-Kathode direkt zu Q1.3. In2 `BAT_P` nur noch BT1-Via → R28-Via (DW01A VCC).
+  BOOT. D4 (VBUS → 5 V) waagerecht bei (24,4/27,0): Anode an Via auf der VBUS-B.Cu-Leitung, Kathode zu C31.1
+  (22 µ, 5-V-Via 21,8/28,48).
+- **WS2812-Pegelwandler:** Q4 (2N7002, 180°, 13,6/26,82) in Gateschaltung: Source vom B.Cu-Via (15,6/24,2) der
+  WS2812-Diagonale, Drain → R15.1 → R25 (1 k nach 5 V an J1.2), Gate über Via (16,2/28,075) und In2-Abzweig der
+  3V3-Diagonale. C10/C32 (22 µ) übereinander rechts der J1-5V-Diagonale. In2 `BAT_P` nur noch BT1-Via → R28-Via (DW01A VCC).
 - **TSOP-Serienwiderstände:** R30–R34 (0402, 100 Ω) bei x 52,0 auf y 33,7 … 29,7 zwischen den Vias und den
   J2-Pads (J2 bei x 56,5); J2.1-3V3-Via (52,8/35,7), J2.2-GND-Via (52,8/34,7).
 - **Bedienteil-Routing:** SCL/SDA (IO1/IO2) auf F.Cu direkt in J4; 3V3 für J4 über In2 von einem Via an
@@ -156,7 +163,7 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
 r.t(layer, width, *points, net=None)   # layer "F"/"2"/"B"; points: "U4.12" | (x, y) | ("R3.1", dx, dy)
 r.v(point, net=None, d=0.5, h=0.3)     # Via; ohne net -> Netz des vorigen Tracks
 r.gnd("C8.2", dx, dy)                  # GND-Pad -> Stich -> eigenes Via
-r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
+r.drop("C31.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
 ```
 
 - `r.t` wird erst in `flush()` gezeichnet: `octilinear()` zerlegt schräge Abschnitte in gerade + 45°
@@ -188,7 +195,7 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
      (Kreuzung mit CLK), In2 SD_DAT12 (um die Kontakt-Vias), B.Cu PWR_KEY/ENC_SW/IP_SDA/IP_SCL (über die
      Oberkante), B.Cu TSOP4/5 (Vias rechts von J2), USB D+ (Mäander),
      USB D− (außen um U12.4/VBUS-Via), 5V an U6 (um unbelegte IC-Pins), OUTP/OUTN (verschachtelt),
-     J1→C10 (GND-Via J1.3), R15 (U5-Padreihe), GND-Stiche an U5, BAT_P-Ende (Abzweig); In2 5V am
+     J1→C10 (über C32, GND-Via J1.3), Q4-Drain (über R15.1), IR_LED_K (um die J6-Vias), BAT_P-Ende (Abzweig); In2 5V am
      U6-Abzweig (+0,2); B.Cu EN/TRIGGER/RELOAD (Bündel), VBUS-Ring (um die USB-Pads)
    - `python3 tools/silk.py w.kicad_pcb --gap=0.15 [--suggest]` → 0 silk problems (Hinweis für
      `BACK_LABELS` ist ok); `--place --angle=0 --gap=0.15 "TEXT=REF" ...` sucht für Labels die freie
@@ -238,8 +245,8 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
 - Labels: Courtyards sind für die Platzsuche zu groß (Sicherheitsrand) → `silk.py` nutzt den F.Fab-Umriss.
   Für Texte zählt die Strichkontur (`GetEffectiveTextShape().BBox()`, bei 0,8 mm ≈ 0,92 mm hoch), nicht
   `GetBoundingBox()` (≈ 1,36 mm mit Zeilenabstand) – sonst findet die Suche viele echte Lücken nicht.
-- Label-Stand: linke Spalte x = 4,2 (LED1 unter LED1, TSOP über J6), WS2812 rechts neben J1, LAUTSPR. unter
-  SP1, ABZUG/NACHL. auf y = 39,43 über SW1/SW2, „VIB“ unter M1, SENSOR unter J2 (56,5/39,3), „1“ unter J2-Pin 1 (54,1/36,95),
+- Label-Stand: LED/TSOP unter J6 (4,2/23,4), WS2812 rechts neben J1, LAUTSPR. unter
+  SP1, TASTER rechts neben J8 (19,0/40,43), „VIB“ unter M1, SENSOR unter J2 (56,5/39,3), „1“ unter J2-Pin 1 (54,1/36,95),
   „SD“ links über J7 (40,9/40,13),
   USB über J3, AKKU rechts neben BT1, RESET über SW3,
   BOOT links neben SW4 auf Mittelhöhe, U14 ohne Label, Titel „open-lasertag v1“ auf der Rückseite unter der URL,

@@ -636,11 +636,11 @@
       },
       {
         "netclass": "Power",
-        "pattern": "Net-(LED1-K)"
+        "pattern": "IR_LED_A"
       },
       {
         "netclass": "Power",
-        "pattern": "Net-(LED*-A)"
+        "pattern": "IR_LED_K"
       },
       {
         "netclass": "Power",

@@ -178,12 +178,12 @@ rechten Kante nach oben in die VIB-Zone und von dort in den Motorschacht.
 | Leitung | Stecker | Adern | Weg | Länge ca. |
 |---|---|---|---|---|
 | Akku | BT1 (JST-PH 2) | 2 × AWG 24 | linke Zone → Hauptschacht → Abzweig in den Magazinschacht → JST-PH im Magazin | 35 mm + Stecker |
-| IR-LED | LED1 (JST-SH 2) | 2 | linke Zone → Hauptschacht → Zwischenring → Handschutz (um den Lautsprecher) → LED-Sitz | 345 mm |
-| TSOP 6 | J6 (JST-SH 3) | 3 | wie IR-LED bis Y −129, senkrecht hoch in den TSOP-Einsatz | 305 mm |
+| IR-LED | J6 (JST-SH 5, Pins 1/2, verdrillt) | 2 | linke Zone → Hauptschacht → Zwischenring → Handschutz (um den Lautsprecher) → LED-Sitz | 349 mm |
+| TSOP 6 | J6 (JST-SH 5, Pins 3/4/5) | 3 | wie IR-LED bis Y −129, senkrecht hoch in den TSOP-Einsatz | 303 mm |
 | Ringlicht | J1 (JST-PH 3) | 3 | linke Zone → Hauptschacht → Bohrung → Kanal unten im Schalldämpfer → Frontkappe | 410 mm |
 | Lautsprecher | SP1 (JST-PH 2) | 2 | linke Zone → Hauptschacht → Kabelnut → Bohrung in die Basskammer | 305 mm |
-| Abzug | SW1 (JST-SH 2) | 2 | untere Zone → Schaltertasche | 50 mm |
-| Nachladen | SW2 (JST-SH 2) | 2 | untere Zone → Schaltertasche → Nut an der Teilung → Taster | 60 mm |
+| Abzug | J8 (JST-SH 3, Pins 1/2) | 2 | untere Zone → Schaltertasche | 47 mm |
+| Nachladen | J8 (JST-SH 3, Pins 3/2) | 2 | untere Zone → Schaltertasche → Nut an der Teilung → Taster | 66 mm |
 | Weste | J2 (JST-SH 7) | 7 | rechte Zone → Motorschacht → Westenschacht → GX16-Buchse | 90 mm |
 | OLED | J4 (JST-SH 4) | 4 | Zone rechts oben → OLED-Schacht → OLED im Schaft | 95 mm |
 | Drehgeber | J5 (JST-SH 4) | 4 | Zone rechts oben → VIB-Zone → Motorschacht → Motorraum → Drehgeber | 145 mm |

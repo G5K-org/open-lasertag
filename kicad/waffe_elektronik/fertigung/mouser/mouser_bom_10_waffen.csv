@@ -1,24 +1,25 @@
 ﻿Manufacturer Part Number,Manufacturer Name,Quantity,Customer Part Number,Description,Menge je Waffe,Hinweis
 ESP32-S3-WROOM-1-N16R8,Espressif,10,U4,"WLAN-Modul 16 MB Flash, 8 MB PSRAM",1,
-W25N01GVZEIG,Winbond,10,U14,SPI-NAND 1 Gbit WSON-8 8x6,1,"Ersatz für ZD35Q1GC-IB (gleiches Gehäuse und Pinbelegung, von spi_nand_flash unterstützt)"
+W25N01GVZEIG,Winbond,10,U14,SPI-NAND 1 Gbit WSON-8 8x6 (optional),1,"Ersatz für ZD35Q1GC-IB (gleiches Gehäuse und Pinbelegung, von spi_nand_flash unterstützt); nur mit Flash bestücken, dazu C25 und R27"
 LM1117MPX-3.3/NOPB,Texas Instruments,10,U2,"LDO 3,3 V SOT-223",1,Ersatz für AMS1117-3.3 (gleiche Pinbelegung)
-"74HCT125PW,118",Nexperia,10,U5,Puffer TSSOP-14,1,
 MAX98357AETE+T,Analog Devices / Maxim,10,U6,I2S-Verstärker TQFN-16,1,
 USBLC6-2SC6,STMicroelectronics,10,U12,USB-ESD SOT-23-6,1,
 DMN3404L-7,Diodes Inc.,20,"Q1,Q2",N-MOSFET 30 V SOT-23,2,Ersatz für AO3400A (gleiche Pinbelegung)
+2N7002-7-F,Diodes Inc.,20,Q4,N-MOSFET 60 V SOT-23 (WS2812-Pegelwandler),1,
 1N5819HW-7-F,Diodes Inc.,20,"D1,D4",Schottky 40 V 1 A SOD-123,2,Ersatz für B5819W
-BAT54CW-7-F,Diodes Inc.,10,D6,Doppel-Schottky gemeinsame Kathode SOT-323 (Ein/Aus-Taster),1,
+BAT54CW-7-F,Diodes Inc.,10,D6,Doppel-Schottky gemeinsame Kathode SOT-323 (Ein/Aus-Taster),1,Ersatz für LBAT54CWT1G (kleiner Sperrstrom wichtig)
 SRP5030T-1R0M,Bourns,10,L1,"Speicherdrossel 1 µH 5,7x5,2 (IP5306)",1,Ersatz für Sunlord MWSA0503S-1R0MT (Pads überlappen)
-CL32A107MPVNNNE,Samsung,33,"C1,C7,C10",MLCC 100 µF 10 V X5R 1210,3,
 CL21A106KAYNNNE,Samsung,44,"C2,C4,C18,C22",MLCC 10 µF 25 V X5R 0805,4,
 CL10A106KP8NNNC,Samsung,22,"C28,C29",MLCC 10 µF 10 V X5R 0603,2,
-GRM21BR61E226ME44L,Murata,33,"C19,C20,C30",MLCC 22 µF 25 V X5R 0805,3,
+GRM21BR61E226ME44L,Murata,88,"C1,C7,C10,C19,C20,C30,C31,C32",MLCC 22 µF 25 V X5R 0805,8,
 CL10A105KB8NNNC,Samsung,20,C16,MLCC 1 µF 50 V X5R 0603,1,
 CL10A226MQ8NRNC,Samsung,11,C5,"MLCC 22 µF 6,3 V X5R 0603 (IP5306 BAT)",1,
-CC0603KRX7R9BB104,Yageo,90,"C6,C8,C9,C17,C21,C23,C25",MLCC 100 nF 50 V X7R 0603,7,
+CC0603KRX7R9BB104,Yageo,80,"C6,C8,C9,C17,C23,C25",MLCC 100 nF 50 V X7R 0603,6,C25 nur mit Flash
 CL05B104KO5NNNC,Samsung,30,"C26,C27",MLCC 100 nF 16 V X7R 0402,2,
 TAJA106K016RNJ,Kyocera AVX,11,C3,Tantal 10 µF 16 V Case A,1,Polung beachten
-RC0603FR-0710KL,Yageo,70,"R9,R10,R21,R24,R27",10 kΩ 0603,5,
+RC0603FR-0710KL,Yageo,70,"R9,R10,R21,R24,R27",10 kΩ 0603,5,R27 nur mit Flash
+RC0603FR-071KL,Yageo,20,R25,1 kΩ 0603,1,
+RC0603FR-0710RL,Yageo,20,R36,10 Ω 0603 (3V3 J6),1,
 RC0603FR-07100KL,Yageo,30,"R6,R12",100 kΩ 0603,2,
 RC0603FR-071ML,Yageo,30,"R3,R4",1 MΩ 0603,2,
 RC0603FR-072RL,Yageo,20,R1,2 Ω 0603,1,
@@ -26,16 +27,18 @@ RC0603FR-071RL,Yageo,20,R2,1 Ω 0603,1,
 RC0603FR-07100RL,Yageo,30,"R5,R11",100 Ω 0603,2,
 RC0603FR-07330RL,Yageo,20,R15,330 Ω 0603,1,
 RC0603FR-075K1L,Yageo,30,"R22,R23","5,1 kΩ 0603",2,
-RC1206FR-0712RL,Yageo,20,R7,12 Ω 1206,1,
+RC1206FR-0722RL,Yageo,30,"R7,R8",22 Ω 1206,2,
 RC0402FR-07100RL,Yageo,80,"R28,R30,R31,R32,R33,R34",100 Ω 0402,6,
 RC0402FR-071KL,Yageo,20,R29,1 kΩ 0402,1,
 RC0402FR-0710KL,Yageo,20,R37,10 kΩ 0402,1,
 RC0402FR-074K7L,Yageo,30,"R38,R40","4,7 kΩ 0402",2,
+RC0402FR-0710RL,Yageo,20,R35,10 Ω 0402 (3V3 Weste),1,
 B3U-1000P,Omron,20,"SW3,SW4",Taster RESET/BOOT,2,
 SM07B-SRSS-TB(LF)(SN),JST,10,J2,JST-SH 7-polig liegend,1,
 SM04B-SRSS-TB(LF)(SN),JST,20,"J4,J5",JST-SH 4-polig liegend,2,
-SM03B-SRSS-TB(LF)(SN),JST,10,J6,JST-SH 3-polig liegend,1,
-SM02B-SRSS-TB(LF)(SN),JST,40,"LED1,M1,SW1,SW2",JST-SH 2-polig liegend,4,
+SM05B-SRSS-TB(LF)(SN),JST,10,J6,JST-SH 5-polig liegend (IR-LED + TSOP 6),1,
+SM03B-SRSS-TB(LF)(SN),JST,10,J8,JST-SH 3-polig liegend (Abzug + Nachladen),1,
+SM02B-SRSS-TB(LF)(SN),JST,10,M1,JST-SH 2-polig liegend,1,
 S2B-PH-SM4-TB(LF)(SN),JST,20,"BT1,SP1",JST-PH 2-polig liegend,2,
 S3B-PH-SM4-TB(LF)(SN),JST,10,J1,JST-PH 3-polig liegend,1,
 TSOP34838,Vishay,60,TSOP 1-6,IR-Empfänger 38 kHz (5 Weste + 1 Waffe),6,
@@ -45,11 +48,12 @@ TSAL6100,Vishay,10,IR-LED,IR-LED 940 nm 5 mm,1,
 D2F-01,Omron,10,Abzugsschalter,Mikroschalter,1,
 PTS645SL50-2 LFS,C&K,10,Nachladetaster,Taster 6x6x5 THT,1,Ersatz für K2-1102DP
 PEC11R-4215F-S0024,Bourns,10,Drehgeber,Drehgeber 24 Rasten mit Taster,1,"Ersatz für EC11, Wellenlänge im Griff prüfen"
-SHR-02V-S-B,JST,40,Gegenstecker SH 2p,Gehäuse SH 2-polig,4,
+SHR-02V-S-B,JST,10,Gegenstecker SH 2p,Gehäuse SH 2-polig,1,
 SHR-03V-S-B,JST,10,Gegenstecker SH 3p,Gehäuse SH 3-polig,1,
 SHR-04V-S-B,JST,20,Gegenstecker SH 4p,Gehäuse SH 4-polig,2,
+SHR-05V-S-B,JST,10,Gegenstecker SH 5p,Gehäuse SH 5-polig,1,
 SHR-07V-S-B,JST,10,Gegenstecker SH 7p,Gehäuse SH 7-polig,1,
-SSH-003T-P0.2-H,JST,286,Kontakte SH,Crimpkontakt SH AWG 32-28,26,
+SSH-003T-P0.2-H,JST,275,Kontakte SH,Crimpkontakt SH AWG 32-28,25,
 PHR-2,JST,20,Gegenstecker PH 2p,Gehäuse PH 2-polig,2,
 PHR-3,JST,10,Gegenstecker PH 3p,Gehäuse PH 3-polig,1,
 SPH-002T-P0.5S,JST,77,Kontakte PH,Crimpkontakt PH AWG 30-24,7,

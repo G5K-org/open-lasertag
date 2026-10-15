@@ -32,8 +32,9 @@ jedes in gestrichelt umrahmte Funktionsblöcke gegliedert:
   Stichleitungen (z. B. `IR_GATE`, `TSOP1_OUT`) statt über lange Leitungen.
 - Versorgungsnetze (`GND`, `3V3_MCU`, `5V_PERIPH`, `BAT_P`, `VBUS_NATIVE`)
   hängen an KiCad-Power-Symbolen.
-- Unbenutzte Pins sind markiert: freie GPIOs mit No-Connect-Kreuz, die drei
-  freien Gatter des 74HCT125 mit Eingang und `/OE` auf GND.
+- Unbenutzte Pins sind markiert: freie GPIOs mit No-Connect-Kreuz.
+- Bauteile in der Waffe (IR-LED, TSOP 6, Abzugs- und Nachladeschalter) und auf der Weste stehen im Schaltplan
+  ohne Footprint jenseits ihres Steckers.
 
 Schaltplan ([kiutils][1]) und Platine (pcbnew) werden per Python erzeugt und
 mit `kicad-cli` geprüft; die Generator-Skripte liegen in [`scripts/`](scripts/).
@@ -49,12 +50,12 @@ das Modell des microSD-Slots (J7) stammt aus der LCSC/EasyEDA-Bibliothek (C96167
 ## Bauteile
 
 Die Symbole stammen aus den KiCad-Standardbibliotheken; FS8205A, IP5306 sowie Kopien von `W25Q32JVZP`
-(/WP, /HOLD passiv), `MAX98357A` (Pad = Masse) und `74AHCT125` liegen in der Projektbibliothek
+(/WP, /HOLD passiv) und `MAX98357A` (Pad = Masse) liegen in der Projektbibliothek
 [`symbols/lasertag.kicad_sym`](symbols/lasertag.kicad_sym), die `build_clean.py` aus dem erzeugten Schaltplan
 schreibt. Verwendet u. a.
 `ESP32-S3-WROOM-1` (`U4`), `USB_C_Receptacle_USB2.0_16P` (`J3`),
 `USBLC6-2SC6`, `AMS1117-3.3`, `TSOP348xx`,
-`MAX98357A`, `AO3400A`, `74AHCT125`, `SS14` (Pinbild für B5819W), `W25Q32JVZP` (Pinbild für U14), `Micro_SD_Card_Det1`,
+`MAX98357A`, `AO3400A`, `SS14` (Pinbild für B5819W), `W25Q32JVZP` (Pinbild für U14), `Micro_SD_Card_Det1`,
 `DW01A`, `D_Schottky`. Alle Footprints sind
 SMD, J3 aus der Projektbibliothek; Bauteile außerhalb der Platine (Akku, IR-LED, TSOP 6, Taster, Motoren,
 Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
@@ -81,25 +82,33 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   `5V_PERIPH`; mit USB kommen die 5 V direkt aus VBUS (Powerpath). VIN 10 µF (`C4`) + Dämpfung 2 Ω/10 µF
   (`R1`/`C29`), VOUT 2 × 22 µF (`C20`, `C30`), BAT-Messeingang über 1 Ω/22 µF (`R2`/`C5`), Akku 22 µF (`C19`).
   Eigener I²C-Bus an IO18 (SCL) / IO9 (SDA), je 4,7 kΩ (`R40`/`R38`) auf 3V3
-- **Ein/Aus:** der Taster des Drehgebers (J5 Pin 2, `PWR_KEY`) geht über `D6` (BAT54CW, Anode 1) und 10 kΩ
+- **Ein/Aus:** der Taster des Drehgebers (J5 Pin 2, `PWR_KEY`) geht über `D6` (BAT54CW, Anode 1; Doppel-Schottky mit kleinem Sperrstrom, sonst zieht der Leckstrom in den stromlosen
+  IO21 KEY nach unten) und 10 kΩ
   (`R24`) an KEY des IP5306 und über die zweite Anode an IO21. Ein: kurz drücken; aus: 2 s drücken oder per
-  I²C (Register siehe [pinbelegung.md](../../pinbelegung.md)). Ausgeschaltet ziehen Akkuschutz und IP5306
+  I²C (Register siehe [pinbelegung.md](../../pinbelegung.md)); IO21 liest den Taster über die zweite Anode. Ausgeschaltet ziehen Akkuschutz und IP5306
   zusammen ca. 55 µA
-- **Power-Tree:** Akku → Akkuschutz → IP5306 (`U1`) → `5V_PERIPH` (speist WS2812, MAX98357A, 74HCT125) →
+- **Power-Tree:** Akku → Akkuschutz → IP5306 (`U1`) → `5V_PERIPH` (speist WS2812, MAX98357A) →
   AMS1117-3.3 (`U2`) → `3V3_MCU` (ESP32-S3 und Pull-ups); IR-LED und Akku-Messung (1 MΩ/1 MΩ) direkt am Akku
 - **Akkuschutz:** DW01A (`U15`, LCSC C351410) + FS8205A (`Q3`, C2830320) im Minuspfad des Akkus
   (`BAT_N` → `GND`): trennt bei ca. 4,3 V, 2,4 V und Überstrom (ca. 3 A); VCC über 100 Ω (`R28`) + 100 nF
   (`C27`), CS über 1 kΩ (`R29`)
 - **USB ohne Akku:** Schottky B5819W (`D4`) von `VBUS_NATIVE` auf `5V_PERIPH`
-- **IR-Puffer:** `C7` (100 µF) von `BAT_P` nach GND
+- **IR-LED:** Vorwiderstand 2 × 22 Ω parallel (`R7`, `R8`, 1206, ca. 240 mA Spitze bei vollem Akku), Puffer
+  `C7` + `C19` (je 22 µF) am Akku; LED und TSOP 6 teilen sich den Stecker `J6` (1 LED-Anode, 2 LED-Kathode,
+  3 GND, 4 3V3, 5 TSOP-Ausgang; LED-Adern im Kabel verdrillt, GND zwischen LED und Sensor)
+- **3V3 in die Kabel über 10 Ω:** Weste (`R35`, Netz `3V3_WESTE`) und J6 (`R36`, `3V3_J6`); ein Kurzschluss im Kabel
+  oder beim Stecken des GX16 zieht `3V3_MCU` nicht herunter
+- **5-V-Puffer:** nur 22 µF 0805 (Basic): `C20`/`C30` am IP5306, `C1`/`C31` am 5-V-Stamm, `C10`/`C32` am WS2812-Stecker
+- **Abzug und Nachladen** über einen gemeinsamen Stecker `J8` (1 Abzug, 2 GND, 3 Nachladen)
 - **Sensorkabel:** TSOP 1–5 je über 100 Ω (`R30`–`R34`) an J2
 - **TSOPs:** je eigener 100 Ω/4,7 µF-Tiefpass direkt am Sensor (auf der
   Weste).
-- **WS2812:** läuft über einen 74HCT125-Pegelwandler (3,3→5 V) plus
+- **WS2812:** Pegelwandler 3,3→5 V mit einem N-MOSFET in Gateschaltung (`Q4` 2N7002 mit kleiner Ausgangskapazität,
+  Gate an 3V3, Source am GPIO, Drain mit 1 kΩ `R25` auf 5 V, nicht invertierend) plus
   330 Ω-Vorwiderstand; die Munitionsanzeige hängt als weitere WS2812-Pixel am
   physischen DOUT-Pin des HP-Streifens (Daisy-Chain), am Ende der Kette sitzt
   das Ringlicht für das Mündungsfeuer vorne an der Waffe.
-- **Flash für Audio-Dateien (`U14`):** SPI-NAND Zetta ZD35Q1GC-IB, 1 Gbit (128 MB), WSON-8 8×6,
+- **Flash für Audio-Dateien (`U14`, optional, Standard ohne):** SPI-NAND Zetta ZD35Q1GC-IB, 1 Gbit (128 MB), WSON-8 8×6,
   LCSC C2928927 (pin- und gehäusegleich: GD5F1GQ5UE, W25N01GV), ESP-IDF-Komponente `espressif/spi_nand_flash`; SPI2 über die GPIO-Matrix
   (IO7 /CS, IO15 MISO, IO3 MOSI, IO46 CLK), /CS mit 10 kΩ (`R27`) auf 3V3, /WP und /HOLD fest
   auf 3V3, 100 nF (`C25`) an VCC, EP auf GND
@@ -149,9 +158,9 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   GND/Taster/B/A) übereinander im rechten Streifen; I²C-Pull-ups auf dem OLED-Modul
 - **Stecker nach Kabelweg in der Waffe:** jede Öffnung zeigt in die Zone am Platinenrand, aus der der
   Kabelschacht des Bauteils abgeht
-  - links (vorn, Hauptschacht zum Lauf, Abzweig Magazin): Akku (BT1), IR-LED (LED1), TSOP 6 (J6),
+  - links (vorn, Hauptschacht zum Lauf, Abzweig Magazin): Akku (BT1), IR-LED + TSOP 6 (J6),
     WS2812 (J1), Lautsprecher (SP1)
-  - unten (Kanal zur Abzugsschalter-Tasche): Abzug (SW1), Nachladen (SW2), Entprellung R9/C8 und
+  - unten (Kanal zur Abzugsschalter-Tasche): Abzug + Nachladen (J8), Entprellung R9/C8 und
     R10/C9 direkt darüber; microSD-Karte (J7) rechts davon, die Abzugskabel liegen über ihr
   - rechts (hinten, Motorschacht): Vibrationsmotor (M1), Sensorkabel Weste (J2)
   - rechts oben: OLED (J4), Drehgeber (J5)
@@ -168,13 +177,14 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   (Modul–USBLC6 0,000 mm, USBLC6–Buchse ≤ 0,01 mm, je 2 Vias); VBUS A4/B9 und A9/B4 je über ein
   Via im Reihenspalt, links über B.Cu, rechts über In2 zum USBLC6
 - **Beschriftung oben** (F.SilkS), alle Labels waagerecht und einheitlich 0,8 mm hoch,
-  direkt am jeweiligen Stecker/Taster, frei von Pads, Vias und Bauteilkörpern; LED1/TSOP auf
-  gemeinsamer Mittelachse, WS2812 neben und LAUTSPR. unter ihrem Stecker, ABZUG/NACHL. auf gemeinsamer
-  Höhe über ihren Steckern; Pin 1 von J2
+  direkt am jeweiligen Stecker/Taster, frei von Pads, Vias und Bauteilkörpern; LED/TSOP unter J6, WS2812 neben und LAUTSPR. unter ihrem
+  Stecker, TASTER rechts neben J8; Pin 1 von J2
   mit „1“ markiert; Bauteilbezeichner nur auf F.Fab
 - **Leiterbahnen nur in 0°/45°/90°**, jeder Knick max. 45°, Abzweige laufen
   unter 45° ein; Teardrops an allen Pads und Vias (außer GND-Stichen in der
   GND-Fläche)
+- **Hohe Ströme:** 5 V vom IP5306 über drei Vias in den In2-Stamm (1,2 mm, Abzweig zu WS2812/C10 1,0 mm); Akku-Minus
+  BT1 → Akkuschutz 1,2 mm auf B.Cu mit je drei Vias
 - **Routing von Hand**, kein Autorouter: IP5306-Schaltknoten gerade und breit zur Spule, Akku → Spule 1,2 mm,
   3V3 von der LDO-Kühlfläche über 10 µF + 100 nF direkt an Modul-Pin 2,
   USB-Paar 45° geführt, D+/D− an der Buchse über eine Via-Kreuzung
@@ -184,11 +194,13 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 ## Fertigung (JLCPCB)
 
 [`fertigung/jlcpcb/`](fertigung/jlcpcb/): `waffe_elektronik_gerber.zip` (Gerber + Bohrdaten),
-`waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. JLCPCB bestückt 68 Teile (Feld `LCSC`, Lagerbestand
-geprüft, 14 Extended-Teile); die Stecker (BT1, SP1, J1, J2, J4–J6, LED1, M1, SW1, SW2) und die Taster SW3/SW4
+`waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. JLCPCB bestückt 70 Teile (Feld `LCSC`, Lagerbestand
+geprüft, 10 Extended-Teile); die Stecker (BT1, SP1, J1, J2, J4–J6, J8, M1) und die Taster SW3/SW4
 haben statt `LCSC` das Feld `LCSC Hand` und werden selbst gelötet. Mit allen Steckern und Tastern bestückt
-(81 Teile, 21 Extended-Teile): `waffe_elektronik_bom_komplett.csv` + `waffe_elektronik_cpl_komplett.csv`, mit
+(81 Teile, 18 Extended-Teile): `waffe_elektronik_bom_komplett.csv` + `waffe_elektronik_cpl_komplett.csv`, mit
 externer Antenne `waffe_elektronik_bom_komplett_externe_antenne.csv` + `waffe_elektronik_cpl_komplett_externe_antenne.csv`.
+Der SPI-NAND (U14 mit C25, R27) hat das Feld `LCSC Option` und steckt nur in den Varianten mit `_flash` am Ende
+(+3 Teile, +1 Extended-Teil).
 Selbst zu lötende Teile und lose Teile in der Waffe:
 [`fertigung/lcsc/waffe_lose_teile.csv`](fertigung/lcsc/waffe_lose_teile.csv) (LCSC-Nummern, Menge je Waffe).
 Alles für den Selbstbau bei Mouser: [`fertigung/mouser/`](fertigung/mouser/) (10 Waffen, Mouser-Vorlage) plus
@@ -196,8 +208,9 @@ Alles für den Selbstbau bei Mouser: [`fertigung/mouser/`](fertigung/mouser/) (1
 
 - Leiterplatte: 4 Lagen, 1,6 mm, Impedanz-Stackup JLC04161H-7628, ENIG
 - Bestückung: Top Side, BOM + CPL hochladen, Platzierungsvorschau prüfen
-- Teile: `U1` IP5306-I2C (ESOP-8, Extended), `U5` 74HCT125PW, `D1`/`D4` B5819W (SOD-123, Basic), `C1`/`C7`/`C10`
-  CL32A107MPVNNNE (100 µF 10 V), `C3` TAJA106K016RNJ (Case A, Basic), `L1` 1 µH MWSA0503S-1R0MT
+- Teile: `U1` IP5306-I2C (ESOP-8, Extended), `D1`/`D4` B5819W (SOD-123, Basic), `D6` LBAT54CWT1G (SOT-323), `Q4` 2N7002 (Basic),
+  22 µF CL21A226MAQNNNE (0805, Basic), `R7`/`R8` 22 Ω 1206 (Basic), `C3` TAJA106K016RNJ (Case A, Basic),
+  `L1` 1 µH MWSA0503S-1R0MT
 
 ## Bekannte offene Punkte
 
