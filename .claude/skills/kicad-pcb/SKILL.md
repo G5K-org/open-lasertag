@@ -81,7 +81,9 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
 - Randstecker: Body bündig, aber Befestigungspads ≥ 0,3 mm vom Rand (`SH_IN = 3.1`, `PH_IN = 4.9`).
 - **Kontur (`OUTLINE` in build_board.py, alle Ecken R 1 mm):** Grundfläche `W` = 59,6 × `H` = 46, rechts eine
   Aussparung x > `W0` = 54 für `Y1` = 18,5 < y < `Y2` = 26,5 (M1 an `W0`, Motorkabel), oben links eine Lasche
-  x < `XT` = 17, −`YT` = −5 < y < 0 (Akkuschutz). Modul `MX = W0 − 11,5`; J4/J5/J2 an `W`. Masseflächen und
+  x < `XT` = 18,6, −`YT` = −9 < y < 0 (Akkuschutz, darüber Ein/Aus). Die Lasche endet links vom
+  Antennen-Sperrbereich des Moduls (x ≥ 18,5 für y < 0: dort keine Leiterbahnen/Vias); höher als 9 mm wird die
+  rechte Gehäusewand zu dünn. Modul `MX = W0 − 11,5`; J4/J5/J2 an `W`. Masseflächen und
   Stitching (`on_board()`) folgen der Kontur. Neue Teile an der Kante: `W` bzw. `W0` je nach Höhe.
 - **TSOP 6 (J6, links unter LED1, JST-SH 3 = ZX-SH1.0-3PWT):** 1 VS (3V3 über Via + In2-Abzweig der
   3V3-Diagonale), 2 GND (Via rechts), 3 OUT von IO16: B.Cu-Kanal Diagonale x + y = 38,0 (zwischen
@@ -110,29 +112,33 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   die In2-5V-Diagonale x + y = 71,9 frei). 3V3: In2-Abzweig von x 51,6 auf y 23,7 zu den Vias über
   C25.1 und R27.1, von dort In2-Diagonale zum /WP-Via (34,0/29,3); /HOLD direkt an VCC (Pin 7–8);
   GND über Pin 4 → EP → Via im EP (37,4/30,0).
-- **microSD J7 (TF-018, Push-Pull, Projektbibliothek, 47,45/42,0, 180°):** Öffnung bündig mit der
-  Unterkante, Kontaktreihe oben bei y 38,9 (rechts von U6, links unter J2), Schirm-Pads „SH“ mit GND-Vias.
-  x 47,45 ist das Maximum (rechtes SH-Pad ≥ 0,3 mm von der Eckrundung). Bus: Vias unter der Kontaktreihe bei
-  y 40,0 (MOSI, VDD, CLK, GND, MISO; unter dem Körper); MOSI/CLK von den U14-Vias (43,65) senkrecht runter
-  (x 43,65 / 44,3) und unter 45° von oben in ihre Vias; MISO vom U14-MISO-Via auf B.Cu als Diagonale
-  x − y = 6,6 unter U14/U6 durch, senkrecht x 42,4, unter dem Slot y 41,5, von unten ins Via; SD_CS von
-  IO48 (Pad 25, Via 20,6) auf B.Cu x 51,0 rechts an den TSOP-4/5-Vias vorbei, Diagonale x + y = 83,4 zum
-  Via (46,5/36,9), letztes Stück F.Cu von oben in Pin 2. VDD über In2 vom J2-3V3-Via (Diagonale
-  x + y = 86,9), C26 (0402) direkt über VDD (47,6/36,9). DAT1/DAT2 über Vias unter Pin 1/8 und In2 unter dem
-  Slot (y 42,6) verbunden, R37 (10 k) über Pin 8 mit 3V3-Via auf der In2-Leitung. U6/C23 sitzen 0,3 mm höher
-  (Courtyard über der Kontaktreihe).
+- **microSD J7 (TF-018, Push-Pull, Projektbibliothek, 47,45/42,1, 0°):** Die Karte wird auf der Kontaktseite
+  eingesteckt (Datenblatt Hanbo TF-018: Karte ragt über den Lötbeinchen heraus). Kontaktreihe und Öffnung
+  daher an der Unterkante (Pads 0,3 mm vom Rand), geschlossene Rückwand oben bei y 38,4 unter U6/J2
+  (Courtyards berühren sich gerade). Alle Leitungen auf F.Cu senkrecht unter dem Slot zu den Kontakten:
+  MOSI/MISO (B.Cu-Fächer aus den U14-Vias) und SD_CS (B.Cu x 51,0) über Vias bei y 39,2; CLK kreuzt MOSI und
+  wechselt deshalb über dem Slot (Via auf x + y = 79,5) auf F.Cu; VDD gerade nach C26 (0402, 48,0/37,0, 90°),
+  3V3 über ein Via auf dieser Leitung von In2; GND-Via direkt über Pin 6; DAT1/DAT2 über Vias bei y 43,9 und
+  In2 (y 42,6) verbunden, DAT2 senkrecht zu R37. Schirm-Pads mit GND-Vias außen (oben links nach unten).
 - **Akkuschutz (Lasche):** Q3 FS8205A (4,2/−2,4) und U15 DW01A (10,8/−2,4) mit zueinander zeigenden Gates
   (OD–G1 oben, OC–G2 unten, gerade), R29 (CS, 1 k) dazwischen mit GND-Via, Q3.2–Q3.5 unter dem Körper,
   S2 = GND mit zwei Vias. B− (`BAT_N`): BT1.2 → zwei Vias → B.Cu x 5,4 (0,8 mm) → zwei Vias über Q3.1;
-  F.Cu-Leitung y −4,3 verbindet C27 (VSS), U15.6 (45°-Abzweig) und Q3.1. VCC über C27/R28 (y −2,4), R28 vom
-  U1-EN-Pin (BAT_P). D4 (VBUS → 5 V) waagerecht bei (24,4/27,0): Anode an Via auf der VBUS-B.Cu-Leitung,
+  F.Cu-Leitung y −4,3 verbindet C27 (VSS), U15.6 (45°-Abzweig) und Q3.1. VCC über C27/R28 (y −2,4), R28.1 über ein
+  Via (14,2/−1,0) an die In2-Leitung `BAT_P`.
+- **Ein/Aus (Lasche, Reihe y −6,7):** R40, D6 (BAT54CW), Q5, R38, Q4 von links nach rechts. Q4.S über Via
+  (12,3/−5,75) und In2 (`BAT_P`: Via neben BT1.1 (8,6/2,9), R28-Via) zum Akku; Q4.D (0,8 mm) im Streifen rechts
+  von R28 senkrecht nach unten und diagonal in U1.4 (`BAT_SW`). BT1.1 hängt nicht mehr direkt an C19.
+  PWR_KEY, PWR_HOLD und ENC_SW laufen nur auf B.Cu: von J5 bzw. Vias unter IO21/IO9 senkrecht unter dem Modul
+  nach oben, an der Oberkante (y 0,45/0,9/1,35) nach links, bei x 18,05/17,6/17,15 in die Lasche und waagerecht
+  zu den Vias an D6/Q5. Dafür sind die GND-Vias an C17/C18 entfallen (beide hängen direkt am Modul-GND-Pad)
+  und IO0 läuft auf B.Cu unter dem IO21-Via (y 18,7) zu BOOT. D4 (VBUS → 5 V) waagerecht bei (24,4/27,0): Anode an Via auf der VBUS-B.Cu-Leitung,
   Kathode zu C21.1. D5 (STAT) senkrecht über U3.1 (21,36/19,1), Kathode unten; U4.11 und R2.2 enden an der
   Anode. C7.2 = GND (Via unter C7), LED-Kathode direkt zu Q1.3.
 - **TSOP-Serienwiderstände:** R30–R34 (0402, 100 Ω) bei x 52,0 auf y 33,7 … 29,7 zwischen den Vias und den
   J2-Pads (J2 bei x 56,5); J2.1-3V3-Via (52,8/35,7), J2.2-GND-Via (52,8/34,7).
 - **Bedienteil-Routing:** SCL/SDA (IO1/IO2) auf F.Cu direkt in J4; 3V3 für J4 über In2 von einem Via an
   Modul-Pin 2 (35,0/2,76) waagerecht nach rechts; ENC_A (IO42) auf F.Cu von oben in J5.4; ENC_B (IO41)
-  und ENC_SW (IO9, unten am Modul) über B.Cu zu Vias hinter den J5-Pads (unter dem Steckerkörper). Die
+  über B.Cu zu einem Via hinter den J5-Pads (unter dem Steckerkörper); J5.2 ist PWR_KEY (siehe Ein/Aus). Die
   I²S-Leitungen laufen links neben den J5-Pads (0,175 mm Abstand) – J5 nicht weiter nach links.
 
 ## Routing-API in build_board.py
@@ -169,8 +175,9 @@ r.drop("C21.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
      Vias/Pads/Abzweigen gegen den kürzesten 0/45/90°-Weg. Jeder Fund ist entweder behoben oder hat einen
      Grund (Hindernis, Bündelreihenfolge, Paar-Längenausgleich). Stand (begründet): F.Cu CHRG_STAT (U2-Pins
      + BAT_P-Via an R3), I²S (Modul-Padreihe, Motortreiber; Rückseite bräuchte 6 Vias), B.Cu SPI_CLK/SPI_MOSI (links um das
-     IO0-Via und dessen B.Cu-Diagonale), B.Cu SD_CS (rechts um die TSOP-4/5-Vias), B.Cu SPI_MISO (von unten
-     unter J7 durch, Reihenfolge der Kontakte), B.Cu TSOP4/5 (Vias rechts von J2), USB D+ (Mäander),
+     IO0-Via und dessen B.Cu-Diagonale), B.Cu SD_CS (rechts um die TSOP-4/5-Vias), B.Cu SPI_MOSI am Slot
+     (Kreuzung mit CLK), In2 SD_DAT12 (um die Kontakt-Vias), B.Cu PWR_KEY/PWR_HOLD/ENC_SW (über die
+     Oberkante in die Lasche), F.Cu Gate Q4→D6 und PWR_HOLD (um Q5/D6), B.Cu TSOP4/5 (Vias rechts von J2), USB D+ (Mäander),
      USB D− (außen um U12.4/VBUS-Via), 5V an U6 (um unbelegte IC-Pins), OUTP/OUTN (verschachtelt),
      J1→C10 (GND-Via J1.3), R15 (U5-Padreihe), GND-Stiche an U5, BAT_P-Ende (Abzweig); In2 5V am
      U6-Abzweig (+0,2); B.Cu EN/TRIGGER/RELOAD (Bündel), VBUS-Ring (um die USB-Pads)

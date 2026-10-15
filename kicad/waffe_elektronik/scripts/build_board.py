@@ -27,7 +27,8 @@ MM = pcbnew.FromMM
 W0, H = 54.0, 46.0  # main board; the strip top right carries the OLED and encoder connectors
 W, Y1 = 59.6, 18.5   # width W except the notch x > W0, Y1 < y < Y2 (M1 cable)
 Y2 = 26.5            # below the notch the board is W wide again (J2 at the edge, TSOP resistors)
-XT, YT = 17.0, 5.0   # tab top left (x < XT, -YT < y < 0): battery protection next to BT1
+XT, YT = 18.6, 9.0   # tab top left (x < XT, -YT < y < 0): battery protection, on/off above it; ends left of the
+                     # antenna keep-out of the module (x >= 18.5 for y < 0)
 OUTLINE = [(0, -YT), (XT, -YT), (XT, 0), (W, 0), (W, Y1), (W0, Y1), (W0, Y2), (W, Y2), (W, H), (0, H)]
 
 
@@ -87,11 +88,14 @@ PLACE = {
     "U6": (41.8, 36.0, 270), "C22": (32.3, 34.5, 90), "C23": (38.75, 36.5, 90),
     # --- SPI-NAND (audio files): below the module between C1 and the vibration driver
     "U14": (38.6, 28.7, 0), "C25": (40.3, 24.6, 180), "R27": (36.6, 24.6, 180),
-    # --- microSD slot (push-pull), card enters from the bottom edge; 100n left of it
-    "J7": (47.45, 42.0, 180), "C26": (47.6, 36.9, 90), "R37": (50.95, 37.1, 90),
+    # --- microSD slot (push-pull): card enters on the contact side, contacts at the bottom edge; 100n above VDD
+    "J7": (47.45, 42.1, 0), "C26": (48.0, 37.0, 90), "C28": (49.45, 36.6, 90), "R37": (50.95, 37.1, 90),
     # --- battery protection in the tab above BT1: FS8205A, DW01A (gates face each other), CS resistor between
     "Q3": (4.2, -2.4, 0), "U15": (10.8, -2.4, 0), "R29": (7.78, -2.4, 180), "C27": (13.8, -2.88, 90),
     "R28": (15.1, -1.92, 90),
+    # --- on/off (soft power) in a row above the protection: Q4 high side, R38 gate pull-up, Q5 hold, D6 button
+    "Q4": (15.6, -6.7, 0), "R38": (12.8, -6.7, 270), "Q5": (10.0, -6.7, 0), "D6": (6.0, -6.7, 180),
+    "R40": (3.7, -6.7, 270),
     # --- charger status through a Schottky, USB feed into 5 V
     "D5": (21.36, 19.1, 90), "D4": (24.4, 27.0, 0),
     # --- series resistors in the sensor cable lines, right before J2
@@ -128,7 +132,7 @@ RULES = {
 NETCLASSES = [
     # name, track, clearance, via dia, via drill, diff width, diff gap, patterns
     ("Default", 0.2, 0.15, 0.5, 0.3, 0.2, 0.2, []),
-    ("Power", 0.5, 0.15, 0.6, 0.3, 0.2, 0.2, ["GND", "BAT_P", "5V_PERIPH", "VBUS_NATIVE", "Net-(D3-A)",
+    ("Power", 0.5, 0.15, 0.6, 0.3, 0.2, 0.2, ["GND", "BAT_P", "BAT_SW", "5V_PERIPH", "VBUS_NATIVE", "Net-(D3-A)",
                                               "Net-(D1-A)", "Net-(D2-A)", "Net-(LED1-K)", "Net-(LED*-A)", "Net-(U6-OUT*)"]),
     ("3V3", 0.6, 0.15, 0.6, 0.3, 0.2, 0.2, ["3V3_MCU"]),
     ("USB", 0.2, 0.15, 0.5, 0.3, 0.2, 0.2, ["USB_D*", "Net-(J3-D*)"]),
@@ -513,8 +517,8 @@ def route(r):
     """Hand routing. Coordinates in mm, board origin top-left."""
     F, B, I2 = "F", "B", "2"
     # ================= boost converter (MT3608): tight loops on F.Cu =================
-    # input: BT1 -> C19 -> U1 IN/EN, L1
-    r.t(F, 0.8, "BT1.1", "C19.1")
+    # input: BT1 -> (In2) -> Q4 in the tab -> U1 IN/EN, C19, L1 (BAT_SW)
+    r.t(F, 0.8, "BT1.1", (8.6, 4.2), (8.6, 2.9)); r.v((8.6, 2.9), net="BAT_P", d=0.8, h=0.4)
     r.t(F, 0.6, "C19.1", ("U1.5", -0.3, 0), "U1.5")
     r.t(F, 0.4, "U1.5", "U1.4")
     r.t(F, 0.8, "C19.1", (11.2, 4.9), ("L1.1", 0, -1.2))
@@ -539,10 +543,8 @@ def route(r):
     r.t(F, 0.8, ("U2.2", 0, -0.8), (26.3, 4.84), (28.09, 3.05), "C18.1")
     r.t(F, 0.6, "C18.1", "C17.1", "U4.2")
     r.t(F, 0.6, "C3.1", (25.6, 4.84), (26.3, 5.54))  # 45 deg into the straight part of the trunk
-    r.gnd("C3.2", -1.0, -0.8)
+    r.gnd("C3.2", -1.0, 0)
     r.t(F, 0.5, "C18.2", "C17.2", "U4.1")
-    r.v((28.8, 1.1), net="GND"); r.t(F, 0.5, (28.8, 1.1), "C18.2")
-    r.v((32.85, 0.6), net="GND"); r.t(F, 0.4, (32.85, 0.6), "C17.2")
     # EN: R21 / C16 RC right at pin 3
     r.t(F, 0.25, "R21.2", "C16.1", (31.3, 4.03), "U4.3")
     r.gnd("C16.2", 0, 1.12)
@@ -675,7 +677,7 @@ def route(r):
 
     # ================= BOOT button: IO0 runs under the module on B.Cu =================
     r.t(F, 0.25, "U4.27", (49.85, 17.6)); r.v((49.85, 17.6))
-    r.t(B, 0.25, (49.85, 17.6), (39.85, 17.6), (36.7, 20.75)); r.v((36.7, 20.75))
+    r.t(B, 0.25, (49.85, 17.6), (49.85, 18.7), (38.75, 18.7), (36.7, 20.75)); r.v((36.7, 20.75))
     r.t(F, 0.25, (36.7, 20.75), "SW4.2")
     r.gnd("SW4.1", 0, 1.4)
 
@@ -724,7 +726,7 @@ def route(r):
     ON, OP = "Net-(U6-OUTN)", "Net-(U6-OUTP)"
     r.t(F, 0.25, "U6.9", (41.05, 37.7), (40.65, 38.1)); r.t(F, 0.4, (40.65, 38.1), (40.2, 38.55), (40.2, 39.1), net=OP)
     r.v((40.2, 39.1), net=OP, d=0.6)
-    r.t(F, 0.25, "U6.10", (41.55, 37.9)); r.t(F, 0.4, (41.55, 37.9), (41.55, 38.75), (41.2, 39.1), net=ON); r.v((41.2, 39.1), net=ON, d=0.6)
+    r.t(F, 0.25, "U6.10", (41.55, 37.9)); r.t(F, 0.4, (41.55, 37.9), (41.55, 38.2), (41.2, 38.55), (41.2, 39.1), net=ON); r.v((41.2, 39.1), net=ON, d=0.6)
     r.t(B, 0.4, (40.2, 39.1), (39.4, 39.9), (39.4, 44.95), (10.75, 44.95), (10.75, 40.0), (9.95, 39.2), net=OP)
     r.t(B, 0.4, (41.2, 39.1), (40.0, 40.3), (40.0, 45.5), (9.95, 45.5), (9.95, 41.2), net=ON)
     r.v((9.95, 39.2), net=OP, d=0.6); r.t(F, 0.4, (9.95, 39.2), "SP1.1")
@@ -755,8 +757,10 @@ def route(r):
     r.t(F, 0.2, (56.2, 13.0), "J5.3")
     x17 = r.pt("U4.17")[0]                                                 # ENC_SW from the bottom pad row
     r.t(F, 0.2, "U4.17", (x17, 18.0)); r.v((x17, 18.0))
-    r.t(B, 0.2, (x17, 18.0), (x17 + 1.4, 16.6), (53.6, 16.6), (56.2, 14.0), net="ENC_SW"); r.v((56.2, 14.0), net="ENC_SW")
+    r.v((56.2, 14.0), net="PWR_KEY")
     r.t(F, 0.2, (56.2, 14.0), "J5.2")
+    x23 = r.pt("U4.23")[0]                                                 # IO21 (PWR_HOLD) from the bottom pad row
+    r.t(F, 0.2, "U4.23", (x23, 18.0)); r.v((x23, 18.0))
     r.gnd("J5.1", 1.7, 0)
 
     # ================= SPI-NAND U14: four lines over B.Cu down the left of SW4 =================
@@ -786,34 +790,40 @@ def route(r):
     r.t(F, 0.25, "U14.3", (34.0, r.pt("U14.3")[1])); r.v((34.0, r.pt("U14.3")[1]), net="3V3_MCU")
     r.t(F, 0.4, "U14.4", (37.2, r.pt("U14.4")[1]))
     r.v((37.4, 30.0), net="GND")
-    # ================= microSD J7 on the same bus: vias under the contact row (y 40), CS from above on F.Cu =================
-    yv = 40.0
-    for n in ("1", "3", "4", "5", "6", "7", "8"):
-        x = r.pt(f"J7.{n}")[0]
-        r.t(F, 0.25 if n in ("4", "6") else 0.2, f"J7.{n}", (x, yv))
-        r.v((x, yv), net={"4": "3V3_MCU", "6": "GND"}.get(n))
-    xd2, xd1 = r.pt("J7.1")[0], r.pt("J7.8")[0]
-    r.t(I2, 0.2, (xd2, yv), (xd2 + 0.6, yv + 0.6), (xd2 + 0.6, 42.6), (xd1, 42.6), (xd1, yv), net="SD_DAT12")
-    r.t(F, 0.2, "R37.1", "J7.8")
-    r.t(F, 0.25, "R37.2", (xd1 + 0.65, r.pt("R37.2")[1] - 0.65), (xd1 + 0.65, 35.7)); r.v((xd1 + 0.65, 35.7), net="3V3_MCU")
-    r.t(F, 0.25, "C26.1", (r.pt("J7.4")[0], r.pt("C26.1")[1] + 0.7), "J7.4")
-    r.gnd("C26.2", 0.9, 0)
-    xm, xc, xo = r.pt("J7.3")[0], r.pt("J7.5")[0], r.pt("J7.7")[0]
-    r.t(B, 0.2, (43.65, y5), (43.65, yv - (xm - 43.65)), (xm, yv), net="SPI_MOSI")
-    r.t(B, 0.2, (43.65, y6), (44.3, y6 + 0.65), (44.3, yv - (xc - 44.3)), (xc, yv), net="SPI_CLK")
-    r.t(B, 0.2, (34.0, y2), (34.665, y2), (42.4, y2 + 42.4 - 34.665), (42.4, 41.5), (xo, 41.5), (xo, yv), net="SPI_MISO")
+    # ================= microSD J7 on the same bus: contacts along the bottom edge, all lines run up on F.Cu under
+    # the slot; CLK changes to F.Cu above the slot (it crosses MOSI), MOSI/MISO/CS drop through vias at y 39.2
+    yv = 39.2
+    xs = {n: r.pt(f"J7.{n}")[0] for n in "12345678"}
+    r.t(B, 0.2, (43.65, y6), (44.3, y6 + 0.65), (44.3, 35.2), (xs["5"], 35.2 + xs["5"] - 44.3), net="SPI_CLK")
+    r.v((xs["5"], 35.2 + xs["5"] - 44.3)); r.t(F, 0.2, (xs["5"], 35.2 + xs["5"] - 44.3), "J7.5", net="SPI_CLK")
+    r.t(B, 0.2, (43.65, y5), (43.65, 36.5), (43.65 + yv - 36.5, yv), (xs["3"], yv), net="SPI_MOSI")
+    r.t(B, 0.2, (34.0, y2), (34.665, y2), (42.4, y2 + 42.4 - 34.665), (42.4, yv - (xs["7"] - 42.4)), (xs["7"], yv),
+        net="SPI_MISO")
     x25 = r.pt("U4.25")[0]
     r.t(F, 0.2, "U4.25", (x25, 20.6)); r.v((x25, 20.6))
-    r.t(B, 0.2, (x25, 20.6), (51.0, 20.6 + 51.0 - x25), (51.0, 32.4), (46.5, 36.9), net="SD_CS"); r.v((46.5, 36.9))
-    xs = r.pt("J7.2")[0]
-    r.t(F, 0.2, (46.5, 36.9), (xs, 36.9 + 46.5 - xs), "J7.2", net="SD_CS")
-    xl, xr = r.pt("J7.1")[0] - 1.25, r.pt("J7.9")[0] + 0.9  # shell pads at +-5.1
-    # (upper-left shell via kept clear of the DAT2 via: 0.95 right of the pad)
-    for pad, dx, dy in (((xl, 40.65), 0.95, 0), ((xl, 45.1), 0.95, 0), ((xr, 40.65), 0, -1.1), ((xr, 45.1), -0.95, 0)):
+    r.t(B, 0.2, (x25, 20.6), (51.0, 20.6 + 51.0 - x25), (51.0, yv - 51.0 + xs["2"]), (xs["2"], yv), net="SD_CS")
+    for n in "372":
+        r.v((xs[n], yv)); r.t(F, 0.2, (xs[n], yv), f"J7.{n}")
+    # VDD straight up into C26, 3V3 from In2 into a via on that line
+    r.t(F, 0.25, "J7.4", "C26.1")
+    r.gnd("C26.2", 0, -0.9)
+    r.t(F, 0.25, "C28.1", (48.45, 38.4), (xs["4"], 38.4), net="3V3_MCU"); r.gnd("C28.2", 0, -0.9)   # 10u for the card
+    r.v((xs["4"], 38.4), net="3V3_MCU")
+    r.t(I2, 0.4, (52.8, 35.7), (51.6, 35.7), (51.6 - 2.7, 38.4), (xs["4"], 38.4), net="3V3_MCU")
+    r.t(F, 0.4, "J7.6", (xs["6"], 43.9)); r.v((xs["6"], 43.9), net="GND")
+    # DAT1/DAT2 (unused in SPI mode): joined over In2 under the slot, pulled up by R37
+    for n in "18":
+        r.v((xs[n], 43.9), net="SD_DAT12")
+    r.t(F, 0.2, "J7.8", (xs["8"], 43.9))
+    r.t(I2, 0.2, (xs["8"], 43.9), (xs["8"] + 1.3, 42.6), (xs["1"] - 1.3, 42.6), (xs["1"], 43.9), net="SD_DAT12")
+    r.t(F, 0.2, "J7.1", (xs["1"], 38.0), "R37.1")
+    r.t(F, 0.25, "R37.2", (51.6, r.pt("R37.2")[1] - 0.65), (51.6, 35.7)); r.v((51.6, 35.7), net="3V3_MCU")
+    # shell: GND vias outside the slot
+    jx, jy = PLACE["J7"][:2]
+    for pad, dx, dy in (((jx - 5.1, jy - 3.1), 0, 1.25), ((jx - 5.1, jy + 1.35), -0.95, 0),
+                        ((jx + 5.1, jy - 3.1), 0.95, 0), ((jx + 5.1, jy + 1.35), 0.95, 0)):
         r.t(F, 0.4, pad, (pad[0] + dx, pad[1] + dy), net="GND"); r.v((pad[0] + dx, pad[1] + dy), net="GND")
     P3 = "3V3_MCU"
-    xv = r.pt("J7.4")[0]
-    r.t(I2, 0.4, (52.8, 35.7), (xv + yv - 35.7, 35.7), (xv, yv), net=P3)
 
     # ================= battery protection (tab above BT1) =================
     BN = "BAT_N"
@@ -831,8 +841,31 @@ def route(r):
     r.t(F, 0.3, "C27.2", (xc, yb + 0.7), (xc - 0.7, yb), (r.pt("Q3.1")[0], yb), net=BN)
     r.t(F, 0.3, "U15.6", (u6[0], yb + 0.55), (u6[0] - 0.55, yb), net=BN)
     r.t(F, 0.25, "U15.5", "C27.1"); r.t(F, 0.25, "C27.1", "R28.2")
-    u14 = r.pt("U1.4")
-    r.t(F, 0.3, "R28.1", (r.pt("R28.1")[0], u14[1] - 0.6 - (r.pt("R28.1")[0] - u14[0])), (u14[0], u14[1] - 0.6), "U1.4")
+    # DW01A supply from the cell side (BAT_P) over In2
+    r.t(F, 0.3, "R28.1", (14.61, -1.41), (14.2, -1.0)); r.v((14.2, -1.0), net="BAT_P")
+
+    # ================= on/off: Q4 (P-FET) between the cell and BAT_SW, Q5 holds the gate low (PWR_HOLD) =================
+    # cell -> In2 -> Q4 source; drain down the strip right of R28 straight into U1 IN (BAT_SW)
+    r.t(F, 0.6, "R38.2", (12.8, -5.75), "Q4.2")
+    r.t(F, 0.6, (12.8, -5.75), (12.3, -5.75)); r.v((12.3, -5.75), net="BAT_P", d=0.8, h=0.4)
+    r.t(I2, 1.0, (12.3, -5.75), (12.3, -2.9), (14.2, -1.0), (13.4, -0.2), (9.4, -0.2), (8.6, 0.6), (8.6, 2.9), net="BAT_P")
+    r.t(F, 0.8, "Q4.3", (16.5375, -1.0), (13.2875, 2.25), "U1.4")
+    # gate: R38 to the source, Q5 drain, D6 anode 1
+    r.t(F, 0.25, "Q4.1", (12.8, -7.65), "R38.1")
+    r.t(F, 0.25, (12.8, -7.65), (11.8875, -7.65), (10.9375, -6.7), "Q5.3")
+    r.t(F, 0.25, "Q5.3", (10.9375, -5.0), (6.8875, -5.0), "D6.1")
+    r.t(F, 0.3, "Q5.2", (7.95, -5.75)); r.v((7.95, -5.75), net="GND")
+    # PWR_HOLD: Q5 gate, R40 to GND
+    r.t(F, 0.25, "Q5.1", (9.0625, -7.9375), (8.5, -8.5), (3.7, -8.5), "R40.1")
+    r.t(F, 0.3, "R40.2", (3.7, -5.4)); r.v((3.7, -5.4), net="GND")
+    # PWR_KEY (D6 cathode) and ENC_SW (D6 anode 2)
+    r.v((4.75, -5.45), net="PWR_KEY"); r.t(F, 0.2, (4.75, -5.45), (5.1125, -5.8125), "D6.3")
+    r.v((6.0, -6.85), net="ENC_SW"); r.t(F, 0.2, (6.0, -6.85), (6.5, -7.35), "D6.2")
+    r.v((10.5, -7.4), net="PWR_HOLD"); r.t(F, 0.2, (10.5, -7.4), (10.25, -7.65), "Q5.1")
+    # KEY, ENC_SW and PWR_HOLD over B.Cu: up under the module, left along the top edge, up the strip into the tab
+    r.t(B, 0.2, (56.2, 14.0), (53.6, 16.6), (50.6, 16.6), (50.0, 16.0), (50.0, 0.45), (18.05, 0.45), (18.05, -7.95), (4.75, -7.95), (4.75, -5.45), net="PWR_KEY")
+    r.t(B, 0.2, (45.68, 18.0), (45.68, 0.9), (17.6, 0.9), (17.6, -7.4), (10.5, -7.4), net="PWR_HOLD")
+    r.t(B, 0.2, (38.05, 18.0), (38.05, 1.35), (17.15, 1.35), (17.15, -6.85), (6.0, -6.85), net="ENC_SW")
 
     # ================= USB -> 5 V (D4) =================
     r.t(F, 0.5, "D4.2", (25.2, 26.0)); r.v((25.2, 26.0), net="VBUS_NATIVE", d=0.6)
@@ -842,7 +875,7 @@ def route(r):
     r.t(I2, 0.4, (34.0, w3), (r.pt("R27.1")[0], w3 + 34.0 - r.pt("R27.1")[0]), (r.pt("R27.1")[0], 23.7), net=P3)
     r.t(I2, 0.5, (26.3, 15.0), (19.6, 19.205), (9.425, 27.45), (9.425, 37.0), (10.375, 37.95), ("R10.1", 0, 0.95), net=P3)
     r.t(I2, 0.5, (51.0, 2.76), (51.6, 3.36), (51.6, 34.5), (52.8, 35.7), net=P3)
-    r.t(I2, 0.6, ("R3.1", 0, -0.85), (25.38, 18.2), (18.6, 24.98), net="BAT_P"); r.v((18.6, 24.98), net="BAT_P", d=0.6)
+    r.t(I2, 0.6, ("R3.1", 0, -0.85), (25.38, 18.2), (18.6, 24.98), net="BAT_SW"); r.v((18.6, 24.98), net="BAT_SW", d=0.6)
 
 
 def build():

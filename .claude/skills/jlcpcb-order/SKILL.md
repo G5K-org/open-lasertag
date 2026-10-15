@@ -46,7 +46,7 @@ Rotationskorrekturen (`ROTATIONS` in `jlc_fab.py`) stammen aus der Datenbank von
 ## 3. Bestellung auf jlcpcb.com
 
 1. „Order now“ → `*_gerber.zip` hochladen.
-2. Leiterplatte: **4 Lagen**, 1,6 mm, Maße werden aus Edge.Cuts gelesen (59,6 × 51 mm, Lasche oben links, Aussparung rechts),
+2. Leiterplatte: **4 Lagen**, 1,6 mm, Maße werden aus Edge.Cuts gelesen (59,6 × 55 mm, Lasche oben links, Aussparung rechts),
    **Impedanzkontrolle mit Stackup JLC04161H-7628** (USB-Paar), Oberfläche ENIG (TQFN/0,5-mm-Raster),
    Via Covering: tented.
 3. „PCB Assembly“ an → Economic/Standard, **Top Side**, Menge wählen.
@@ -57,7 +57,7 @@ Rotationskorrekturen (`ROTATIONS` in `jlc_fab.py`) stammen aus der Datenbank von
    versetzt; `ALT`/`ALT_SHIFT` in jlc_fab.py).
 5. **Platzierungsvorschau Bauteil für Bauteil prüfen**, vor allem Pin 1 / Polarität bei:
    U4 (ESP32-Modul, keine Korrektur in der DB), U5, U6, U14 (WSON-8, Pin 1 oben links), J7 (microSD, Öffnung zur Unterkante), U15/Q3 (SOT-23-6), D4/D5, U1/U3/U12 (SOT-23-5/6), D1–D3, C3 (Tantal),
-   J1–J3, BT1/SP1, M1/LED1/SW1/SW2 (JST), J2/J4/J5/J6 (JST-SH, Korrektur 180° ungeprüft), SW3/SW4. Falsche Drehung in der Vorschau korrigieren und
+   Q4/Q5 (SOT-23), D6 (SOT-323, Korrektur −90° wie SOT-23, ungeprüft), J1–J3, BT1/SP1, M1/LED1/SW1/SW2 (JST), J2/J4/J5/J6 (JST-SH, Korrektur 180° ungeprüft), SW3/SW4. Falsche Drehung in der Vorschau korrigieren und
    die Korrektur in `ROTATIONS` nachtragen.
 6. Bestellung erst nach Freigabe durch den User abschicken (kostenpflichtig, externe Aktion).
 

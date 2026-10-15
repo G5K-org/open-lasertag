@@ -76,7 +76,13 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
     drücken, dann lässt sich trotzdem flashen
   - CC1/CC2 je 5,1 kΩ nach GND, damit USB-C-Netzteile VBUS einschalten
   - ESD-Schutz USBLC6-2SC6 in D−/D+ und VBUS
-- **Power-Tree:** Akku → Akkuschutz → 5V-Boost (`U1`) → `5V_PERIPH` (speist WS2812,
+- **Ein/Aus (Soft-Power):** P-MOSFET `Q4` (AO3401A) zwischen Akku (`BAT_P`, nur BT1, Akkuschutz) und allem anderen
+  (`BAT_SW`). Der Taster des Drehgebers (J5 Pin 2, `PWR_KEY`) zieht über `D6` (BAT54CW, Anode 1) das Gate
+  nach GND: ein. Der ESP32 hält über IO21 (`PWR_HOLD`, `Q5`) und liest den Taster über die zweite Anode an IO9.
+  Aus: IO21 low. Ausgeschaltet fließt nur der Ruhestrom des Akkuschutzes (wenige µA). Mit USB läuft der ESP32
+  über D4 auch ausgeschaltet; die Firmware setzt dann IO21, damit der Lader den Akku über Q4 erreicht
+  (sonst nur über die Body-Diode, bis ca. 3,6 V)
+- **Power-Tree:** Akku → Akkuschutz → Ein/Aus (`Q4`) → 5V-Boost (`U1`) → `5V_PERIPH` (speist WS2812,
   MAX98357A, 74HCT125) → AMS1117-3.3 (`U2`) → `3V3_MCU` (ESP32-S3 und
   Pull-ups).
 - **Akkuschutz:** DW01A (`U15`, LCSC C351410) + FS8205A (`Q3`, C2830320) im Minuspfad des Akkus
@@ -113,13 +119,13 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 |---|---|
 | ![oben](renders/platine_oben.png) | ![unten](renders/platine_unten.png) |
 
-- **59,6 × 51 mm** (Grundfläche 59,6 × 46 mm; oben links eine 17 × 5 mm große Lasche für den Akkuschutz,
+- **59,6 × 55 mm** (Grundfläche 59,6 × 46 mm; oben links eine 18,6 × 9 mm große Lasche für Akkuschutz und Ein/Aus,
   rechts bei y 18,5–26,5 eine Aussparung für das Motorkabel), 1,6 mm, 4 Lagen, nur SMD, Bestückung nur oben
 - **Lagen:**
   - F.Cu: Bauteile, kurze Signale, GND-Fläche
   - In1.Cu: durchgehende GND-Fläche ohne Leiterbahnen
-  - In2.Cu: Versorgung (`5V_PERIPH`, `3V3_MCU`, `BAT_P`) als Leiterbahnen + GND-Fläche
-  - B.Cu: lange Signale (EN, Abzug, Nachladen, IR, WS2812, IO0, TSOP, Bedienteil, Flash, microSD) + GND-Fläche, Projekt-URL
+  - In2.Cu: Versorgung (`5V_PERIPH`, `3V3_MCU`, `BAT_P` vom Akku zu Q4, `BAT_SW`) als Leiterbahnen + GND-Fläche
+  - B.Cu: lange Signale (EN, Abzug, Nachladen, IR, WS2812, IO0, TSOP, Bedienteil, Ein/Aus, Flash, microSD) + GND-Fläche, Projekt-URL
 - **ESP32-S3-Modul:** Antenne ragt über die Oberkante hinaus; jedes GND-Pad
   mit eigenem Via nach In1, GND-Stitching-Vias im Raster
 - **Befestigung:** 2 × M2-Loch (2,2 mm, nicht durchkontaktiert) für Linsenkopfschrauben
@@ -128,9 +134,10 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **Flash (U14):** unter dem Modul zwischen C1 und Vibrationstreiber; die vier SPI-Leitungen laufen auf
   B.Cu links an BOOT vorbei, /CS und MISO links in U14, MOSI und CLK unter U14 durch zu Vias rechts
   neben Pin 5/6; 3V3 für C25/R27/WP über einen In2-Abzweig der rechten 3V3-Leitung
-- **microSD (J7):** unten rechts, Öffnung bündig mit der Unterkante, die Karte ragt ~8,6 mm in die
-  Kabeltasche unter der Platine; MOSI/CLK/VDD/GND/MISO über Vias unter der Kontaktreihe, /CS von oben auf
-  F.Cu, MISO auf B.Cu unter dem Slot durch; U6/C23 dafür 0,3 mm höher, J2 1,5 mm höher
+- **microSD (J7):** unten rechts; Kontakte und Öffnung an der Unterkante (die Karte wird auf der Kontaktseite
+  eingesteckt) und ragt ~7,6 mm in die Kabeltasche unter der Platine. Alle Leitungen laufen auf F.Cu unter dem
+  Slot nach oben: MOSI, MISO und /CS über Vias bei y 39,2, CLK wechselt über dem Slot auf F.Cu, VDD gerade in
+  C26 (100 nF), daneben C28 (10 µF) gegen den Einschaltstrom der Karte, DAT1/DAT2 über In2 unter dem Slot verbunden
 - **Antenne:** Standard ist das ESP32-S3-WROOM-1 mit Leiterplattenantenne über der Oberkante. Optional passt
   das ESP32-S3-WROOM-1U-N16R8 (LCSC C3013946) ohne Änderung auf denselben Footprint (gleiche Pads, Modul
   6,3 mm kürzer, endet an der Oberkante); dazu Pigtail U.FL auf RP-SMA-Einbaubuchse (TE/Linx CSI-RGFB-100-UFFR)
@@ -178,10 +185,10 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 ## Fertigung (JLCPCB)
 
 [`fertigung/jlcpcb/`](fertigung/jlcpcb/): `waffe_elektronik_gerber.zip` (Gerber + Bohrdaten),
-`waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. JLCPCB bestückt 66 Teile (Feld `LCSC`, Lagerbestand
-geprüft, 13 Extended-Teile); die Stecker (BT1, SP1, J1, J2, J4–J6, LED1, M1, SW1, SW2) und die Taster SW3/SW4
+`waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. JLCPCB bestückt 72 Teile (Feld `LCSC`, Lagerbestand
+geprüft, 15 Extended-Teile); die Stecker (BT1, SP1, J1, J2, J4–J6, LED1, M1, SW1, SW2) und die Taster SW3/SW4
 haben statt `LCSC` das Feld `LCSC Hand` und werden selbst gelötet. Mit allen Steckern und Tastern bestückt
-(79 Teile, 20 Extended-Teile): `waffe_elektronik_bom_komplett.csv` + `waffe_elektronik_cpl_komplett.csv`, mit
+(85 Teile, 22 Extended-Teile): `waffe_elektronik_bom_komplett.csv` + `waffe_elektronik_cpl_komplett.csv`, mit
 externer Antenne `waffe_elektronik_bom_komplett_externe_antenne.csv` + `waffe_elektronik_cpl_komplett_externe_antenne.csv`.
 Selbst zu lötende Teile und lose Teile in der Waffe:
 [`fertigung/lcsc/waffe_lose_teile.csv`](fertigung/lcsc/waffe_lose_teile.csv) (LCSC-Nummern, Menge je Waffe).

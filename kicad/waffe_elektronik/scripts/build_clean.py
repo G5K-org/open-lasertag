@@ -287,15 +287,8 @@ def C(ref, val, x, y, pol=False, fields="right"):
 def block_power(ox, oy):
     rail = oy + 17.78
     gy = oy + 43.18
-    # battery
-    bt = sh.part("Device", "Battery_Cell", "BT1", "1S LiPo 3,7 V", ox + 10.16, oy + 27.94,
-                 ref_at=(ox + 6.35, oy + 26.67), val_at=(ox + 6.35, oy + 29.21), just="right")
-    sh.w(bt["1"], (ox + 10.16, rail), (ox + 10.16, oy + 12.7))
-    sh.vcc((ox + 10.16, oy + 12.7), "BAT_P")
-    sh.j((ox + 10.16, rail))
-    sh.w(bt["2"], (ox + 10.16, gy), (ox + 7.62, gy)); sh.lbl((ox + 7.62, gy), "BAT_N", "L")
-    sh.w((ox + 10.16, oy + 35.56), (ox + 5.08, oy + 35.56)); sh.j((ox + 10.16, oy + 35.56))
-    sh.flag("#FLG1", (ox + 5.08, oy + 35.56))
+    # battery after the on/off switch (block_softpower)
+    sh.w((ox + 7.62, rail), (ox + 7.62, oy + 12.7)); sh.vcc((ox + 7.62, oy + 12.7), "BAT_SW")
     # MT3608 boost 3.7 V -> 5.1 V
     c19 = C("C19", "22u", ox + 15.24, oy + 21.59)
     sh.j((ox + 15.24, rail)); sh.w(c19["2"], (ox + 15.24, gy)); sh.gnd((ox + 15.24, gy))
@@ -307,7 +300,7 @@ def block_power(ox, oy):
     sh.w(u1["2"], (ux, gy)); sh.gnd((ux, gy))
     l1 = sh.part("Device", "L", "L1", "10u", ox + 30.48, rail, angle=90,
                  ref_at=(ox + 30.48, rail - 4.445), val_at=(ox + 30.48, rail - 2.54))
-    sh.w((ox + 10.16, rail), l1["1"])
+    sh.w((ox + 7.62, rail), l1["1"])
     sw = ox + 43.18
     sh.w(l1["2"], (sw, rail), (sw, u1["1"][1]), u1["1"]); sh.j((sw, rail))
     d3 = sh.part("Diode", "SS34", "D3", "SS34", ox + 49.53, rail, angle=180,
@@ -355,7 +348,7 @@ def block_charger(ox, oy):
     sh.w(u3["5"], r1["1"]); sh.w(r1["2"], (ox + 22.86, gy)); sh.gnd((ox + 22.86, gy))
     sh.w(u3["2"], (ux, gy)); sh.gnd((ux, gy))
     sh.w(u3["3"], (ox + 53.34, oy + 22.86), (ox + 53.34, oy + 12.7), (ox + 66.04, oy + 12.7))
-    sh.vcc((ox + 66.04, oy + 12.7), "BAT_P")
+    sh.vcc((ox + 66.04, oy + 12.7), "BAT_SW")
     c5 = C("C5", "1u", ox + 60.96, oy + 16.51)
     sh.j((ox + 60.96, oy + 12.7)); sh.w(c5["2"], (ox + 60.96, oy + 22.86)); sh.gnd((ox + 60.96, oy + 22.86))
     r2 = R("R2", "10k", ox + 76.2, oy + 24.13)
@@ -372,7 +365,7 @@ def block_adc(ox, oy):
     x = ox + 10.16
     r3 = R("R3", "100k", x, oy + 20.32, fields="left")
     r4 = R("R4", "100k", x, oy + 31.75, fields="left")
-    sh.w(r3["1"], (x, oy + 12.7)); sh.vcc((x, oy + 12.7), "BAT_P")
+    sh.w(r3["1"], (x, oy + 12.7)); sh.vcc((x, oy + 12.7), "BAT_SW")
     sh.w(r3["2"], r4["1"])
     sh.w((x, oy + 25.4), (ox + 27.94, oy + 25.4)); sh.j((x, oy + 25.4))
     sh.lbl((ox + 27.94, oy + 25.4), "ADC_BATT", "R")
@@ -423,9 +416,10 @@ MCU_SIGNALS = {
     # SPI-NAND for audio files (SPI2 over the GPIO matrix): left pads 7/8 and bottom pads 15/16
     "7": "FLASH_CS", "8": "SPI_MISO", "15": "SPI_MOSI", "16": "SPI_CLK",
     "25": "SD_CS",  # microSD slot J7 on the same SPI bus
+    "23": "PWR_HOLD",  # IO21: keeps the soft power switch on
 }
-# unused: IO21, IO45 (strapping), TXD0/RXD0, IO35-37 (octal PSRAM on N16R8)
-MCU_UNUSED = ["37", "36", "28", "29", "30", "23", "26"]
+# unused: IO45 (strapping), TXD0/RXD0, IO35-37 (octal PSRAM on N16R8)
+MCU_UNUSED = ["37", "36", "28", "29", "30", "26"]
 
 
 def block_mcu(ox, oy):
@@ -463,7 +457,6 @@ def block_mcu(ox, oy):
             sh.w(p, (p[0] + 2.54, p[1])); sh.lbl((p[0] + 2.54, p[1]), net, "R")
     for num in MCU_UNUSED:
         sh.nc(u4[num])
-    sh.note((mx - 50.8, my + 35.56), "frei: IO21")
     sh.frame(mx - 53.34, oy - 5.08, mx + 40.64, my + 43.18, "ESP32-S3-WROOM-1")
 
 
@@ -504,9 +497,9 @@ def block_ir(ox, oy):
     rail, kline = oy + 12.7, oy + 40.64
     gy = oy + 60.96
     sh.w((xa - 7.62, rail), (xc, rail), (xc, oy + 22.86))
-    sh.vcc((xa - 7.62, rail), "BAT_P")
+    sh.vcc((xa - 7.62, rail), "BAT_SW")
     for x, rr, led in ((xa, "R7", "LED1"),):
-        r = R(rr, "10", x, oy + 20.32)
+        r = R(rr, "12", x, oy + 20.32)
         d = sh.part("Device", "LED", led, "TSAL6100", x, oy + 31.75, angle=90,
                     ref_at=(x + 7.62, oy + 30.48), val_at=(x + 7.62, oy + 33.02))
         sh.w((x, rail), r["1"]); sh.j((x, rail))
@@ -606,7 +599,7 @@ def block_ui(ox, oy):
     one JST-SH connector each. Pull-ups: on the OLED module / ESP32 internal."""
     for k, (ref, val, pins) in enumerate((
             ("J4", "OLED I²C (Qwiic)", ("GND", "3V3_MCU", "I2C_SDA", "I2C_SCL")),
-            ("J5", "Drehgeber", ("GND", "ENC_SW", "ENC_B", "ENC_A")))):
+            ("J5", "Drehgeber", ("GND", "PWR_KEY", "ENC_B", "ENC_A")))):
         jx, jy = ox + 33.02 + k * 50.8, oy + 17.78
         j = sh.part("Connector_Generic", "Conn_01x04", ref, val, jx, jy,
                     ref_at=(jx + 2.54, jy - 6.35), val_at=(jx + 2.54, jy - 3.81))
@@ -726,6 +719,9 @@ def block_sd(ox, oy):
     c = C("C26", "100n", ox + 91.44, oy + 10.16)
     sh.w(c["1"], (ox + 91.44, oy + 3.81)); sh.vcc((ox + 91.44, oy + 3.81), "3V3_MCU")
     sh.w(c["2"], (ox + 91.44, oy + 16.51)); sh.gnd((ox + 91.44, oy + 16.51))
+    c = C("C28", "10u", ox + 81.28, oy + 10.16, fields="left")   # buffers the card's inrush when it is inserted
+    sh.w(c["1"], (ox + 81.28, oy + 3.81)); sh.vcc((ox + 81.28, oy + 3.81), "3V3_MCU")
+    sh.w(c["2"], (ox + 81.28, oy + 16.51)); sh.gnd((ox + 81.28, oy + 16.51))
     sh.note((ox + 2.54, oy + 50.8), "SPI-Modus am Flash-Bus, Karte vor dem Flash initialisieren (CMD0), Kartenerkennung offen")
     sh.frame(ox - 2.54, oy - 5.08, ox + 99.06, oy + 55.88, "microSD-Slot (SPI)")
 
@@ -767,6 +763,45 @@ def block_protect(ox, oy):
     sh.w(d4["1"], (dx + 7.62, dy), (dx + 7.62, dy - 5.08)); sh.vcc((dx + 7.62, dy - 5.08), "5V_PERIPH")
     sh.note((dx - 7.62, dy + 10.16), "5 V aus USB (ohne Akku)")
     sh.frame(ox - 2.54, oy - 5.08, ox + 111.76, oy + 76.2, "Akkuschutz + USB-Versorgung")
+
+
+def block_softpower(ox, oy):
+    """On/off with the encoder push button: the button pulls the gate of the high-side P-FET Q4 low (D6, anode 1),
+    the ESP32 keeps it low via IO21 (PWR_HOLD, Q5) and reads the button through D6 (anode 2 = ENC_SW, internal
+    pull-up). Off: release PWR_HOLD. Everything except the battery protection hangs on BAT_SW; with USB the firmware
+    sets PWR_HOLD so the charger reaches the cell through Q4 (switched off only through its body diode)."""
+    yr, yg = oy + 25.4, oy + 12.7
+    bt = sh.part("Device", "Battery_Cell", "BT1", "1S LiPo 3,7 V", ox + 5.08, oy + 35.56,
+                 ref_at=(ox + 1.27, oy + 34.29), val_at=(ox + 1.27, oy + 36.83), just="right")
+    sh.w(bt["1"], (ox + 5.08, yr), (ox + 5.08, oy + 7.62)); sh.vcc((ox + 5.08, oy + 7.62), "BAT_P"); sh.j((ox + 5.08, yr))
+    sh.w(bt["2"], (ox + 5.08, oy + 45.72), (ox + 2.54, oy + 45.72)); sh.lbl((ox + 2.54, oy + 45.72), "BAT_N", "L")
+    sh.j((ox + 5.08, oy + 43.18)); sh.w((ox + 5.08, oy + 43.18), (ox + 10.16, oy + 43.18)); sh.flag("#FLG12", (ox + 10.16, oy + 43.18))
+    q4 = sh.part("Transistor_FET", "AO3401A", "Q4", "AO3401A", ox + 35.56, yr - 2.54, angle=270,
+                 ref_at=(ox + 35.56, yr + 5.08), val_at=(ox + 35.56, yr + 7.62), just="center")
+    sh.w((ox + 5.08, yr), q4["2"])
+    sh.j((ox + 12.7, yr)); sh.flag("#FLG1", (ox + 12.7, yr))
+    r38 = R("R38", "100k", ox + 25.4, oy + 19.05)
+    sh.w(r38["1"], (ox + 25.4, yg)); sh.w(r38["2"], (ox + 25.4, yr)); sh.j((ox + 25.4, yr))
+    sh.w(q4["1"], (ox + 35.56, yg)); sh.j((ox + 35.56, yg))
+    # D6: BAT54CW, two Schottkys with a common cathode (button); anode 1 to the gate, anode 2 to IO9
+    d6 = sh.part("Diode", "BAT54CW", "D6", "BAT54CW", ox + 76.2, yg, angle=0,
+                 ref_at=(ox + 76.2, yg - 6.35), val_at=(ox + 76.2, yg - 3.81), just="center")
+    sh.w((ox + 25.4, yg), d6["1"])
+    sh.w(d6["2"], (ox + 91.44, yg)); sh.lbl((ox + 91.44, yg), "ENC_SW", "R")
+    sh.w(d6["3"], (d6["3"][0], yg + 7.62), (ox + 91.44, yg + 7.62)); sh.lbl((ox + 91.44, yg + 7.62), "PWR_KEY", "R")
+    yq = oy + 38.1
+    q5 = sh.part("Transistor_FET", "AO3400A", "Q5", "AO3400A", ox + 53.34, yq,
+                 ref_at=(ox + 58.42, yq - 1.27), val_at=(ox + 58.42, yq + 1.27))
+    sh.w((ox + 55.88, yg), q5["3"]); sh.j((ox + 55.88, yg))
+    sh.w(q5["2"], (ox + 55.88, yq + 10.16)); sh.gnd((ox + 55.88, yq + 10.16))
+    r40 = R("R40", "100k", ox + 43.18, yq + 5.08, fields="left")
+    sh.w(q5["1"], (ox + 38.1, yq)); sh.lbl((ox + 38.1, yq), "PWR_HOLD", "L")
+    sh.j((ox + 43.18, yq)); sh.w((ox + 43.18, yq), r40["1"])
+    sh.w(r40["2"], (ox + 43.18, yq + 12.7)); sh.gnd((ox + 43.18, yq + 12.7))
+    sh.w(q4["3"], (ox + 45.72, yr), (ox + 45.72, yr - 5.08)); sh.vcc((ox + 45.72, yr - 5.08), "BAT_SW")
+    sh.note((ox - 7.62, oy + 58.42), "Ein: Taster am Drehgeber drücken, ESP32 hält über IO21. Aus: IO21 low.")
+    sh.note((ox - 7.62, oy + 62.23), "Mit USB setzt die Firmware IO21 high: Laden über Q4.")
+    sh.frame(ox - 12.7, oy - 5.08, ox + 104.14, oy + 66.04, "Ein/Aus (Taster am Drehgeber)")
 
 
 def block_tsop_r(ox, oy):
@@ -814,6 +849,8 @@ FOOTPRINTS = {
     "J7": "lasertag:microSD_TF-018_PushPull",  # project library
     "U15": "Package_TO_SOT_SMD:SOT-23-6", "Q3": "Package_TO_SOT_SMD:SOT-23-6",
     "D4": "Diode_SMD:D_SOD-123", "D5": "Diode_SMD:D_SOD-323",
+    "Q4": "Package_TO_SOT_SMD:SOT-23", "Q5": "Package_TO_SOT_SMD:SOT-23",
+    "D6": "Package_TO_SOT_SMD:SOT-323_SC-70",
     "C26": "Capacitor_SMD:C_0402_1005Metric", "C27": "Capacitor_SMD:C_0402_1005Metric",
 }
 # JLCPCB/LCSC part numbers (checked for stock 2026-10-11); by reference, fallback by value for 0603 R/C
@@ -821,7 +858,7 @@ LCSC = {
     "U1": "C84817", "U2": "C6186", "U3": "C424093", "U4": "C2913202", "U5": "C131316", "U6": "C910544",
     "U12": "C7519", "Q1": "C20917", "Q2": "C20917",
     "D1": "C8598", "D3": "C8678", "L1": "C408412",
-    "R7": "C17903",
+    "R7": "C17913",  # 12 R 1206: IR-LED peak ~220 mA at a full cell
     "C1": "C23742", "C10": "C23742", "C7": "C23742", "C3": "C7171",  # 100u 10V 1210 / 10u 16V tantalum case A
     "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783",
     "J1": "C225234", "J2": "C160406", "J3": "C49261570", "BT1": "C225233", "SP1": "C225233",
@@ -830,7 +867,9 @@ LCSC = {
     "U14": "C2928927",  # Zetta ZD35Q1GC-IB, supported by espressif/spi_nand_flash
     "J6": "C7430445",
     "J7": "C961679",  # XKB TF-018, microSD push-pull
+    "C28": "C19702",  # 10u 0603 at the card supply
     "U15": "C351410", "Q3": "C2830320", "D4": "C8598", "D5": "C191023",
+    "Q4": "C15127", "Q5": "C20917", "D6": "C83573",  # soft power; D6 BAT54CW-7-F (extended)
     "C26": "C1525", "C27": "C1525",  # 100n 0402  # ZX-SH1.0-3PWT, JST SM03B-compatible (C160403 out of stock)
 }
 LCSC_0603 = {("R", "10k"): "C25804", ("R", "100k"): "C25803", ("R", "5.1k"): "C23186", ("R", "2k"): "C22975",
@@ -877,7 +916,7 @@ def assign_footprints():
 # one A3 page per function, root page with the sheet symbols; blocks keep their frames
 PAGES = [
     ("Stromversorgung", "stromversorgung.kicad_sch",
-     [(block_power, 22.86, 38.1), (block_charger, 175.26, 38.1), (block_adc, 309.88, 38.1), (block_protect, 30.48, 124.46)]),
+     [(block_power, 22.86, 38.1), (block_charger, 175.26, 38.1), (block_adc, 309.88, 38.1), (block_protect, 30.48, 124.46), (block_softpower, 190.5, 124.46)]),
     ("ESP32-S3 und USB", "mcu_usb.kicad_sch", [(block_mcu, 10.16, 38.1), (block_usb, 132.08, 38.1)]),
     ("Bedienung und Aktoren", "bedienung_aktoren.kicad_sch",
      [(block_ir, 10.16, 38.1), (block_buttons, 109.22, 38.1), (block_ws2812, 177.8, 38.1),

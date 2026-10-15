@@ -30,7 +30,7 @@ der Platine (kreuzungsfreies Routing).
 | I²C SDA – OLED | GPIO2 | J4 Pin 3 |
 | Drehgeber A | GPIO42 | J5 Pin 4 (GND, Taster, B, A), interner Pull-up |
 | Drehgeber B | GPIO41 | J5 Pin 3, interner Pull-up |
-| Drehgeber Taster | GPIO9 | J5 Pin 2, interner Pull-up |
+| Drehgeber Taster | GPIO9 | J5 Pin 2 über D6 (BAT54CW, Anode 2), interner Pull-up; der Taster ist zugleich der Ein-Taster |
 | Vibrationsmotor (Rückstoß + Treffer) | GPIO47 | PWM/LEDC, MOSFET + Freilaufdiode, Stecker M1 |
 | TSOP 1 – Stirnband vorn | GPIO10 | RMT-Eingang, über Sensorkabel; TSOP 1–5 je über 100 Ω (R30–R34) an J2 |
 | TSOP 2 – Stirnband hinten | GPIO11 | RMT-Eingang |
@@ -51,7 +51,12 @@ der Platine (kreuzungsfreies Routing).
 | USB D− / D+ | GPIO19 / GPIO20 | nativer USB (USB-Serial-JTAG), über ESD-Schutz an die USB-C-Buchse |
 | BOOT-Taster | GPIO0 | Download-Modus, nur als Rückfallebene nötig |
 | RESET | EN | 10 kΩ Pull-up + 1 µF, RESET-Taster |
-| — frei für Erweiterungen — | GPIO21 | |
+| Ein/Aus halten (PWR_HOLD) | GPIO21 | high hält Q4 über Q5 eingeschaltet, 100 kΩ Pull-down (R40) |
+
+Firmware Ein/Aus: GPIO21 direkt nach dem Start high setzen (der Taster muss bis dahin gedrückt bleiben); Ausschalten
+mit GPIO21 low (z. B. langer Druck auf den Drehgeber-Taster, die Waffe geht nach dem Loslassen aus). Mit USB
+(VBUS über GPIO18/Ladestatus erkennbar) GPIO21 high halten, sonst lädt der Akku nur über die Body-Diode von Q4.
+GPIO8 misst die geschaltete Akkuspannung (`BAT_SW`).
 
 Firmware am SPI-Bus: die microSD-Karte zuerst initialisieren (CMD0 mit /CS low → SPI-Modus), erst danach
 den Flash ansprechen; interne Pull-ups an GPIO48 (SD /CS) und GPIO15 (MISO) einschalten.

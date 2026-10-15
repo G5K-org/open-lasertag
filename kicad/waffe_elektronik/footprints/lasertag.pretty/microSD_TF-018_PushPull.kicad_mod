@@ -2,7 +2,7 @@
 	(version 20241229)
 	(generator "lasertag")
 	(layer "F.Cu")
-	(descr "microSD push-pull socket, XKB TF-018 (LCSC C961679), pads per the LCSC/EasyEDA footprint; card enters from -y, contacts at +y, SH = shell")
+	(descr "microSD push-pull socket, XKB TF-018 (LCSC C961679), pads per the LCSC/EasyEDA footprint; contacts at +y, the card enters on the contact side (+y), SH = shell")
 	(tags "microSD TF card socket push-pull")
 	(property "Reference" "REF**" (at 0 0 0) (layer "F.Fab") (uuid "5cf6ba26-1dfe-4722-8d1a-991e0ad516fe") (effects (font (size 0.8 0.8) (thickness 0.12))))
 	(property "Value" "microSD_TF-018_PushPull" (at 0 -1.5 0) (layer "F.Fab") (uuid "060837d3-b34f-4e02-98a7-cbc32c04bc02") (effects (font (size 0.8 0.8) (thickness 0.12))))

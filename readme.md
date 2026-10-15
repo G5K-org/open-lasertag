@@ -106,10 +106,11 @@ flowchart LR
 
 ## Hardware
 
-Eine Platine für die ganze Waffe: 59,6 × 51 mm, 4 Lagen, nur SMD-Bauteile, von
+Eine Platine für die ganze Waffe: 59,6 × 55 mm, 4 Lagen, nur SMD-Bauteile, von
 Hand geroutet und für die Bestückung bei JLCPCB vorbereitet. Alle Peripherie
 hängt an Steckern: Akku, IR-LED, Taster, Motoren, Lautsprecher, WS2812, ein Sensor an der Waffe und
-das Sensorkabel der Weste.
+das Sensorkabel der Weste. Ein- und ausgeschaltet wird mit dem Taster des Drehgebers (ausgeschaltet
+fließen nur wenige µA).
 
 | Oberseite | Unterseite |
 |---|---|
@@ -396,7 +397,7 @@ kein Protokoll.
 ### Reichweite (IR)
 - Linse Ø 25 mm, f ≈ 40–50 mm, LED knapp hinter dem Brennpunkt
 - Spitzenstrom 150–300 mA gepulst, Tastgrad 25–33 %
-- Eine IR-LED (TSAL6100) mit Vorwiderstand 10 Ω
+- Eine IR-LED (TSAL6100) mit Vorwiderstand 12 Ω
 - Schuss 2× kurz hintereinander senden
 - Ziel: 30–50 m frei
 

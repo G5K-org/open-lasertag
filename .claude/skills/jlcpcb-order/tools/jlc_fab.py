@@ -32,7 +32,7 @@ LAYERS = "F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Ma
 # also used by Bouni/kicad-jlcpcb-tools). First match wins. Always verify in the JLC placement preview.
 ROTATIONS = [
     (r"^SOT-223", 180, 0, 0), (r"^SOT-23", -90, 0, 0), (r"^SOT-89", 180, 0, 0), (r"^TSOT-23", 180, 0, 0),
-    (r"^SOT-353", 180, 0, 0), (r"^SOT-363", 180, 0, 0), (r"^LQFP-", 270, 0, 0), (r"^TQFP-", 270, 0, 0),
+    (r"^SOT-323", -90, 0, 0), (r"^SOT-353", 180, 0, 0), (r"^SOT-363", 180, 0, 0), (r"^LQFP-", 270, 0, 0), (r"^TQFP-", 270, 0, 0),
     (r"^SOP-(?!18_)", 270, 0, 0), (r"^TSSOP-", 270, 0, 0), (r"^SSOP-", 270, 0, 0), (r"^SOIC-", 270, 0, 0),
     (r"^DFN-", 270, 0, 0), (r"^(.*?_|V)?QFN-(16|20|24|28|40)(-|_|$)", 270, 0, 0),
     (r"^CP_EIA-", 180, 0, 0), (r"^SW_SPST_B3", 90, 0, 0), (r"^JST_PH_S", 180, 0, 0), (r"^JST_GH_SM", 180, 0, 0),
