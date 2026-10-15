@@ -78,7 +78,7 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   - B.Cu: lange Signale + GND-Fläche, nur die Projekt-URL als Beschriftung (gespiegelt)
 - Jedes GND-Pad bekommt ein eigenes Via nach In1 (`r.gnd`), Stromversorgungs-Pads ein Via nach In2 (`r.drop`).
 - Netzklassen/Regeln stehen in `RULES`/`NETCLASSES` und werden von `write_project()` in die `.kicad_pro` geschrieben:
-  min. 0,15 mm Bahn/Abstand, Vias 0,5/0,3 (USB-Kreuzung 0,4/0,2), Default 0,2, Power 0,5, 3V3 0,6, USB-Paar 0,2/0,2.
+  min. 0,15 mm Bahn/Abstand, Vias 0,5/0,3 (USB-Kreuzung und IRQ 0,45/0,2; nie kleiner als 0,45 Ring bei 0,2 Bohrung, sonst verlangt JLC den kostenpflichtigen 4-Wire-Kelvin-Test), Default 0,2, Power 0,5, 3V3 0,6, USB-Paar 0,2/0,2.
 - **Befestigung:** 2 × M2 nach ISO 7380 (Linsenkopf 3,5 mm), `HOLES` in build_board.py, Footprint
   `MountingHole_2.2mm_M2_ISO7380`, nicht durchkontaktiert, board-only (nicht in Schaltplan/BOM/CPL).
   Courtyard = Kopfradius `HOLE_HEAD` 1,75 mm, Kupfer-Sperrfläche `HOLE_KEEPOUT` 1,85 mm auf allen Lagen

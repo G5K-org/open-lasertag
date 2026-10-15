@@ -104,7 +104,7 @@ def bundle_r(n, d):
 
 def blocked(M, pts, r, step=0.5):
     hits = []
-    p0 = np.array(pts[0], float)
+    p0, p1 = np.array(pts[0], float), np.array(pts[-1], float)   # Kabelenden stecken im Stecker / Bauteil
     for a, b in zip(pts, pts[1:]):
         a, b = np.array(a, float), np.array(b, float)
         L = np.linalg.norm(b - a)
@@ -125,7 +125,7 @@ def blocked(M, pts, r, step=0.5):
                 continue
             ins = np.zeros(len(Q), bool)
             ins[sel] = m.contains(Q[sel])
-            ins &= np.linalg.norm(Q - p0, axis=1) > 3.0 + r
+            ins &= (np.linalg.norm(Q - p0, axis=1) > 3.0 + r) & (np.linalg.norm(Q - p1, axis=1) > 3.0 + r)
             if ins.any():
                 hits.append((k, np.round(Q[ins].mean(0), 1).tolist()))
     return hits

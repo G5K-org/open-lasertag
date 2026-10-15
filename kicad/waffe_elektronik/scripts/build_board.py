@@ -375,7 +375,7 @@ HOLE_HEAD = 1.75     # courtyard radius = screw head
 HOLE_KEEPOUT = 1.85  # radius without copper on all layers
 
 USB_TUNE = 2.262  # mm added to D+ between module and U12 (D- runs around the outside)
-USB_TUNE2 = 3.53  # mm added to D+ between U12 and J3 (D- bridge is longer than the D+ diagonal)
+USB_TUNE2 = 3.505 # mm added to D+ between U12 and J3 (D- bridge is longer than the D+ diagonal)
 
 OWN_MODELS = {"JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
               "JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
@@ -639,8 +639,8 @@ def route(r):
     r.v((20.5, 6.2), net=P5, d=0.6); r.v((21.6, 6.2), net=P5, d=0.6)
     r.t(F, 0.3, "U16.4", (20.35, 10.1375), "C33.1"); r.gnd("C33.2", 0, 1.1)
     # IRQ (U1.4) -> via under U1 -> In2 between the thermal vias -> via at EN, R42 to GND
-    r.t(F, 0.2, "U1.4", (20.855, 1.595), (20.6, 1.85)); r.v((20.6, 1.85), net="IP_IRQ", d=0.4, h=0.2)
-    r.t(I2, 0.2, (20.6, 1.85), (19.6, 1.85), (19.6, 9.9), net="IP_IRQ"); r.v((19.6, 9.9), net="IP_IRQ", d=0.4, h=0.2)
+    r.t(F, 0.2, "U1.4", (20.855, 1.595), (20.6, 1.85)); r.v((20.6, 1.85), net="IP_IRQ", d=0.45, h=0.2)
+    r.t(I2, 0.2, (20.6, 1.85), (19.6, 1.85), (19.6, 9.9), net="IP_IRQ"); r.v((19.6, 9.9), net="IP_IRQ", d=0.45, h=0.2)
     r.t(F, 0.25, "U16.3", (19.6, 9.4875), (19.6, 9.9), "R42.1"); r.t(F, 0.3, "R42.2", (19.0, 12.58), (20.35, 12.58), net="GND")       # shares the C33 GND via (B bundle below R42)
     # VIN: pad 1 down the strip right of C4 (In2 vias), C4 on a 45 deg branch, snubber R1 -> C29
     V = "VBUS_NATIVE"
@@ -749,10 +749,10 @@ def route(r):
     # D+: A6 and B6 on one F.Cu diagonal through a via in the connector centre, fed on B.Cu from the right.
     # D-: A7 (via above) and B7 (via below) bridged on B.Cu left of the centre, fed at the middle of the bridge.
     # Both plug orientations see the same lengths (tools/pairlen.py: U12.3-J3.A6 = U12.3-J3.B6, A7 = B7).
-    U = dict(d=0.4, h=0.2)
+    U = dict(d=0.45, h=0.2)  # 0.2/0.45: smaller rings need the paid 4-wire Kelvin test at JLC
     DM, DP = "Net-(J3-D--PadA7)", "Net-(J3-D+-PadA6)"
     vc = (JX, JY)                                               # D+ centre via
-    v3 = (JX + 0.95, 34.2)                                      # D+ F -> B
+    v3 = (JX + 1.0, 34.2)                                       # D+ F -> B (clear of the D- via above A7)
     v1, v2 = (JX + 0.5, JY - 2.9), (JX - 0.5, JY + 2.9)         # D-: above A7, below B7
     v5 = (JX - 2.0, 34.0)                                       # D- feed F -> B
     tap = (JX - 1.0, JY - 0.41)                                 # D- bridge: equal length to A7 and B7
