@@ -210,7 +210,7 @@ Selbst zu lötende Teile und lose Teile in der Waffe:
 Alles für den Selbstbau bei Mouser: [`fertigung/mouser/`](fertigung/mouser/) (10 Waffen, Mouser-Vorlage) plus
 [`lcsc_ergaenzung_10_waffen.csv`](fertigung/mouser/lcsc_ergaenzung_10_waffen.csv) für Teile, die Mouser nicht führt.
 
-- Leiterplatte: 4 Lagen, 1,6 mm, Impedanz-Stackup JLC04161H-7628, ENIG
+- Leiterplatte: 4 Lagen, 1,6 mm, Impedanz-Stackup JLC04161H-7628, ENIG, weißer Lötstopplack (Druck schwarz)
 - Bestückung: Top Side, BOM + CPL hochladen, Platzierungsvorschau prüfen
 - Teile: `U1` IP5306-I2C (ESOP-8, Extended), `D1`/`D4` B5819W (SOD-123, Basic), `D6` LBAT54CWT1G (SOT-323), `Q4` 2N7002 (Basic),
   `U16` TPS22810DBVR (SOT-23-6, Extended),

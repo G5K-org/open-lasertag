@@ -378,8 +378,26 @@ LABELS = [  # front silk, horizontal, next to the connector, clear of pads and b
     (10.65, 32.98, "WS2812", 0.8, 0), (30.2, 37.83, "USB", 0.8, 0), (56.5, 39.3, "SENSOR", 0.8, 0),
     (2.98, 44.98, "LAUTSPR.", 0.8, 0), (49.7, 26.03, "VIB", 0.8, 0), (54.1, 36.95, "1", 0.8, 0), (40.9, 40.13, "SD", 0.8, 0),
     (31.1, 22.7, "BOOT", 0.8, 0), (56.95, 9.54, "OLED", 0.8, 0), (56.95, 17.54, "GEBER", 0.8, 0),
-    (27.3, 19.2, "made by", 0.8, 0), (26.6, 21.15, "lucas.giesecke.cc", 0.8, 0),  # maker mark below U2, next to LOGO
+    (26.6, 21.15, "lucas.giesecke.cc", 0.8, 0),  # maker mark below U2, under LOGO
 ]
+STACKUP = "".join("\t\t" + l + "\n" for l in [
+    "(stackup",
+    '\t(layer "F.SilkS" (type "Top Silk Screen") (color "Black"))',
+    '\t(layer "F.Paste" (type "Top Solder Paste"))',
+    '\t(layer "F.Mask" (type "Top Solder Mask") (color "White") (thickness 0.01))',
+    '\t(layer "F.Cu" (type "copper") (thickness 0.035))',
+    '\t(layer "dielectric 1" (type "prepreg") (thickness 0.2104) (material "7628") (epsilon_r 4.4) (loss_tangent 0.02))',
+    '\t(layer "In1.Cu" (type "copper") (thickness 0.0152))',
+    '\t(layer "dielectric 2" (type "core") (thickness 1.065) (material "FR4") (epsilon_r 4.6) (loss_tangent 0.02))',
+    '\t(layer "In2.Cu" (type "copper") (thickness 0.0152))',
+    '\t(layer "dielectric 3" (type "prepreg") (thickness 0.2104) (material "7628") (epsilon_r 4.4) (loss_tangent 0.02))',
+    '\t(layer "B.Cu" (type "copper") (thickness 0.035))',
+    '\t(layer "B.Mask" (type "Bottom Solder Mask") (color "White") (thickness 0.01))',
+    '\t(layer "B.Paste" (type "Bottom Solder Paste"))',
+    '\t(layer "B.SilkS" (type "Bottom Silk Screen") (color "Black"))',
+    '\t(copper_finish "ENIG")',
+    '\t(dielectric_constraints no)',
+    ")"])
 LOGO = (22.75, 18.2, 1.55)  # Borg cube (lucas.giesecke.cc) on the front silk: centre x, y, edge length
 BACK_LABELS = [  # no room on the front
     (41.5, 16.0, "github.com/G5K-org/open-lasertag", 0.8, 0), (41.5, 14.6, "open-lasertag v1", 0.8, 0),
@@ -1053,6 +1071,9 @@ def build():
     t = t.replace("HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.3x2.3mm.step", "HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.1mm.step")
     # mark the generated teardrop zones as KiCad teardrops (enum not exposed to Python)
     t = t.replace('(name "$teardrop_padvia$")', '(name "$teardrop_padvia$")\n\t\t(attr\n\t\t\t(teardrop\n\t\t\t\t(type padvia)\n\t\t\t)\n\t\t)')
+    # stackup JLC04161H-7628 with the board colours: white solder mask, black silkscreen
+    # (renders need --use-board-stackup-colors)
+    t = t.replace("\t(setup\n", "\t(setup\n" + STACKUP, 1)
     open(OUT, "w").write(t)
     write_project(OUT)
     unplaced = sorted(set(comps) - set(PLACE))

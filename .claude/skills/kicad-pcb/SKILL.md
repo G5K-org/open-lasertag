@@ -55,7 +55,7 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   (y ≈ +0,036) → nach dem Setzen immer `silk.py --gap=0.12` laufen lassen.
   Unter Labels keine Vias: `stitch()` hält Textflächen frei, `silk.py` prüft Vias mit Leiterbahn. Was vorne keinen Platz hat (Projekt-URL), geht in `BACK_LABELS` auf `B.SilkS`.
   Herstellerzeichen vorne unter U2: Borg-Würfel (`LOGO`, `logo()`, isometrisch mit 3 × 3-Gitter, Linien 0,15) plus
-  „made by“ / „lucas.giesecke.cc“ in `LABELS`; BOOT steht deshalb links unter SW4.
+  „lucas.giesecke.cc“ darunter in `LABELS`; BOOT steht deshalb links unter SW4.
   Bauteilbezeichner bleiben auf `F.Fab`. Prüfen/platzieren mit `tools/silk.py`.
 - **Teardrops** an allen Pads und Vias (Ausnahme: GND-Stiche auf F.Cu, die in der GND-Fläche liegen).
 - Platine **so klein wie möglich**, Bauteilplatzierung mit 3D-Daten prüfen (Render).
@@ -217,7 +217,7 @@ r.drop("C31.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
    `kicad-cli pcb drc --schematic-parity` laufen lassen (Parität 0). Erwartet sind nur die Warnungen
    `lib_footprint_mismatch` für U4 (Modul-Silk jenseits der Kante entfernt) und H1/H2 (Courtyard auf
    Schraubenkopf verkleinert). DRC-Testschleifen deshalb auf 3 × `lib_footprint_mismatch` prüfen.
-7. Renders: `kicad-cli pcb render --side top|bottom ...` nach `renders/platine_oben.png`, `platine_unten.png`,
+7. Renders: `kicad-cli pcb render --use-board-stackup-colors --side top|bottom ...` (weißer Lack, schwarzer Druck aus `STACKUP` in build_board.py) nach `renders/platine_oben.png`, `platine_unten.png`,
    `platine_3d.png` (`--perspective --rotate "-35,0,20"`).
 
 ## Bekannte Stolpersteine

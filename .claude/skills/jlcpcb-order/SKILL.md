@@ -50,7 +50,7 @@ Rotationskorrekturen (`ROTATIONS` in `jlc_fab.py`) stammen aus der Datenbank von
 
 1. „Order now“ → `*_gerber.zip` hochladen.
 2. Leiterplatte: **4 Lagen**, 1,6 mm, Maße werden aus Edge.Cuts gelesen (59,6 × 55 mm, Lasche oben links, Aussparung rechts),
-   **Impedanzkontrolle mit Stackup JLC04161H-7628** (USB-Paar), Oberfläche ENIG (TQFN/0,5-mm-Raster),
+   **Impedanzkontrolle mit Stackup JLC04161H-7628** (USB-Paar), Oberfläche ENIG (TQFN/0,5-mm-Raster), **Lötstopplack White** (Druck dann automatisch schwarz),
    Via Covering: tented.
 3. „PCB Assembly“ an → Economic/Standard, **Top Side**, Menge wählen.
 4. BOM und CPL hochladen; nicht platzierte Teile prüfen (es sollen 0 sein). Stecker und SW3/SW4 haben das Feld
