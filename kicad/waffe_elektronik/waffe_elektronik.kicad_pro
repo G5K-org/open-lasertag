@@ -628,6 +628,10 @@
       },
       {
         "netclass": "Power",
+        "pattern": "Net-(U1-VOUT)"
+      },
+      {
+        "netclass": "Power",
         "pattern": "Net-(D1-A)"
       },
       {

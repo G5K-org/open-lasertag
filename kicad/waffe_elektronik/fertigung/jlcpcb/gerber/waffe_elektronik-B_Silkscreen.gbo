@@ -1,12 +1,12 @@
 %TF.GenerationSoftware,KiCad,Pcbnew,10.0.7*%
-%TF.CreationDate,2026-10-15T19:25:41+02:00*%
+%TF.CreationDate,2026-10-15T21:22:20+02:00*%
 %TF.ProjectId,waffe_elektronik,77616666-655f-4656-9c65-6b74726f6e69,rev?*%
 %TF.SameCoordinates,Original*%
 %TF.FileFunction,Legend,Bot*%
 %TF.FilePolarity,Positive*%
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 10.0.7) date 2026-10-15 19:25:41*
+G04 Created by KiCad (PCBNEW 10.0.7) date 2026-10-15 21:22:20*
 %MOMM*%
 %LPD*%
 G01*
@@ -912,8 +912,8 @@ X30623807Y-15830521D02*
 X30547616Y-15868617D01*
 %LPC*%
 D11*
-%TO.C,H1*%
-X20400000Y-14800000D03*
+%TO.C,H2*%
+X37000000Y-42500000D03*
 %TD*%
 D12*
 %TO.C,J3*%
@@ -921,8 +921,8 @@ X22790000Y-39520000D03*
 X33610000Y-42480000D03*
 %TD*%
 D11*
-%TO.C,H2*%
-X37000000Y-42500000D03*
+%TO.C,H1*%
+X20400000Y-14800000D03*
 %TD*%
 %LPD*%
 M02*

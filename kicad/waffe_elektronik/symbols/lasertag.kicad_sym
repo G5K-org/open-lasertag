@@ -27,7 +27,7 @@
           (number "3" (effects (font (size 1.27 1.27))))
         )
         (pin passive line (at -12.7 0 0) (length 2.54)
-          (name "LED3" (effects (font (size 1.27 1.27))))
+          (name "IRQ" (effects (font (size 1.27 1.27))))
           (number "4" (effects (font (size 1.27 1.27))))
         )
         (pin passive line (at -12.7 -5.08 0) (length 2.54)

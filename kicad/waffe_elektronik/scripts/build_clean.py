@@ -290,12 +290,12 @@ def block_power(ox, oy):
     hw, hh = 10.16, 7.62
     ux, uy = ox + 60.96, oy + 22.86
     gy = oy + 48.26
-    u1 = sh.box("IP5306", [("SCL", "2", "L", -5.08), ("SDA", "3", "L", -2.54), ("LED3", "4", "L", 0), ("VIN", "1", "L", 5.08),
+    u1 = sh.box("IP5306", [("SCL", "2", "L", -5.08), ("SDA", "3", "L", -2.54), ("IRQ", "4", "L", 0), ("VIN", "1", "L", 5.08),
                            ("VOUT", "8", "R", -5.08), ("KEY", "5", "R", -2.54), ("SW", "7", "R", 0), ("BAT", "6", "R", 5.08),
                            ("GND", "9", "B", 0)], hw, hh, "U1", "IP5306-I2C", ux, uy,
                 ref_at=(ux, uy - hh - 3.81), val_at=(ux, uy - hh - 1.27))
     # I2C (bus IP_SCL / IP_SDA) with 4.7k pull-ups to 3V3
-    sh.nc(u1["4"])
+    sh.w(u1["4"], (ox + 38.1, u1["4"][1])); sh.lbl((ox + 38.1, u1["4"][1]), "IP_IRQ", "L")
     for num, net, xl, xr in (("2", "IP_SCL", ox + 43.18, ox + 45.72), ("3", "IP_SDA", ox + 27.94, ox + 30.48)):
         p = u1[num]
         sh.w(p, (xl, p[1])); sh.lbl((xl, p[1]), net, "L")
@@ -331,27 +331,47 @@ def block_power(ox, oy):
     c19 = C("C19", "22u", ox + 96.52, yb + 3.81)
     sh.j((ox + 96.52, yb)); sh.w(c19["2"], (ox + 96.52, gy)); sh.gnd((ox + 96.52, gy))
     sh.w((ox + 104.14, yb), (ox + 104.14, yb - 5.08)); sh.vcc((ox + 104.14, yb - 5.08), "BAT_P")
-    # 5 V rail (VOUT) with its capacitors, AMS1117 -> 3V3
+    # VOUT of the IP5306 with its capacitors, then the load switch U16 (TPS22810), enabled by IRQ of the IP5306
+    # (high while it works, high-Z in standby, R42 pulls EN low): the residual voltage the IP5306 leaves on VOUT in
+    # standby (reported 0.8-2.8 V) never reaches the loads; C33 on CT slows the turn-on (inrush < IP5306 limit)
     rail = u1["8"][1]
-    x5, xf = ox + 83.82, ox + 88.9
-    u2x = ox + 154.94
-    u2 = sh.part("Regulator_Linear", "AMS1117-3.3", "U2", "AMS1117-3.3", u2x, rail,
-                 ref_at=(u2x, rail - 8.89), val_at=(u2x, rail - 6.35), just="center")
-    sh.w(u1["8"], u2["3"])
-    sh.w((x5, rail), (x5, rail - 5.08)); sh.j((x5, rail)); sh.vcc((x5, rail - 5.08), "5V_PERIPH")
+    xf = ox + 83.82
+    ux16 = ox + 139.7
+    u16 = sh.part("Power_Management", "TPS22810DBV", "U16", "TPS22810", ux16, rail + 2.54,
+                  ref_at=(ux16, rail - 7.62), val_at=(ux16, rail - 5.08), just="center")
+    vin, vo, en, ct, qod, g16 = u16["1"], u16["6"], u16["3"], u16["4"], u16["5"], u16["2"]
+    sh.w(u1["8"], vin)
     sh.j((xf, rail)); sh.flag("#FLG2", (xf, rail))
-    for ref, val, x in (("C20", "22u", ox + 96.52), ("C30", "22u", ox + 106.68), ("C1", "22u", ox + 116.84),
-                        ("C31", "22u", ox + 127.0), ("C2", "10u", ox + 137.16)):
+    for ref, val, x in (("C20", "22u", ox + 99.06), ("C30", "10u", ox + 109.22)):
         c = C(ref, val, x, rail + 3.81)
         sh.j((x, rail)); sh.w(c["2"], (x, rail + 10.16)); sh.gnd((x, rail + 10.16))
-    sh.w(u2["1"], (u2x, rail + 10.16)); sh.gnd((u2x, rail + 10.16))
+    xr2 = ox + 124.46
+    sh.w(en, (xr2, en[1]), (xr2, rail + 7.62), (ox + 116.84, rail + 7.62)); sh.lbl((ox + 116.84, rail + 7.62), "IP_IRQ", "L")
+    r42 = R("R42", "100k", xr2, rail + 11.43)
+    sh.j((xr2, rail + 7.62))
+    sh.w(r42["2"], (xr2, rail + 20.32)); sh.gnd((xr2, rail + 20.32))
+    sh.w(g16, (ux16, rail + 12.7)); sh.gnd((ux16, rail + 12.7))
+    c33 = C("C33", "10n", ux16 + 15.24, ct[1] + 3.81)
+    sh.w(ct, c33["1"]); sh.w(c33["2"], (ux16 + 15.24, rail + 15.24)); sh.gnd((ux16 + 15.24, rail + 15.24))
+    sh.nc(qod)
+    # 5 V rail behind the switch, AMS1117 -> 3V3
+    x5 = ux16 + 20.32
+    u2x = x5 + 45.72
+    u2 = sh.part("Regulator_Linear", "AMS1117-3.3", "U2", "AMS1117-3.3", u2x, vo[1],
+                 ref_at=(u2x, vo[1] - 8.89), val_at=(u2x, vo[1] - 6.35), just="center")
+    sh.w(vo, u2["3"])
+    sh.w((x5, vo[1]), (x5, vo[1] - 5.08)); sh.j((x5, vo[1])); sh.vcc((x5, vo[1] - 5.08), "5V_PERIPH")
+    for ref, val, x in (("C1", "22u", x5 + 7.62), ("C31", "22u", x5 + 17.78), ("C2", "10u", x5 + 27.94)):
+        c = C(ref, val, x, vo[1] + 3.81)
+        sh.j((x, vo[1])); sh.w(c["2"], (x, vo[1] + 10.16)); sh.gnd((x, vo[1] + 10.16))
+    sh.w(u2["1"], (u2x, vo[1] + 10.16)); sh.gnd((u2x, vo[1] + 10.16))
     # 3V3 (tantalum on the LDO output: the AMS1117 needs some ESR to stay stable)
-    xc3, x3 = ox + 170.18, ox + 177.8
-    sh.w(u2["2"], (x3, rail), (x3, rail - 5.08)); sh.vcc((x3, rail - 5.08), "3V3_MCU")
-    c3 = C("C3", "10u", xc3, rail + 3.81, pol=True)
-    sh.j((xc3, rail)); sh.w(c3["2"], (xc3, rail + 10.16)); sh.gnd((xc3, rail + 10.16))
+    xc3, x3 = u2x + 15.24, u2x + 22.86
+    sh.w(u2["2"], (x3, vo[1]), (x3, vo[1] - 5.08)); sh.vcc((x3, vo[1] - 5.08), "3V3_MCU")
+    c3 = C("C3", "10u", xc3, vo[1] + 3.81, pol=True)
+    sh.j((xc3, vo[1])); sh.w(c3["2"], (xc3, vo[1] + 10.16)); sh.gnd((xc3, vo[1] + 10.16))
     sh.note((ox + 2.54, oy + 53.34), "Laden 2 A (USB-C), 5 V Boost, Ein/Aus-Taste; Register per I²C (Firmware)")
-    sh.frame(ox - 7.62, oy - 5.08, ox + 185.42, oy + 58.42, "Laden + 5 V (IP5306) + 3,3 V")
+    sh.frame(ox - 7.62, oy - 5.08, ox + 251.46, oy + 58.42, "Laden + 5 V (IP5306, Lastschalter) + 3,3 V")
 
 
 def block_adc(ox, oy):
@@ -825,6 +845,7 @@ FOOTPRINTS = {
     "U6": "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",
     "U12": "Package_TO_SOT_SMD:SOT-23-6",
     "Q1": "Package_TO_SOT_SMD:SOT-23", "Q2": "Package_TO_SOT_SMD:SOT-23", "Q4": "Package_TO_SOT_SMD:SOT-23",
+    "U16": "Package_TO_SOT_SMD:SOT-23-6", "C33": "Capacitor_SMD:C_0402_1005Metric",
     "D1": "Diode_SMD:D_SOD-123",
     "L1": "Inductor_SMD:L_Sunlord_MWSA0503S",
     "R7": "Resistor_SMD:R_1206_3216Metric", "R8": "Resistor_SMD:R_1206_3216Metric",
@@ -833,7 +854,7 @@ FOOTPRINTS = {
     "C32": "Capacitor_SMD:C_0805_2012Metric", "C3": "Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A",
     "C2": "Capacitor_SMD:C_0805_2012Metric", "C18": "Capacitor_SMD:C_0805_2012Metric",
     "C19": "Capacitor_SMD:C_0805_2012Metric", "C22": "Capacitor_SMD:C_0805_2012Metric", "C20": "Capacitor_SMD:C_0805_2012Metric",
-    "C30": "Capacitor_SMD:C_0805_2012Metric", "C4": "Capacitor_SMD:C_0805_2012Metric",
+    "C30": "Capacitor_SMD:C_0603_1608Metric", "C4": "Capacitor_SMD:C_0603_1608Metric",
     "J1": "Connector_JST:JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal",
     "J2": "Connector_JST:JST_SH_SM07B-SRSS-TB_1x07-1MP_P1.00mm_Horizontal",
     "J3": "lasertag:USB_C_Receptacle_HX_TYPE-C-16P-180-LT-H10.5_Vertical",  # project library, vertical
@@ -854,11 +875,12 @@ LCSC = {
     "U12": "C7519", "Q1": "C20917", "Q2": "C20917",
     "D1": "C8598", "L1": "C408355",  # IP5306-I2C (extended), MWSA0503S-1R0MT 1 uH 8.5 A
     "R7": "C17958", "R8": "C17958",  # 2 x 22R 1206 in parallel (basic): IR-LED peak ~240 mA at a full cell
+    "U16": "C205990", "C33": "C15195",  # TPS22810DBVR load switch (extended), 10n 0402 on CT
     "Q4": "C8545",  # level shifter WS2812: 2N7002 (basic), small Coss -> fast rising edge
     "C1": "C45783", "C10": "C45783", "C7": "C45783", "C31": "C45783", "C32": "C45783",  # 22u 0805 (basic)
     "C3": "C7171",  # 10u 16V tantalum case A
-    "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783", "C30": "C45783",
-    "C4": "C15850", "C5": "C59461", "C29": "C19702", "R1": "C22977", "R2": "C22936",  # 10u 0805, 22u 0603, 10u 0603, 2R, 1R
+    "C2": "C15850", "C18": "C15850", "C22": "C15850", "C19": "C45783", "C20": "C45783", "C30": "C19702",
+    "C4": "C19702", "C5": "C59461", "C29": "C19702", "R1": "C22977", "R2": "C22936",  # 10u 0805, 22u 0603, 10u 0603, 2R, 1R
     "J1": "C225234", "J2": "C160406", "J3": "C49261570", "BT1": "C225233", "SP1": "C225233",
     "M1": "C160402", "J8": "C7430445",
     "SW3": "C231329", "SW4": "C231329", "J4": "C160404", "J5": "C160404",

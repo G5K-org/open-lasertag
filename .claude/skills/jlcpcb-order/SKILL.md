@@ -59,7 +59,7 @@ Rotationskorrekturen (`ROTATIONS` in `jlc_fab.py`) stammen aus der Datenbank von
    Externe Antenne: `*_bom_externe_antenne.csv` + `*_cpl_externe_antenne.csv` hochladen (WROOM-1U, Mitte 3,15 mm
    versetzt; `ALT`/`ALT_SHIFT` in jlc_fab.py).
 5. **Platzierungsvorschau Bauteil für Bauteil prüfen**, vor allem Pin 1 / Polarität bei:
-   U4 (ESP32-Modul, keine Korrektur in der DB), U6, U14 (WSON-8, Pin 1 oben links), J7 (microSD, Öffnung zur Unterkante), U15/Q3 (SOT-23-6), D4, U1 (IP5306, HSOP-8, Korrektur 270° wie SOIC, ungeprüft), U12 (SOT-23-6), D1,
+   U4 (ESP32-Modul, keine Korrektur in der DB), U6, U14 (WSON-8, Pin 1 oben links), J7 (microSD, Öffnung zur Unterkante), U15/Q3/U16 (SOT-23-6), D4, U1 (IP5306, HSOP-8, Korrektur 270° wie SOIC, ungeprüft), U12 (SOT-23-6), D1,
    C3 (Tantal), Q1/Q2/Q4 (SOT-23), D6 (SOT-323, Korrektur −90° wie SOT-23, ungeprüft), J1–J3, BT1/SP1, M1 (JST), J2/J4/J5/J6/J8 (JST-SH, Korrektur 180° ungeprüft), SW3/SW4. Falsche Drehung in der Vorschau korrigieren und
    die Korrektur in `ROTATIONS` nachtragen.
 6. Bestellung erst nach Freigabe durch den User abschicken (kostenpflichtig, externe Aktion).

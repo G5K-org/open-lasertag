@@ -96,7 +96,8 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
 - **Steckerplätze nach Kabelweg im Gehäuse** (Zonen in `gehaeuse/scripts/platine_einbau.py`): links (vorn,
   Hauptschacht) BT1, J6 (IR-LED + TSOP 6), J1 (WS2812), SP1 (Lautsprecher); unten (Kanal zum Abzugsschalter)
   J8 (Abzug + Nachladen, 15,45) mit R9/C8, R10/C9 waagerecht darüber; rechts (hinten, Motorschacht) M1, darunter J2 (Weste); rechts oben
-  J4/J5. SW3 (RESET) sitzt auf der EN-Diagonale oben links. Abzug/Nachladen laufen im B.Cu-Bündel die linke
+  J4/J5. SW3 (RESET) sitzt in der Lasche rechts neben dem Akkuschutz (13,8/−7,2); EN läuft auf In2 an der
+  Oberkante (y 0,7) und bei x 16,9 die Lasche hinauf. Abzug/Nachladen laufen im B.Cu-Bündel die linke
   Spalte (x 7,8/8,6) hinunter und unter 45° zu Vias über den Tastern; Lautsprecher OUTP/OUTN von Vias rechts
   von H2 auf B.Cu entlang der Unterkante (y 44,95/45,5) zu Vias neben SP1; TSOP 1–5 von Vias unter den
   Modul-Pads unter 45° auf B.Cu in Spalten x 45,0–47,4; TSOP 1–3 über Vias links der J2-Pads, TSOP 4/5 auf
@@ -131,10 +132,14 @@ Projekt: `kicad/waffe_elektronik/` (KiCad 10). Platine wird **vollständig per S
   KEY/BAT/SW/VOUT, rechte NC/SDA/SCL/VIN. L1 (1 µH, 270°) links daneben zwischen BT1 und U1: SW U1.7 → L1.1
   gerade (1,0 mm), Akku BT1.1 → L1.2 1,2 mm unter 45°, weiter C19 (22 µ) → R8/R7 → C7 (IR, y 11,44), Abzweig rechts von R8 (x 12,95) → R3 (Teiler 1 M/1 M, R4/C6 bei
   y 18,5 unter H1). BAT-Messeingang: Via (8,6/2,9) → R2 (1 Ω, oben in der Lasche) → C5 (22 µ) → U1.6 auf y 2,45.
-  VOUT → C20/C30 (22 µ, unter U1) → drei Vias (17,125/6,3), (18,15/7,15), (19,2/6,2) in den In2-5V-Stamm (1,2 mm,
-  y 7,15 → Diagonale x − y = 17,9); Abzweig zu WS2812/C10 1,0 mm. Akku-Minus B.Cu 1,2 mm, je drei Vias an BT1.2
+  VOUT → C20 (22 µ, unter U1) → Lastschalter U16 (SOT-23-6, 20,3/8,1, GND-Via unter dem Gehäuse) → zwei Vias
+  (20,5/6,2), (21,6/6,2) in den In2-5V-Stamm (1,2 mm, y 7,15 → Diagonale x − y = 17,9); C30 (10 µ, 0603) über eine
+  0,3-mm-Gasse x 18,175 links unter U16. U16-EN = IRQ: U1.4 → Via (20,6/1,85) unter U1 → In2 x 19,6 zwischen den
+  Thermal-Vias hinunter → Via (19,6/9,9) → EN-Pad und R42 (100 k nach GND); CT → C33 (10 n). R42/C33 teilen sich das
+  GND-Via (20,35/12,58) oberhalb des B.Cu-Bündels; Abzweig zu WS2812/C10 1,0 mm. Akku-Minus B.Cu 1,2 mm, je drei Vias an BT1.2
   und Q3.1. Weste-3V3 über R35 (10 Ω, 0402, 52,4/37,1) zwischen dem 3V3-Via (52,8/35,7) und J2.1.
-  VIN: Pad 1 senkrecht x 22,7 (C4 unter 45°, Dämpfung R1/C29 darunter) zu zwei Vias (22,7/11,4), (24,0/11,4) unter
+  VIN: Pad 1 senkrecht x 22,7 (C4 0603 unter 45° rechts unter U16; Dämpfung R1/C29 an der B.Cu-VBUS-Leitung
+  bei der USB-Buchse über ein Via (25,2/31,0)) zu zwei Vias (22,7/11,4), (24,0/11,4) unter
   dem B.Cu-Bündel (x + y > 33); In2 1,6 mm um das 3V3-Via (26,3/15,0) herum zu den Vias (28,6/17,2), (27,9/17,9);
   B.Cu 1,0 mm senkrecht x 25,2 hinunter zur USB-C-Buchse (vl). GND-Vias unter U1/C4 nur außerhalb des Bündels
   (x + y 28,75…32,65 frei halten). I²C: SDA-Via (23,6/2,865), SCL-Via (24,0/4,135) rechts von U1; Pull-up R40 (SCL)
@@ -196,7 +201,7 @@ r.drop("C31.1", dx, dy)                # Power-Pad -> Stich -> Via (zu In2)
      Oberkante), B.Cu TSOP4/5 (Vias rechts von J2), USB D+ (Mäander),
      USB D− (außen um U12.4/VBUS-Via), 5V an U6 (um unbelegte IC-Pins), OUTP/OUTN (verschachtelt),
      J1→C10 (über C32, GND-Via J1.3), Q4-Drain (über R15.1), IR_LED_K (um die J6-Vias), BAT_P-Ende (Abzweig); In2 5V am
-     U6-Abzweig (+0,2); B.Cu EN/TRIGGER/RELOAD (Bündel), VBUS-Ring (um die USB-Pads)
+     U6-Abzweig (+0,2); B.Cu TRIGGER/RELOAD (Bündel), In2 EN (Oberkante zur Lasche), F.Cu VOUT zu C30 (Gasse um U16), VBUS-Ring (um die USB-Pads)
    - `python3 tools/silk.py w.kicad_pcb --gap=0.15 [--suggest]` → 0 silk problems (Hinweis für
      `BACK_LABELS` ist ok); `--place --angle=0 --gap=0.15 "TEXT=REF" ...` sucht für Labels die freie
      waagerechte Stelle am nächsten an ihrem Stecker, eindeutig näher an ihm als an den anderen

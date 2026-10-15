@@ -61,6 +61,7 @@ Firmware Ein/Aus und Laden (IP5306-I2C, Register lesen → Bit ändern → zurü
 - `0x70` Bit 3 = lädt, `0x71` Bit 3 = voll
 - Ausschalten aus der Firmware: `0x00` Bit 1 = 0, dann Deep Sleep; der IP5306 schaltet nach 8 s kleiner Last ab
   (`0x02` Bit 3:2 = 00)
+- IRQ (IP5306 Pin 4) geht nicht an den ESP32, sondern schaltet den Lastschalter `U16` vor `5V_PERIPH`
 
 GPIO8 misst die Akkuspannung direkt an der Zelle (Teiler 1 MΩ / 1 MΩ).
 

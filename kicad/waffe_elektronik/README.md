@@ -80,14 +80,18 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **Laden und 5 V (`U1`, IP5306-I2C, LCSC C488349):** ein Schaltregler mit einer Spule (`L1` 1 µH,
   MWSA0503S-1R0MT) lädt den Akku aus USB-C (bis 2,1 A, Ladestrom per I²C) und erzeugt aus dem Akku
   `5V_PERIPH`; mit USB kommen die 5 V direkt aus VBUS (Powerpath). VIN 10 µF (`C4`) + Dämpfung 2 Ω/10 µF
-  (`R1`/`C29`), VOUT 2 × 22 µF (`C20`, `C30`), BAT-Messeingang über 1 Ω/22 µF (`R2`/`C5`), Akku 22 µF (`C19`).
+  (`R1`/`C29`, an der VBUS-Leitung bei der USB-Buchse), VOUT 22 µF + 10 µF (`C20`, `C30`), BAT-Messeingang über 1 Ω/22 µF (`R2`/`C5`), Akku 22 µF (`C19`).
   Eigener I²C-Bus an IO18 (SCL) / IO9 (SDA), je 4,7 kΩ (`R40`/`R38`) auf 3V3
+- **Lastschalter hinter VOUT (`U16`, TPS22810DBV, LCSC C205990):** der IP5306 lässt im Standby eine Restspannung
+  (0,8–2,8 V) an VOUT stehen; `U16` trennt `5V_PERIPH` davon ab. EN hängt an IRQ des IP5306 (Pin 4, high solange
+  er arbeitet, hochohmig im Standby) mit 100 kΩ nach GND (`R42`); CT 10 nF (`C33`) → ca. 1 ms Anstieg, begrenzt den
+  Einschaltstrom in die 5-V-Kondensatoren. Notlösung, falls IRQ sich anders verhält: Pin 1 und 6 von `U16` brücken
 - **Ein/Aus:** der Taster des Drehgebers (J5 Pin 2, `PWR_KEY`) geht über `D6` (BAT54CW, Anode 1; Doppel-Schottky mit kleinem Sperrstrom, sonst zieht der Leckstrom in den stromlosen
   IO21 KEY nach unten) und 10 kΩ
   (`R24`) an KEY des IP5306 und über die zweite Anode an IO21. Ein: kurz drücken; aus: 2 s drücken oder per
   I²C (Register siehe [pinbelegung.md](../../pinbelegung.md)); IO21 liest den Taster über die zweite Anode. Ausgeschaltet ziehen Akkuschutz und IP5306
   zusammen ca. 55 µA
-- **Power-Tree:** Akku → Akkuschutz → IP5306 (`U1`) → `5V_PERIPH` (speist WS2812, MAX98357A) →
+- **Power-Tree:** Akku → Akkuschutz → IP5306 (`U1`) → Lastschalter (`U16`) → `5V_PERIPH` (speist WS2812, MAX98357A) →
   AMS1117-3.3 (`U2`) → `3V3_MCU` (ESP32-S3 und Pull-ups); IR-LED und Akku-Messung (1 MΩ/1 MΩ) direkt am Akku
 - **Akkuschutz:** DW01A (`U15`, LCSC C351410) + FS8205A (`Q3`, C2830320) im Minuspfad des Akkus
   (`BAT_N` → `GND`): trennt bei ca. 4,3 V, 2,4 V und Überstrom (ca. 3 A); VCC über 100 Ω (`R28`) + 100 nF
@@ -98,7 +102,7 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   3 GND, 4 3V3, 5 TSOP-Ausgang; LED-Adern im Kabel verdrillt, GND zwischen LED und Sensor)
 - **3V3 in die Kabel über 10 Ω:** Weste (`R35`, Netz `3V3_WESTE`) und J6 (`R36`, `3V3_J6`); ein Kurzschluss im Kabel
   oder beim Stecken des GX16 zieht `3V3_MCU` nicht herunter
-- **5-V-Puffer:** nur 22 µF 0805 (Basic): `C20`/`C30` am IP5306, `C1`/`C31` am 5-V-Stamm, `C10`/`C32` am WS2812-Stecker
+- **5-V-Puffer:** 22 µF 0805 (Basic): `C20` am IP5306 (dazu `C30` 10 µF 0603, kein Platz für 0805; 22 µF in 0603 gibt es als Basic nur mit 6,3 V), `C1`/`C31` am 5-V-Stamm, `C10`/`C32` am WS2812-Stecker
 - **Abzug und Nachladen** über einen gemeinsamen Stecker `J8` (1 Abzug, 2 GND, 3 Nachladen)
 - **Sensorkabel:** TSOP 1–5 je über 100 Ω (`R30`–`R34`) an J2
 - **TSOPs:** je eigener 100 Ω/4,7 µF-Tiefpass direkt am Sensor (auf der
@@ -132,7 +136,7 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
   - F.Cu: Bauteile, kurze Signale, GND-Fläche
   - In1.Cu: durchgehende GND-Fläche ohne Leiterbahnen
   - In2.Cu: Versorgung (`5V_PERIPH`, `3V3_MCU`, `VBUS_NATIVE` zum IP5306, `BAT_P` zum DW01A) als Leiterbahnen + GND-Fläche
-  - B.Cu: lange Signale (EN, Abzug, Nachladen, IR, WS2812, IO0, TSOP, Bedienteil, Ein/Aus, I²C zum IP5306, Flash,
+  - B.Cu: lange Signale (Abzug, Nachladen, IR, WS2812, IO0, TSOP, Bedienteil, Ein/Aus, I²C zum IP5306, Flash,
     microSD, VBUS) + GND-Fläche, Projekt-URL
 - **ESP32-S3-Modul:** Antenne ragt über die Oberkante hinaus; jedes GND-Pad
   mit eigenem Via nach In1, GND-Stitching-Vias im Raster
@@ -183,7 +187,7 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 - **Leiterbahnen nur in 0°/45°/90°**, jeder Knick max. 45°, Abzweige laufen
   unter 45° ein; Teardrops an allen Pads und Vias (außer GND-Stichen in der
   GND-Fläche)
-- **Hohe Ströme:** 5 V vom IP5306 über drei Vias in den In2-Stamm (1,2 mm, Abzweig zu WS2812/C10 1,0 mm); Akku-Minus
+- **Hohe Ströme:** 5 V vom IP5306 über `U16` und zwei Vias in den In2-Stamm (1,2 mm, Abzweig zu WS2812/C10 1,0 mm); Akku-Minus
   BT1 → Akkuschutz 1,2 mm auf B.Cu mit je drei Vias
 - **Routing von Hand**, kein Autorouter: IP5306-Schaltknoten gerade und breit zur Spule, Akku → Spule 1,2 mm,
   3V3 von der LDO-Kühlfläche über 10 µF + 100 nF direkt an Modul-Pin 2,
@@ -194,10 +198,10 @@ Lautsprecher, WS2812, Weste) sind über JST-SH/-PH-Stecker angeschlossen.
 ## Fertigung (JLCPCB)
 
 [`fertigung/jlcpcb/`](fertigung/jlcpcb/): `waffe_elektronik_gerber.zip` (Gerber + Bohrdaten),
-`waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. JLCPCB bestückt 70 Teile (Feld `LCSC`, Lagerbestand
-geprüft, 10 Extended-Teile); die Stecker (BT1, SP1, J1, J2, J4–J6, J8, M1) und die Taster SW3/SW4
+`waffe_elektronik_bom.csv`, `waffe_elektronik_cpl.csv`. JLCPCB bestückt 73 Teile (Feld `LCSC`, Lagerbestand
+geprüft, 11 Extended-Teile); die Stecker (BT1, SP1, J1, J2, J4–J6, J8, M1) und die Taster SW3/SW4
 haben statt `LCSC` das Feld `LCSC Hand` und werden selbst gelötet. Mit allen Steckern und Tastern bestückt
-(81 Teile, 18 Extended-Teile): `waffe_elektronik_bom_komplett.csv` + `waffe_elektronik_cpl_komplett.csv`, mit
+(84 Teile, 19 Extended-Teile): `waffe_elektronik_bom_komplett.csv` + `waffe_elektronik_cpl_komplett.csv`, mit
 externer Antenne `waffe_elektronik_bom_komplett_externe_antenne.csv` + `waffe_elektronik_cpl_komplett_externe_antenne.csv`.
 Der SPI-NAND (U14 mit C25, R27) hat das Feld `LCSC Option` und steckt nur in den Varianten mit `_flash` am Ende
 (+3 Teile, +1 Extended-Teil).
@@ -209,6 +213,7 @@ Alles für den Selbstbau bei Mouser: [`fertigung/mouser/`](fertigung/mouser/) (1
 - Leiterplatte: 4 Lagen, 1,6 mm, Impedanz-Stackup JLC04161H-7628, ENIG
 - Bestückung: Top Side, BOM + CPL hochladen, Platzierungsvorschau prüfen
 - Teile: `U1` IP5306-I2C (ESOP-8, Extended), `D1`/`D4` B5819W (SOD-123, Basic), `D6` LBAT54CWT1G (SOT-323), `Q4` 2N7002 (Basic),
+  `U16` TPS22810DBVR (SOT-23-6, Extended),
   22 µF CL21A226MAQNNNE (0805, Basic), `R7`/`R8` 22 Ω 1206 (Basic), `C3` TAJA106K016RNJ (Case A, Basic),
   `L1` 1 µH MWSA0503S-1R0MT
 
