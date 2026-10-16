@@ -297,6 +297,25 @@ python3 sim_weapon.py --count 6
 
 Nächste Schritte im [Phasenplan](roadmap.md).
 
+## Lizenz
+
+© 2026 Lucas Giesecke. Firmware, Server, Gateway, Schaltplan, Platine, Gehäuseumbau, Skripte und
+Dokumentation stehen unter [CC BY-NC-SA 4.0](LICENSE)
+(Namensnennung – nicht kommerziell – Weitergabe unter gleichen Bedingungen):
+
+- **erlaubt:** nutzen, nachbauen, verändern, weiterentwickeln und weitergeben, mit Namensnennung
+  und Link auf dieses Projekt; Abwandlungen unter derselben Lizenz
+- **nicht erlaubt ohne meine Einwilligung:** kommerzielle Nutzung, z. B. Verkauf von Platinen,
+  Bausätzen, Waffen oder Druckteilen, bezahlte Veranstaltungen mit den Geräten, Einbau in
+  kommerzielle Produkte. Anfragen bitte als Issue oder direkt an mich
+
+Ausgenommen sind Teile Dritter, für sie gelten ihre eigenen Lizenzen:
+
+| Teil | Quelle | Lizenz |
+|---|---|---|
+| `gehaeuse/mp5_toygun_stls/` und die daraus abgeleiteten Teile in `gehaeuse/mp5_umbau/`, `gehaeuse/baugruppe/` | [MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay) von WIZZY | MakerWorld Standard-Digitaldatei-Lizenz |
+| `kicad/waffe_elektronik/fonts/` | Orbitron, Share Tech Mono | SIL Open Font License 1.1 |
+
 ---
 
 # Planung im Detail
