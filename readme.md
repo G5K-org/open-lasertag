@@ -136,13 +136,8 @@ von **WIZZY** (MakerWorld). Es ist eine rein statische Requisite und wird für
 Platine, Akku, Lautsprecher und Optik ausgehöhlt und angepasst. Vorne an der
 Mündung sitzt ein WS2812-Ring als Mündungsfeuer.
 
-| | | |
-|---|---|---|
-| <img src="gehaeuse/mp5_toygun_stls/makerworld_8ae5b23b4f43f.png" alt="MP5-Gehäuse, Ansicht 1" width="280"> | <img src="gehaeuse/mp5_toygun_stls/makerworld_d73d177815ffe.png" alt="MP5-Gehäuse, Ansicht 2" width="210"> | <img src="gehaeuse/mp5_toygun_stls/makerworld_e1d26f102ee3a.png" alt="MP5-Gehäuse, Ansicht 3" width="280"> |
-
-<sub>Bilder und STL-Dateien: WIZZY, MakerWorld, unter der MakerWorld
-Standard-Digitaldatei-Lizenz. Details in
-[gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/).</sub>
+Die Originaldateien liegen wegen der MakerWorld-Lizenz nicht im Repo; Download und
+Ablage beschreibt [gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/).
 
 Die Platine sitzt im Unterteil zwischen Magazinschacht und Griff; die senkrechte
 USB-C-Buchse schließt bündig mit einer Mulde in der linken Seitenwand ab. Im Schalldämpfer sitzen IR-LED und
@@ -278,7 +273,7 @@ python3 sim_weapon.py --count 6
 │   ├── symbols/, footprints/, 3dmodels/   Projektbibliotheken
 │   ├── renders/           Bilder von Platine und Schaltplan
 │   └── fertigung/jlcpcb/  Gerber, BOM, CPL
-├── gehaeuse/              MP5-Umbau: Basis-STL, Druckteile, Baugruppe, Skripte
+├── gehaeuse/              MP5-Umbau: Druckteile, Baugruppe, Skripte (Basis-STL per Download)
 ├── docs/bilder/           Screenshots
 ├── pinbelegung.md         GPIO-Belegung des ESP32-S3
 └── roadmap.md             Phasenplan
@@ -313,7 +308,7 @@ Ausgenommen sind Teile Dritter, für sie gelten ihre eigenen Lizenzen:
 
 | Teil | Quelle | Lizenz |
 |---|---|---|
-| `gehaeuse/mp5_toygun_stls/` und die daraus abgeleiteten Teile in `gehaeuse/mp5_umbau/`, `gehaeuse/baugruppe/` | [MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay) von WIZZY | MakerWorld Standard-Digitaldatei-Lizenz |
+| Gehäusebasis (Originaldateien nicht im Repo, Download siehe `gehaeuse/mp5_toygun_stls/`) und die daraus abgeleiteten Teile in `gehaeuse/mp5_umbau/`, `gehaeuse/baugruppe/` | [MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay) von WIZZY | MakerWorld Standard-Digitaldatei-Lizenz |
 | `kicad/waffe_elektronik/fonts/` | Orbitron, Share Tech Mono | SIL Open Font License 1.1 |
 
 ---
@@ -521,7 +516,7 @@ Akku und Metall), USB-Zugang einplanen.
 - Server: erste Fassung in [server/](server/) (Python, nur Standardbibliothek, mit Waffen-Simulator getestet)
 - Gehäuse/3D-Druck-Maße, inkl. Platz für Akku/Lautsprecher/LED in der Waffe –
   als Basis ausgewählt: [MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay)
-  (STLs + Quellenangabe in [gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/)),
+  (Quellenangabe und Download in [gehaeuse/mp5_toygun_stls/](gehaeuse/mp5_toygun_stls/)),
   Umbau in [gehaeuse/mp5_umbau/](gehaeuse/mp5_umbau/); offen: Nachlade-Taster,
   WS2812-Lebensbalken/Munitionsanzeige
 - Akku-/Laufzeitbudget (WLAN + WS2812 + Sound + IR-Pulse) für Eventplanung

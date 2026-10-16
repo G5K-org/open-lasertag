@@ -3,13 +3,16 @@
 Quelle: [MP5 Toygun Cosplay](https://makerworld.com/de/models/427808-mp5-toygun-cosplay) von Designer **WIZZY** (MakerWorld), veröffentlicht 2024-04-14.
 Lizenz: MakerWorld Standard-Digitaldatei-Lizenz (kommerzielle Nutzung erfordert Mitgliedschaft beim Designer).
 
-## Inhalt
-- `obj_*.stl` – alle 12 Druckteile aus `MP5+Build_stls.zip`
-- `makerworld_*.png` – die 3 Galeriebilder von der Produktseite
+## Dateien nicht im Repo
 
-## Preview
+Die Originaldateien von WIZZY dürfen hier nicht weitergegeben werden. Für die Skripte in
+[`../scripts/`](../scripts/) (z. B. `umbau.py`, `baugruppe.py`) selbst holen:
 
-<img src="makerworld_8ae5b23b4f43f.png" width="300"> <img src="makerworld_d73d177815ffe.png" width="300"> <img src="makerworld_e1d26f102ee3a.png" width="300">
+1. `MP5+Build_stls.zip` von der [MakerWorld-Seite](https://makerworld.com/de/models/427808-mp5-toygun-cosplay) laden
+2. in diesen Ordner entpacken, sodass hier `obj_1_3.stl` … `obj_12_11.stl` liegen (12 Dateien)
+
+Git ignoriert die Dateien (`.gitignore`). Die fertigen Druckteile in [`../mp5_umbau/`](../mp5_umbau/)
+liegen im Repo und brauchen den Download nicht.
 
 ## Wichtiger Hinweis des Designers
 Das Modell ist eine **rein statische Deko-Requisite**: kein Schussmechanismus,
