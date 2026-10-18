@@ -1,0 +1,39 @@
+{
+ "gehaeuse_links": {
+  "teil_cm3": 197.6,
+  "quarzharz_cm3": 66.9,
+  "quarzharz_g": 127,
+  "hohl_cm3": 3.7
+ },
+ "gehaeuse_rechts": {
+  "teil_cm3": 205.1,
+  "quarzharz_cm3": 66.0,
+  "quarzharz_g": 125,
+  "hohl_cm3": 6.8
+ },
+ "handschutz_hinten": {
+  "teil_cm3": 77.4,
+  "schaum_cm3": 43.4,
+  "schaum_g": 4
+ },
+ "handschutz_vorn_links": {
+  "teil_cm3": 112.4,
+  "schaum_cm3": 46.1,
+  "schaum_g": 5
+ },
+ "handschutz_vorn_rechts": {
+  "teil_cm3": 110.0,
+  "schaum_cm3": 42.8,
+  "schaum_g": 4
+ },
+ "schaft_links": {
+  "teil_cm3": 92.9,
+  "quarzharz_cm3": 52.0,
+  "quarzharz_g": 99
+ },
+ "schaft_rechts": {
+  "teil_cm3": 93.0,
+  "quarzharz_cm3": 52.0,
+  "quarzharz_g": 99
+ }
+}

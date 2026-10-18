@@ -83,7 +83,8 @@ Elektrische Teile außerhalb der Platine mit LCSC-Nummer: [`waffe_lose_teile.csv
   5. Gehäuse, Zwischenring, Handschutz hinten und Schaft bilden damit einen vorgespannten Block; danach Platine
      einsetzen und die Hälften mit M3 verschrauben
 - **Druck der tragenden Teile** (Gehäusehälften, Zwischenring, Handschutz hinten, Schaft): PETG oder ASA,
-  6 Wände, 50 % Gyroid, Zwischenring 100 %
+  6 Wände, 50 % Gyroid, Zwischenring 100 %. Konzept für weniger Druckzeit mit dünner Schale und
+  Gießfüllung (Quarzharz / PU-Schaum), noch nicht erprobt: [GIESSFUELLUNG.md](GIESSFUELLUNG.md)
 
 <img src="../baugruppe/schnitt_zuganker.png" alt="Schnitt: Zuganker M4 vorn durch Handschutz hinten, Zwischenring und Gehäuse, hinten durch Gehäuse und Schaft" width="640">
 
