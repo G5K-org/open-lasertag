@@ -5,13 +5,14 @@ Konzept für `gehaeuse/mp5_umbau/`: Statt die tragenden Teile massiv zu drucken
 und Trennwände. Der Rest wird mit **Quarzharz** (2K-PU-Gießharz + trockener Quarzsand)
 oder **2K-PU-Hartschaum** ausgegossen.
 
-**Entscheidung:** Weg = **Schale drucken + ausgießen** (Slicer-Modifier, Variante B).
+**Entscheidung:** Weg = **Schale drucken + ausgießen**. Die Kammern sind in fertigen STLs schon
+ausgespart ([`mp5_giessfuellung/`](../mp5_giessfuellung/README.md)), im Slicer ist nichts abzuziehen.
 Silikonabformung (Hebel 8) wird nicht umgesetzt. Gründe: Sie spart keine Kosten,
 bringt mehr Handarbeit und lohnt sich erst ab ca. 8–10 Waffen.
 
 **Ziele**
 
-- Druckzeit pro Waffe senken. Mit Bambu Studio für den P2S geslict: 41 h → 21 h, Filament 933 g → 503 g
+- Druckzeit pro Waffe senken. Mit Bambu Studio für den P2S geslict: 41 h → 24,8 h, Filament 933 g → 560 g
   (Projekte in [`gehaeuse/bambu/`](../bambu/README.md))
 - Griff, Schaft und Verschraubungspunkte fester als heute
 - Gewicht und Balance gezielt einstellbar
@@ -30,16 +31,16 @@ im CAD als **Schale mit offenen Gießkammern zur Teilungsfläche hin** konstruie
   Er trägt die Klemmkraft der M3-Verschraubung und hält die Passung maßhaltig.
 - Gefüllt wird nur bis **0,5–1 mm unter die Teilungsfläche**. Dann muss nichts
   geschliffen werden, und die Hälften liegen nur auf gedrucktem Kunststoff auf.
-- Zwei Wege, die Kammern zu erzeugen:
-  - **Variante A – CAD** (Abschnitt 2): Kammern explizit in `umbau.py` abziehen.
-    Volle Kontrolle, aber die Kammerdecke (Außenhaut von innen) hängt über und
-    braucht Support.
-  - **Variante B – Slicer-Modifier (empfohlen, schneller):** siehe Abschnitt 4a.
-    Keine CAD-Änderung an den Kammern nötig.
+- Die Kammern erzeugt `gehaeuse/scripts/giessfuellung.py` automatisch aus den Teilen in `mp5_umbau/` und zieht
+  sie ab (Abschnitt 4a, Hebel 1). Die Regeln aus Abschnitt 2 sind dort als Abstands- und Überhangregel umgesetzt.
+  Die Kammerdecken sind so geformt, dass nichts weiter als 10 mm frei hängt: kein Support nötig.
 
 ---
 
-## 2. Änderungen in `gehaeuse/scripts/umbau.py`
+## 2. Regeln für die Kammern
+
+Umgesetzt in `gehaeuse/scripts/giessfuellung.py` (Hebel 1): Statt einzelner Sperrzonen gilt dort eine
+Abstandsregel (2 mm zu jeder Oberfläche außer der Bettseite), die alle Bereiche aus 2.2 automatisch freihält.
 
 ### 2.1 Gießkammer erzeugen (pro Teil)
 
@@ -111,7 +112,7 @@ des Motorschachts.
 | `gehaeuse_links/rechts` | **Quarzharz** komplett (+ Stab aus 2.5) | Griff ist die typische Bruchstelle, dazu Krafteinleitung an Einschmelzmuttern, Zuganker-Nischen und Stegbohrungen. Keine Schaumzone: Die Trennwände um die einzelnen Quarzharz-Inseln hätten ca. 15 cm³ je Hälfte gekostet, und das Gehäuse sitzt nahe am Schwerpunkt |
 | `gehaeuse_links/rechts` – Antennenzone | hohl | siehe 2.3 |
 | `zwischenring` | unverändert, 100 % gedruckt | klein, kaum Zeitgewinn |
-| `handschutz_hinten` – Zapfen (4 Einschmelzmuttern, 2 gefangene M4) | **Quarzharz** | trägt den vorderen Handschutz und die Zuganker |
+| `handschutz_hinten` – Zapfen (4 Einschmelzmuttern, 2 gefangene M4) | gedruckt, 60 % Infill | trägt den vorderen Handschutz und die Zuganker; von der offenen Seite aus nicht erreichbar |
 | `handschutz_hinten` – Rest | PU-Schaum | |
 | `handschutz_vorn_links/rechts` | PU-Schaum in den Restvolumen, sonst unverändert | vorne leicht bleiben, Akustik nicht anfassen |
 | `schaft_links/rechts` | **Quarzharz** (Hauptballast) | Gegengewicht zu Schalldämpfer und Lautsprecher |
@@ -130,9 +131,8 @@ Handschutz vorn L/R):
 | Düse | 0,4 | 0,4 (unverändert) |
 | Schichthöhe | – | 0,16–0,20 mm, variable Schichthöhe an sichtbaren Rundungen |
 | Linienbreite | – | Außenwand 0,42, Innenwände 0,5–0,6 |
-| Wände | 6 | **2**, an tragenden Domen und Röhren mehr (siehe Hebel 1) |
-| Infill | 50 % Gyroid | **Lightning** in den Gießkammern |
-| Modifier | – | 100 % in Domen und Bunden, die nicht umgossen werden |
+| Wände | 6 | **2** (je 2 von außen und von der Kammer: 2 mm Wand fast massiv) |
+| Infill | 50 % Gyroid | **15 % Grid** (Kammern sind ausgespart) |
 | Material | PETG/ASA | PETG/ASA (kein PLA wegen Wärme beim Aushärten) |
 | Temperatur / Lüfter | – | PETG ca. 250 °C, Lüfter 30–50 % (Schichthaftung) |
 
@@ -144,33 +144,29 @@ Handschutz vorn L/R):
 
 ## 4a. Maximale Druckzeit-Reduktion
 
-Ergebnis (P2S, geslict): Druckzeit pro Waffe **ca. 21 h statt 41 h** bei detailreicher Außenseite
-(Schätzung, mit Slicer prüfen).
+Ergebnis (P2S, geslict): Druckzeit pro Waffe **ca. 24,8 h statt 41 h** bei detailreicher Außenseite.
 Die Füllung übernimmt Festigkeit und Gewicht, die Schale ist nur noch Form und Haut.
 
-### Hebel 1 – Kammern per Slicer-Modifier statt CAD (Variante B)
+### Hebel 1 – Kammern als fertige STLs
 
-**Umgesetzt:** Modifier-STLs je Teil in [`mp5_giessfuellung/`](../mp5_giessfuellung/README.md), erzeugt
-von `gehaeuse/scripts/giessfuellung.py` (2 mm Wand um alles, offen nur zur Bettseite, Überhänge der Kammern bis 45°, Zonen nach Abschnitt 3).
+**Umgesetzt:** Teile mit ausgesparten Kammern in [`mp5_giessfuellung/`](../mp5_giessfuellung/README.md), erzeugt
+von `gehaeuse/scripts/giessfuellung.py`:
 
-Teile liegen flach auf der Teilungsfläche. Pro Gießzone einen Modifier (Quader oder
-eigene STL aus `umbau.py`) mit:
+- 2 mm Wand um alles (Außenhaut, Rand an der Teilung, Röhren, Dome, Dämme), offen nur zur Bettseite
+- Überhänge der Kammerflanken höchstens 45°, Kammerdecken höchstens 10 mm freie Brücke (darunter
+  bleiben gedruckte Pfeiler stehen)
+- Zonen nach Abschnitt 3, Trennwand Quarzharz/Schaum 1,5 mm, Antennenbereich ohne Kammer
 
-| Einstellung im Modifier | Wert |
-|---|---|
-| Bodenschichten (= Teilungsfläche) | **0** → Kammer bleibt zur Teilung offen |
-| Deckschichten | **normal (4–5)** – die Seitenfläche der Waffe liegt oben und ist Deckfläche, sie bildet die Außenhaut über der Kammer |
-| Infill | **Lightning** – stützt nur die Deckschichten und wird mit eingegossen |
-| Wände | Standardwert des Teils |
+Teile liegen flach auf der Teilungsfläche und werden wie normale Teile geslict. Funktionsbereiche (Bohrungen,
+Schächte, Taschen) und die Kammern sind Löcher im Volumen, der Slicer legt Wände um sie herum. Zwischen
+Außenhaut und Kammer liegen so je 2 Wände von beiden Seiten, die 2 mm sind praktisch massiv.
 
-Funktionsbereiche (Bohrungen, Schächte, Taschen) sind Löcher im Volumen. Der Slicer
-legt automatisch Wände um sie herum, sie werden dadurch zu geschlossenen Röhren.
-Mit 2 Wänden sind das aber nur ca. 0,9 mm. Wo Abschnitt 2.2 mehr verlangt (Röhren
-≥ 1,2 mm: 3 Wände; Dome, USB-C, GX16 ≥ 2 mm: 4–5 Wände), dort einen eigenen Modifier
-mit mehr Wänden oder 100 % Infill setzen.
-Damit entfallen Kammer-Geometrie, Trennwände und Kammerdecken-Support aus Variante A.
-Trennung Quarzharz/Schaum: eine Trennwand bleibt als schmaler Modifier mit 100 % Infill
-(1,5 mm breit) stehen.
+Gegenüber Slicer-Modifiern (Kammer nur als Bereich ohne Bodenschichten, mit Lightning-Infill gefüllt) kostet das
+Druckzeit (P2S, ganze Waffe 24,8 h statt 21,3 h): Jede Kammerfläche bekommt eigene Wände. Dafür braucht es
+keine Modifier, und das STL zeigt genau, was gedruckt und was gegossen wird. Bambu Studio stellt ohne Blocker
+Support unter die Kammerdecken (wird
+mit eingegossen, kostet aber Zeit). In den Projekten in [`gehaeuse/bambu/`](../bambu/README.md) ist deshalb ein
+Support-Blocker über den Kammern gesetzt.
 
 ### Hebel 2 – Wände und Linienbreiten (Außenseite detailreich)
 
@@ -184,8 +180,8 @@ dem Wegfall von 6 Wänden und 50 % Gyroid.
 | Schichthöhe | 0,16–0,20 mm, **variable Schichthöhe** nur an sichtbaren Rundungen (Handschutz, Schaftkappe) |
 | Außenwand | Linienbreite 0,42, normale bis langsame Geschwindigkeit |
 | Innenwand | Linienbreite 0,5–0,6, schnell |
-| Wände | **2**, an tragenden Domen und Röhren mehr (Hebel 1) |
-| Infill in Gießkammern | Lightning, im Orca/Prusa-Slicer „Infill alle 2 Schichten kombinieren“ |
+| Wände | **2** |
+| Infill außerhalb der Kammern | 15 % Grid, „Infill alle 2 Schichten kombinieren“ |
 | Untere Schichten außerhalb der Kammern | 3–4 |
 
 - Die Kombination „feine Außenwand + breite Innenwand + kombiniertes Infill“ bringt
@@ -298,8 +294,8 @@ Dichten (ca.):
 
 Vorgehen:
 1. Kammervolumen: `mp5_giessfuellung/volumen.json`. Ergebnis (45°-Regel, Gehäuse ganz Quarzharz): zusammen
-   ca. 237 cm³ Quarzharz (ca. 450 g, davon 200 g im Schaft) und 132 cm³ Schaum. Gießbar sind je nach Teil
-   ca. 33–56 % des Volumens. Mehr Ballast nur mit Stahlschrot im Schaft oder mit einem eingelegten Gewicht.
+   ca. 230 cm³ Quarzharz (ca. 440 g, davon 200 g im Schaft) und 128 cm³ Schaum. Gießbar sind je nach Teil
+   ca. 32–56 % des Volumens. Mehr Ballast nur mit Stahlschrot im Schaft oder mit einem eingelegten Gewicht.
 2. Gewicht je Zone = Volumen × Dichte, plus gedruckte Teile (Slicer), Elektronik,
    Stahlstege und Zuganker.
 3. Schwerpunkt gegen die Griffachse rechnen. Ziel: knapp vor dem Griff.

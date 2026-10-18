@@ -2,7 +2,7 @@
 
 Zwei Projekte nach gehaeuse/bambu/, je eine Platte pro großem Teil, Kleinteile zusammen:
   mp5_massiv_p2s.3mf  Prototyp ohne Gießfüllung: 6 Wände, 50 % Gyroid (Zwischenring 100 %)
-  mp5_guss_p2s.3mf    Gießvariante: Teile + Modifier aus mp5_giessfuellung/ (Einstellungen wie in dessen README)
+  mp5_guss_p2s.3mf    Gießvariante: Teile mit Kammern aus mp5_giessfuellung/ (Einstellungen wie in dessen README)
 
 Die Projekte werden mit der Kommandozeile von Bambu Studio gebaut (Liste zum Zusammenfügen, Profile aus den
 Systemprofilen aufgelöst) und anschließend zur Kontrolle geslict; Druckzeit und Filament je Platte landen in
@@ -45,10 +45,8 @@ MASSIV = dict(COMMON, wall_loops="6", sparse_infill_density="50%", sparse_infill
 GUSS_GLOBAL = dict(COMMON, wall_loops="2", sparse_infill_density="15%", sparse_infill_pattern="grid",
                    outer_wall_line_width="0.42", inner_wall_line_width="0.5", sparse_infill_line_width="0.5",
                    wall_generator="arachne", top_shell_layers="5", top_shell_thickness="1",
-                   bottom_shell_layers="3", bottom_shell_thickness="0", infill_combination="1")
-CHAMBER = {"bottom_shell_layers": "0", "bottom_shell_thickness": "0", "sparse_infill_pattern": "lightning",
-           "sparse_infill_density": "15%"}
-HOLLOW = {"sparse_infill_pattern": "lightning", "sparse_infill_density": "15%"}
+                   bottom_shell_layers="3", bottom_shell_thickness="0", infill_combination="1",
+                   ensure_vertical_shell_thickness="partial")      # sonst massive Füllung an den schrägen Kammerflanken
 SOLID_SMALL = {"wall_loops": "6", "sparse_infill_density": "50%", "sparse_infill_pattern": "gyroid"}
 ZAPFEN = {"sparse_infill_density": "60%"}
 
@@ -72,6 +70,20 @@ def profile(root, kind, name, extra):
     out.update(name=name, **{"from": "system"})
     out.update(extra)
     return out
+
+
+def kammer_blocker(name, tmp):
+    """Support-Blocker für die Gießkammern (Originalteil − Gussteil, etwas nach oben verlängert): Bambu Studio erkennt
+    die Kammerdecken nicht als Brücke und würde sie stützen; der Support würde nur mit eingegossen."""
+    def man(d):
+        tm = trimesh.load(os.path.join(d, name + ".stl"))
+        tm.merge_vertices()
+        return U.to_man(tm)
+    ch = man(MOD) - man(GUSS)
+    ch = ch + ch.translate([0, 0, 0.6])
+    p = os.path.join(tmp, name + "__kammer_blocker.stl")
+    U.to_tm(ch).export(p)
+    return p
 
 
 def zapfen_box(tmp):
@@ -120,18 +132,16 @@ def assemble_list(guss, tmp):
         for name in names:
             idx += 1
             at = {"pos_x": [pos[name][0]], "pos_y": [pos[name][1]], "pos_z": [0.0]}
-            part = {"path": os.path.abspath(os.path.join(MOD, name + ".stl")), "count": 1, "filaments": [1],
+            src = GUSS if guss and name in CAST else MOD                # Gießvariante: Teil mit ausgesparten Kammern
+            part = {"path": os.path.abspath(os.path.join(src, name + ".stl")), "count": 1, "filaments": [1],
                     "assemble_index": [idx], "subtype": "normal_part", **at}
             mods = []
             if guss and name in CAST:
-                for zone, params in (("quarzharz", CHAMBER), ("schaum", CHAMBER), ("hohl", HOLLOW)):
-                    p = os.path.join(GUSS, f"{name}__{zone}.stl")
-                    if os.path.exists(p):
-                        mods.append({"path": os.path.abspath(p), "count": 1, "filaments": [1], "assemble_index": [idx],
-                                     "subtype": "modifier_part", "print_params": params, **at})
-                if name == "handschutz_hinten":
-                    mods.append({"path": zap, "count": 1, "filaments": [1], "assemble_index": [idx],
-                                 "subtype": "modifier_part", "print_params": ZAPFEN, **at})
+                mods.append({"path": kammer_blocker(name, tmp), "count": 1, "filaments": [1], "assemble_index": [idx],
+                             "subtype": "support_blocker", **at})
+            if guss and name == "handschutz_hinten":
+                mods.append({"path": zap, "count": 1, "filaments": [1], "assemble_index": [idx],
+                             "subtype": "modifier_part", "print_params": ZAPFEN, **at})
             elif name == "zwischenring":
                 part["print_params"] = {"sparse_infill_density": "100%"}
             elif guss and name not in CAST:

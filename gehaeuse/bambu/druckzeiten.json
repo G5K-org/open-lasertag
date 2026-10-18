@@ -39,7 +39,7 @@
    },
    {
     "platte": 5,
-    "stunden": 6.64,
+    "stunden": 6.63,
     "gramm": 165.0,
     "name": "Schaft",
     "teile": [
@@ -49,7 +49,7 @@
    },
    {
     "platte": 6,
-    "stunden": 8.33,
+    "stunden": 8.32,
     "gramm": 161.1,
     "name": "Handschutz hinten, Zwischenring, Magazin",
     "teile": [
@@ -84,8 +84,8 @@
   "platten": [
    {
     "platte": 1,
-    "stunden": 4.02,
-    "gramm": 98.4,
+    "stunden": 4.86,
+    "gramm": 111.0,
     "name": "Gehäuse links",
     "teile": [
      "gehaeuse_links"
@@ -93,8 +93,8 @@
    },
    {
     "platte": 2,
-    "stunden": 3.85,
-    "gramm": 97.1,
+    "stunden": 4.66,
+    "gramm": 109.8,
     "name": "Gehäuse rechts",
     "teile": [
      "gehaeuse_rechts"
@@ -102,8 +102,8 @@
    },
    {
     "platte": 3,
-    "stunden": 2.58,
-    "gramm": 51.9,
+    "stunden": 2.64,
+    "gramm": 55.2,
     "name": "Handschutz vorn links",
     "teile": [
      "handschutz_vorn_links"
@@ -111,8 +111,8 @@
    },
    {
     "platte": 4,
-    "stunden": 2.66,
-    "gramm": 53.1,
+    "stunden": 2.75,
+    "gramm": 56.8,
     "name": "Handschutz vorn rechts",
     "teile": [
      "handschutz_vorn_rechts"
@@ -120,8 +120,8 @@
    },
    {
     "platte": 5,
-    "stunden": 2.74,
-    "gramm": 67.9,
+    "stunden": 3.87,
+    "gramm": 82.9,
     "name": "Schaft",
     "teile": [
      "schaft_links",
@@ -130,8 +130,8 @@
    },
    {
     "platte": 6,
-    "stunden": 4.82,
-    "gramm": 120.2,
+    "stunden": 5.37,
+    "gramm": 129.6,
     "name": "Handschutz hinten, Zwischenring, Magazin",
     "teile": [
      "handschutz_hinten",
@@ -158,7 +158,7 @@
     ]
    }
   ],
-  "stunden": 21.3,
-  "gramm": 503
+  "stunden": 24.8,
+  "gramm": 560
  }
 }

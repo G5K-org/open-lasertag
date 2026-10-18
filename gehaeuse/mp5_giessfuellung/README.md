@@ -1,33 +1,33 @@
-# MP5-Gehäuse mit Gießfüllung – Modifier für den Slicer
+# MP5-Gehäuse mit Gießfüllung – fertige Teile mit Gießkammern
 
-Variante B aus [GIESSFUELLUNG.md](../mp5_umbau/GIESSFUELLUNG.md): Die Teile selbst bleiben die aus
-[`mp5_umbau/`](../mp5_umbau/). Hier liegen nur **Modifier-Volumen**, die im Slicer die Gießkammern erzeugen.
+Gießvariante aus [GIESSFUELLUNG.md](../mp5_umbau/GIESSFUELLUNG.md): Hier liegen die tragenden Teile **fertig zum
+Druck**, die Gießkammern sind schon ausgespart. Kein Modifier, kein Abziehen im Slicer: STL laden, slicen, drucken.
 
-- **Prototyp ohne Füllung:** Teile aus `mp5_umbau/` wie gewohnt drucken (6 Wände, 50 % Gyroid), diesen Ordner
-  ignorieren.
-- **Gießvariante:** Teil + passende Modifier aus diesem Ordner zusammen laden (siehe unten).
+- **Prototyp ohne Füllung:** Teile aus [`mp5_umbau/`](../mp5_umbau/) wie gewohnt drucken (6 Wände, 50 % Gyroid),
+  diesen Ordner ignorieren.
+- **Gießvariante:** die Teile unten aus diesem Ordner drucken, alle übrigen aus `mp5_umbau/`.
 
-Erzeugt mit `gehaeuse/scripts/giessfuellung.py` aus den STLs in `mp5_umbau/`. Nach jedem Lauf von `umbau.py`
-das Skript neu laufen lassen (`python giessfuellung.py bilder` erzeugt nur die Bilder neu).
+Erzeugt mit `gehaeuse/scripts/giessfuellung.py` aus den STLs in `mp5_umbau/` (auch Vorschaubilder und
+`volumen.json`). Nach jedem Lauf von `umbau.py` das Skript neu laufen lassen.
 
 <img src="bilder/uebersicht.png" alt="Gießkammern aller gießbaren Teile an ihrem Platz in der Waffe, Innenseiten der linken und rechten Hälften" width="900">
 
 ## Dateien
 
-| Teil | Modifier | Kammer cm³ | Füllung g |
-|---|---|---|---|
-| `gehaeuse_links` | `__quarzharz` / `__hohl` (Antenne) | 66,9 / 3,7 | 127 / – |
-| `gehaeuse_rechts` | `__quarzharz` / `__hohl` (Antenne) | 66,0 / 6,8 | 125 / – |
-| `handschutz_hinten` | `__schaum` | 43,4 | 4 |
-| `handschutz_vorn_links` | `__schaum` | 46,1 | 5 |
-| `handschutz_vorn_rechts` | `__schaum` | 42,8 | 4 |
-| `schaft_links` | `__quarzharz` (Ballast) | 52,0 | 99 |
-| `schaft_rechts` | `__quarzharz` (Ballast) | 52,0 | 99 |
+| Teil | Füllung | Kammer cm³ | Füllung g | Druck cm³ (massiv) |
+|---|---|---|---|---|
+| `gehaeuse_links.stl` | Quarzharz | 63,6 | 121 | 134,2 (197,6) |
+| `gehaeuse_rechts.stl` | Quarzharz | 63,0 | 120 | 142,4 (205,1) |
+| `handschutz_hinten.stl` | Schaum | 38,8 | 4 | 38,6 (77,4) |
+| `handschutz_vorn_links.stl` | Schaum | 46,1 | 5 | 66,4 (112,4) |
+| `handschutz_vorn_rechts.stl` | Schaum | 42,8 | 4 | 67,3 (110,0) |
+| `schaft_links.stl` | Quarzharz (Ballast) | 51,8 | 98 | 41,2 (92,9) |
+| `schaft_rechts.stl` | Quarzharz (Ballast) | 51,9 | 99 | 41,2 (93,0) |
 
-Zusammen ca. **237 cm³ Quarzharz (ca. 450 g)** und **132 cm³ Schaum (ca. 15 g)**. Werte in `volumen.json`
+Zusammen ca. **230 cm³ Quarzharz (ca. 440 g)** und **128 cm³ Schaum (ca. 13 g)**. Werte in `volumen.json`
 (Quarzharz 1,9 g/cm³, Schaum 0,1 g/cm³).
 
-Nicht gefüllt (normal drucken): Zwischenring, Magazin, Magazin-Unterteil und alle Kleinteile.
+Nicht gefüllt (normal aus `mp5_umbau/` drucken): Zwischenring, Magazin, Magazin-Unterteil und alle Kleinteile.
 
 ## Wie die Kammern entstehen
 
@@ -38,19 +38,21 @@ Nicht gefüllt (normal drucken): Zwischenring, Magazin, Magazin-Unterteil und al
   Rückseite mit der Nut). Von dort ist jede Kammer über Flanken mit **höchstens 45° Überhang** erreichbar.
   Beim Gießen liegt die offene Seite oben, und die Luft steigt an solchen Decken von selbst heraus. Gedruckt
   sind 45° ohne Stütze möglich. Bereiche hinter steileren Überhängen bleiben gedruckt.
+- **Kammerdecke höchstens 10 mm freie Brücke.** Unter breiteren Decken bleiben gedruckte Pfeiler stehen, die
+  bis zum Bett reichen. Damit hängt nichts weiter als 10 mm frei.
 - **Gehäuse komplett Quarzharz**: Griff und Krafteinleitung (Einschmelzmuttern, Zuganker, Stege) ohne
   Trennwände dazwischen.
-- **Hohl (Antenne):** 15 mm um den Antennenbereich des WROOM-1, mit 1,5 mm Trennwand zum Quarzharz. Wird
-  geschlossen gedruckt und nicht gefüllt.
+- **Antenne:** 15 mm um den Antennenbereich des WROOM-1 bekommt keine Kammer (1,5 mm Abstand zum Quarzharz).
+  Der Bereich wird ganz normal mit Infill gedruckt.
 - Kammern unter 0,5 cm³ und dünne Grate (< ca. 1,6 mm) bleiben gedruckt. Quarzsand kommt dort ohnehin nicht hinein.
 - Der **Zapfen des hinteren Handschutzes** (Einschmelzmuttern, Zuganker-Muttern) liegt beim Druck oben und
   ist von der offenen Seite aus nicht erreichbar. Er bleibt gedruckt. Im Slicer dort einen Modifier mit
   hohem Infill (≥ 60 %) setzen.
-- Die Modifier reichen 0,8 mm unter das Bett, damit die Kammer ab der ersten Schicht sicher offen ist.
+- Die Kammern sind ab der ersten Schicht offen (bis unter das Bett abgezogen).
 
 ## Bambu Studio (X1, P1, P2, A1)
 
-**Fertige Projekte für den P2S** (alle Teile, Modifier und Einstellungen schon drin):
+**Fertige Projekte für den P2S** (alle Teile und Einstellungen schon drin):
 [`gehaeuse/bambu/`](../bambu/README.md). Die Schritte unten braucht man nur für einen anderen Drucker oder
 eigene Änderungen.
 
@@ -60,17 +62,11 @@ vorderer Handschutz nicht.
 
 ### 1. Laden
 
-1. *Datei → Importieren → 3D/STEP/3MF importieren* (Strg+I). Das Teil aus `mp5_umbau/` **und** seine Modifier
-   aus diesem Ordner **gemeinsam** markieren, z. B. `schaft_links.stl` + `schaft_links__quarzharz.stl`.
-2. Die Frage, ob die Dateien als **ein Objekt mit mehreren Teilen** geladen werden sollen, mit **Ja**
-   beantworten. Nur so bleiben Teil und Modifier passend übereinander.
-3. In der Objektliste links das Objekt aufklappen. Jeden Modifier per Rechtsklick → **Change type** → **Modifier**
-   umstellen. Er wird dann durchsichtig dargestellt.
-4. Prüfen, ob das Teil auf dem Bett liegt (die Modifier reichen 0,8 mm darunter, das ist gewollt). Liegt das Teil
-   höher, Objekt markieren und im Reiter *Objekt* die Position Z auf 0 setzen.
-5. Lage nicht drehen: Die Hälften liegen auf der Teilungsfläche, der hintere Handschutz auf der Seite mit der Nut.
+1. *Datei → Importieren → 3D/STEP/3MF importieren* (Strg+I), das Teil aus diesem Ordner wählen.
+2. Lage nicht drehen: Die Hälften liegen auf der Teilungsfläche, der hintere Handschutz auf der Seite mit der
+   Nut. Die offenen Kammern zeigen zum Bett.
 
-### 2. Prozess für das Teil (global)
+### 2. Prozess
 
 Basis: Systemprofil **0.20mm Standard @BBL** für deinen Drucker, Filament **Bambu PETG HF** (oder PETG Basic)
 bzw. ASA, **Textured PEI Plate**.
@@ -84,46 +80,33 @@ bzw. ASA, **Textured PEI Plate**.
 | Wall loops (*Strength*) | **2** |
 | Top shell layers / Top shell thickness (*Strength*) | 5 / 1,0 mm |
 | Bottom shell layers / Bottom shell thickness (*Strength*) | 3 / 0 mm |
-| Sparse infill density / pattern (*Strength*) | **15 %** / **Grid** (schneller als Gyroid; außerhalb der Kammern ist ohnehin kaum Infill) |
+| Sparse infill density / pattern (*Strength*) | **15 %** / **Grid** |
 | Infill combination (*Strength → Advanced*) | an |
+| Ensure vertical shell thickness (*Strength → Advanced*) | **Partial** (sonst massive Füllung an den schrägen Kammerflanken) |
 | Ironing (*Quality*) | aus |
-| Support (*Support*) | wie beim massiven Druck: an, Type *tree(auto)* |
+| Support (*Support*) | an, Type *tree(auto)* |
 | Speed | Systemprofil. Für eine feinere Außenseite *Outer wall* auf 120 mm/s |
 
-### 3. Prozess für die Modifier
-
-Modifier in der Objektliste markieren, Rechtsklick → **Add settings** (bzw. das Zahnrad am Modifier), dann
-die Werte setzen. Nur diese Werte überschreiben, alles andere erbt der Modifier vom Teil.
-
-| Einstellung | `__quarzharz`, `__schaum` | `__hohl` |
-|---|---|---|
-| Bottom shell layers | **0** | (nicht ändern, 3) |
-| Bottom shell thickness | **0** | (nicht ändern) |
-| Sparse infill pattern | **Lightning** | Lightning |
-| Sparse infill density | 15 % | 15 % |
-
-- **Bottom shell thickness muss 0 sein.** Sonst ergänzt Bambu Studio Bodenschichten bis zur Mindestdicke, und die
-  Kammer ist unten geschlossen.
-- Top shell layers bleiben bei 5: Das ist die Außenhaut über der Kammer.
+- **Support in den Kammern:** Bambu Studio erkennt die Kammerdecken nicht als Brücke und stellt Tree-Support
+  hinein (beim Schaft ca. 45 min mehr). Schaden tut er nicht, er wird mit eingegossen. In den fertigen
+  Projekten verhindert das ein Support-Blocker über den Kammern. Von Hand: *Support painting* (Taste L), Teil
+  von unten ansehen und die Kammerdecken mit *Block* bemalen.
 - **Nur beim hinteren Handschutz:** Rechtsklick auf das Objekt → *Add modifier* → *Box*. Den Quader über den
   Zapfen legen (oberste ca. 20 mm des Teils) und darin *Sparse infill density* auf **60 %** setzen. Dort sitzen
   Einschmelzmuttern und Zuganker-Muttern, die Stelle bleibt gedruckt.
 
-### 4. Vorschau prüfen (nach *Slice plate*)
+### 3. Vorschau prüfen (nach *Slice plate*)
 
-- **Schicht 1–3:** Im Bereich der Kammern liegen nur einzelne Lightning-Stränge, keine geschlossene Fläche.
-  Rundherum der Rand, um Bohrungen und Schächte geschlossene Ringe.
-- **Kammerdecke:** Mit dem Schichtregler bis zur Oberkante der Kammern gehen. Darüber folgen die 5
-  Deckschichten. Wenn die erste Deckschicht weit frei überbrückt, im Modifier *Sparse infill pattern* auf
-  **Gyroid 10 %** stellen. Das wird ebenfalls eingegossen.
-- Die Druckzeit oben rechts mit dem massiven Druck vergleichen. Beim P2S geslict: Gehäusehälfte 4,0 h statt
-  7,8 h, beide Schafthälften 2,7 h statt 6,6 h, die ganze Waffe 21 h statt 41 h.
+- **Schicht 1–3:** Die Kammern sind offen, rundherum der Rand, um Bohrungen und Schächte geschlossene Ringe.
+- **Kammern:** Kein Support in den Kammern (siehe oben).
+- Die Druckzeit oben rechts mit dem massiven Druck vergleichen. Beim P2S geslict: Gehäusehälfte 4,9 h
+  statt 7,8 h, beide Schafthälften 3,9 h statt 6,6 h, die ganze Waffe 24,8 h statt 41 h.
 
-### 5. Speichern
+### 4. Speichern
 
-Das fertige Objekt als Projekt speichern (*Datei → Projekt speichern unter*, `.3mf`). Dann bleiben Modifier und
+Das fertige Objekt als Projekt speichern (*Datei → Projekt speichern unter*, `.3mf`). Dann bleiben die
 Einstellungen für die nächste Waffe erhalten. Mehrere gleiche Teile auf einer Platte: Objekt kopieren
-(Strg+C / Strg+V), die Modifier werden mitkopiert.
+(Strg+C / Strg+V).
 
 ## Gießen
 
@@ -134,12 +117,13 @@ die Teilungsfläche bzw. Auflagefläche füllen.
 ## Vorschau je Teil
 
 Links die Gießseite (Teil umgedreht, Kammern offen nach oben), rechts die Durchsicht mit den Kammern im Teil.
+Farbig ist, was gegossen wird.
 
 ### Gehäuse links
-<img src="bilder/gehaeuse_links.png" alt="Gehäuse links: Quarzharz-Kammern und Antennenbereich" width="900">
+<img src="bilder/gehaeuse_links.png" alt="Gehäuse links: Quarzharz-Kammern" width="900">
 
 ### Gehäuse rechts
-<img src="bilder/gehaeuse_rechts.png" alt="Gehäuse rechts: Quarzharz-Kammern und Antennenbereich" width="900">
+<img src="bilder/gehaeuse_rechts.png" alt="Gehäuse rechts: Quarzharz-Kammern" width="900">
 
 ### Handschutz hinten
 <img src="bilder/handschutz_hinten.png" alt="Handschutz hinten: Schaumkammer, offen zur Rückseite" width="900">

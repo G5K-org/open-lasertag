@@ -1,23 +1,23 @@
-"""Gießfüllung (Variante B, siehe mp5_umbau/GIESSFUELLUNG.md): Modifier-STLs für die Gießkammern.
+"""Gießfüllung (siehe mp5_umbau/GIESSFUELLUNG.md): fertige Teile mit ausgesparten Gießkammern.
 
-Die Teile in mp5_umbau/ bleiben unverändert (massiver Druck ohne Füllung). Dieses Skript legt je Teil
-Modifier-Volumen in dessen Drucklage ab; zusammen mit dem Teil als ein Objekt mit mehreren Teilen in den
-Slicer laden, die Modifier auf „Modifier“ stellen (Einstellungen in mp5_giessfuellung/README.md).
+Die Teile in mp5_umbau/ bleiben unverändert (massiver Druck ohne Füllung). Dieses Skript zieht je Teil die
+Gießkammern ab und legt das Ergebnis in Drucklage ab; im Slicer wie ein normales Teil laden (Einstellungen in
+mp5_giessfuellung/README.md).
 
 Kammer = alle Punkte des Teils mit mindestens WALL Abstand zu jeder Oberfläche, außer zur Druckbett-Fläche
 (= Teilungsfläche bzw. Auflagefläche, dort bleibt die Kammer offen), und von dort über Flanken mit höchstens
 45° Überhang erreichbar (beim Gießen liegt die offene Seite oben: Luft steigt an Decken ab 45° heraus,
-gedruckt sind 45° ohne Stütze möglich). Damit bleiben automatisch stehen:
+gedruckt sind 45° ohne Stütze möglich). Die Kammerdecke (Außenhaut von innen) überbrückt höchstens BRIDGE frei,
+breitere Kammern laufen oben in einem 45°-Dach zusammen: kein Support in den Kammern. Damit bleiben automatisch stehen:
 Außenhaut, Auflagerand an der Teilung, Röhren um Schächte, Dome um Einschmelzmuttern und Schrauben,
 Dämme an offenen Nuten (je WALL).
 
-Zonen: quarzharz / schaum (getrennt durch eine Wand SEP) und hohl (Antennenbereich: geschlossen, nicht gießen).
+Zonen: quarzharz / schaum (getrennt durch eine Wand SEP). Der Antennenbereich bekommt keine Kammer (bleibt gedruckt).
 
-Ausgabe nach mp5_giessfuellung/: <teil>__<zone>.stl, volumen.json, bilder/*.png (Vorschau)
+Ausgabe nach mp5_giessfuellung/: <teil>.stl (fertig zum Druck), volumen.json, bilder/*.png (Vorschau)
 
 Aufruf: python giessfuellung.py   (braucht numpy, trimesh, rtree, manifold3d, scipy, scikit-image, shapely, contourpy,
         matplotlib, mapbox-earcut)
-        python giessfuellung.py bilder   (nur die Vorschaubilder neu)
 """
 import json
 import os
@@ -41,11 +41,12 @@ OUT = os.path.join(HERE, "..", "mp5_giessfuellung")
 H = 0.4                       # Rasterweite (mm)
 WALL = 2.0                    # gedruckte Wand um jede Kammer (Außenhaut, Röhren, Dome, Rand an der Teilung)
 SEP = 1.5                     # Trennwand zwischen Quarzharz und Schaum
+BRIDGE = 10.0                 # größte freie Brücke in der Kammerdecke (PETG ohne Stütze, wird eingegossen)
 MIN_VOL = 500.0               # kleinere Kammern (mm³) werden nicht gegossen, sondern gedruckt
-BELOW = 0.6                   # Modifier reicht so weit unter das Bett (sicher offen ab der ersten Schicht)
+BELOW = 0.6                   # Kammer wird bis so weit unter das Bett abgezogen (sicher offen ab der ersten Schicht)
 DENSITY = {"quarzharz": 1.9, "schaum": 0.1}   # g/cm³
 
-# Antenne des ESP32-S3-WROOM-1 (Platinen-Sperrzone, Gun-Rahmen) + 15 mm: nicht füllen
+# Antenne des ESP32-S3-WROOM-1 (Platinen-Sperrzone, Gun-Rahmen) + 15 mm: keine Kammer
 _ax0, _ay0, _ax1, _ay1 = P.ZONES[0]
 ANT_BOX = (P.X0 + _ay0, P.X0 + _ay1, P.Y0 + _ax0, P.Y0 + _ax1, -3.0, 3.0)   # X0, X1, Y0, Y1, Z0, Z1
 ANT_CLR = 15.0
@@ -61,7 +62,7 @@ def antenna(p):
     return _box_dist(p, ANT_BOX) < ANT_CLR
 
 
-# Teil: (Quarzharz-Regel im Gun-Rahmen, Hohl-Regel); der Rest der Kammern wird Schaum
+# Teil: (Quarzharz-Regel im Gun-Rahmen, Sperrbereich ohne Kammer); der Rest der Kammern wird Schaum
 ALL = lambda p: np.ones(len(p), bool)        # noqa: E731
 NONE = lambda p: np.zeros(len(p), bool)      # noqa: E731
 PARTS = {
@@ -115,6 +116,16 @@ def chambers(occ):
     return reach45(dist > WALL + H / 2)
 
 
+def roof(c):
+    """Von oben nach unten: Deckenzellen weiter als BRIDGE/2 vom Kammerrand werden gedruckt (45°-Dach)."""
+    out = c.copy()
+    for k in range(c.shape[2] - 2, -1, -1):
+        ceil = out[:, :, k] & ~out[:, :, k + 1]
+        if ceil.any():
+            out[:, :, k] &= ~(ceil & (ndimage.distance_transform_edt(out[:, :, k], sampling=H) > BRIDGE / 2))
+    return out
+
+
 def clean(mask):
     """Dünne Grate weg, zu kleine Kammern drucken statt gießen."""
     mask = ndimage.binary_opening(mask, ndimage.generate_binary_structure(3, 1), iterations=2) & mask
@@ -124,11 +135,11 @@ def clean(mask):
     vol = ndimage.sum(mask, lab, range(1, n + 1)) * H ** 3
     keep = np.zeros(n + 1, bool)
     keep[1:] = vol >= MIN_VOL
-    return reach45(keep[lab])
+    return roof(reach45(keep[lab]))
 
 
 def mesh(mask, lo):
-    """Oberfläche der Zellen; unten bis BELOW unter das Bett verlängert."""
+    """Geglättete Oberfläche der Zellen; unten bis BELOW unter das Bett verlängert."""
     nb = int(round(BELOW / H)) + 1
     vol = np.concatenate([np.repeat(mask[:, :, :1], nb, axis=2), mask], axis=2)
     vol = np.pad(vol, 1).astype(np.float32)
@@ -137,9 +148,10 @@ def mesh(mask, lo):
     tm = trimesh.Trimesh(v, f)
     if tm.volume < 0:
         tm.invert()
+    tm = trimesh.smoothing.filter_taubin(tm, iterations=10)  # Voxeltreppen glätten: kürzere Perimeter im Slicer
     man = U.to_man(tm)
     if hasattr(man, "simplify"):
-        man = man.simplify(0.05)
+        man = man.simplify(0.15)
     return U.to_tm(man)
 
 
@@ -149,7 +161,7 @@ def build():
     for f in os.listdir(OUT):
         if f.endswith(".stl"):
             os.remove(os.path.join(OUT, f))
-    report = {}
+    report, zones = {}, {}
     for name, (rule, hollow) in PARTS.items():
         man, bounds = load(name)
         occ, lo = occupancy(man, bounds, pad=3)
@@ -157,41 +169,42 @@ def build():
         idx = np.argwhere(cham)
         pts = np.column_stack([lo[0] + (idx[:, 0] + 0.5) * H, lo[1] + (idx[:, 1] + 0.5) * H, (idx[:, 2] + 0.5) * H])
         g = (gun[name][:3, :3] @ pts.T).T + gun[name][:3, 3]              # Drucklage -> Gun-Rahmen
-        zone = {k: np.zeros_like(cham) for k in ("quarzharz", "schaum", "hohl")}
-
-        def put(key, sel):
-            zone[key][tuple(idx[sel].T)] = True
+        def grid(sel):
+            m = np.zeros_like(cham)
+            m[tuple(idx[sel].T)] = True
+            return m
         hol = hollow(g) if hollow else np.zeros(len(g), bool)
-        put("hohl", hol)
-        put("quarzharz", rule(g) & ~hol)
-        q = zone["quarzharz"]
-        sep = ndimage.distance_transform_edt(~q, sampling=H) > SEP if q.any() else np.ones_like(q)
-        put("schaum", ~hol)
-        zone["schaum"] &= ~q & sep
-        if hollow:
-            hsep = ndimage.distance_transform_edt(~zone["hohl"], sampling=H) > SEP
-            zone["quarzharz"] &= hsep
-            zone["schaum"] &= hsep
+        q = grid(rule(g) & ~hol)
+        zone = {"quarzharz": q, "schaum": grid(~hol) & ~q}
+        if q.any():
+            zone["schaum"] &= ndimage.distance_transform_edt(~q, sampling=H) > SEP
+        if hol.any():                                                   # Antennenbereich bleibt gedruckt
+            hsep = ndimage.distance_transform_edt(~grid(hol), sampling=H) > SEP
+            zone = {k: m & hsep for k, m in zone.items()}
         report[name] = {"teil_cm3": round(man.volume() / 1000, 1)}
+        cut = []
+        zones[name] = []
         for key, mask in zone.items():
-            mask = clean(mask) if key != "hohl" else mask & ndimage.binary_opening(mask, iterations=2)
+            mask = clean(mask)
             v = mask.sum() * H ** 3 / 1000
             if v < MIN_VOL / 1000:
                 continue
             tm = mesh(mask, lo)
-            tm.export(os.path.join(OUT, f"{name}__{key}.stl"))
+            cut.append(U.to_man(tm))
+            zones[name].append((key, tm))
             report[name][key + "_cm3"] = round(float(v), 1)
-            if key in DENSITY:
-                report[name][key + "_g"] = round(float(v) * DENSITY[key])
+            report[name][key + "_g"] = round(float(v) * DENSITY[key])
+        part = man - m3.Manifold.batch_boolean(cut, m3.OpType.Add) if cut else man
+        U.to_tm(part).export(os.path.join(OUT, name + ".stl"))
+        report[name]["druck_cm3"] = round(part.volume() / 1000, 1)
         print(name, report[name])
     json.dump(report, open(os.path.join(OUT, "volumen.json"), "w"), indent=1, ensure_ascii=False)
-    return report
+    return zones
 
 
 # ---------------------------------------------------------------- Vorschaubilder
-COLOR = {"teil": (0.62, 0.64, 0.67), "quarzharz": (0.80, 0.30, 0.22), "schaum": (0.95, 0.77, 0.15),
-         "hohl": (0.25, 0.55, 0.85)}
-LABEL = {"quarzharz": "Quarzharz", "schaum": "PU-Schaum", "hohl": "hohl (Antenne)"}
+COLOR = {"teil": (0.62, 0.64, 0.67), "quarzharz": (0.80, 0.30, 0.22), "schaum": (0.95, 0.77, 0.15)}
+LABEL = {"quarzharz": "Quarzharz", "schaum": "PU-Schaum"}
 
 
 def _view(screen_x, screen_y):
@@ -227,23 +240,15 @@ def _preview(tm, factor=0.05):
     return U.to_tm(man.simplify(factor)) if hasattr(man, "simplify") else tm
 
 
-def _zones(name):
-    out = []
-    for key in ("quarzharz", "schaum", "hohl"):
-        p = os.path.join(OUT, f"{name}__{key}.stl")
-        if os.path.exists(p):
-            out.append((key, trimesh.load(p)))
-    return out
-
-
 def _legend(fig, keys):
     from matplotlib.patches import Patch
     fig.legend(handles=[Patch(color=COLOR[k], label=LABEL[k]) for k in keys], loc="lower center", ncol=len(keys),
                frameon=False, fontsize=11)
 
 
-def images():
-    """Je Teil: Gießseite (offene Seite oben, wie beim Gießen) und Durchsicht; dazu Übersicht der Waffe."""
+def images(all_zones):
+    """Je Teil: Gießseite (offene Seite oben, wie beim Gießen) und Durchsicht; dazu Übersicht der Waffe.
+    all_zones: {teil: [(zone, Kammer-Trimesh)]} aus build(); das Teil ist das fertige STL mit Kammern."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -255,8 +260,8 @@ def images():
     iso = _view((0.82, 0.57, 0), (-0.25, 0.36, 0.9))        # schräg von oben (Druckseite)
     parts = {}
     for name in PARTS:
-        part = _preview(trimesh.load(os.path.join(SRC, name + ".stl")))
-        zones = _zones(name)
+        part = _preview(trimesh.load(os.path.join(OUT, name + ".stl")))
+        zones = [(k, _preview(z, 0.3)) for k, z in all_zones[name]]
         parts[name] = (part, zones)
         fig, axs = plt.subplots(1, 2, figsize=(16, 8.5))
         _draw(axs[0], [(part, COLOR["teil"], 1.0)] + [(z, COLOR[k], 1.0) for k, z in zones], below)
@@ -293,14 +298,12 @@ def images():
         _draw(ax, items, R)
         ax.set_title(title, fontsize=13)
     fig.suptitle("Gießkammern in der Waffe", fontsize=15)
-    _legend(fig, ["quarzharz", "schaum", "hohl"])
+    _legend(fig, ["quarzharz", "schaum"])
     fig.tight_layout(rect=(0, 0.03, 1, 0.96))
     fig.savefig(os.path.join(d, "uebersicht.png"), dpi=80)
     plt.close(fig)
 
 
 if __name__ == "__main__":
-    if sys.argv[1:] != ["bilder"]:
-        build()
-    images()
+    images(build())
     print("geschrieben nach", os.path.abspath(OUT))
