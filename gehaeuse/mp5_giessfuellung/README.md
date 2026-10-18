@@ -48,7 +48,11 @@ Nicht gefüllt (normal drucken): Zwischenring, Magazin, Magazin-Unterteil und al
   hohem Infill (≥ 60 %) setzen.
 - Die Modifier reichen 0,8 mm unter das Bett, damit die Kammer ab der ersten Schicht sicher offen ist.
 
-## Bambu Studio (X1, P1, A1)
+## Bambu Studio (X1, P1, P2, A1)
+
+**Fertige Projekte für den P2S** (alle Teile, Modifier und Einstellungen schon drin):
+[`gehaeuse/bambu/`](../bambu/README.md). Die Schritte unten braucht man nur für einen anderen Drucker oder
+eigene Änderungen.
 
 Gilt genauso für OrcaSlicer. Die Einstellungsnamen stehen hier wie in der englischen Oberfläche, in Klammern
 der Reiter. Bauraum 256 × 256 mm: Alle Teile passen, auf dem **A1 mini** (180 mm) passen Gehäusehälften und
@@ -79,8 +83,8 @@ bzw. ASA, **Textured PEI Plate**.
 | Seam position (*Quality*) | Aligned (oder Back) |
 | Wall loops (*Strength*) | **2** |
 | Top shell layers / Top shell thickness (*Strength*) | 5 / 1,0 mm |
-| Bottom shell layers / Bottom shell thickness (*Strength*) | 4 / 0 mm |
-| Sparse infill density / pattern (*Strength*) | **30 %** / **Gyroid** |
+| Bottom shell layers / Bottom shell thickness (*Strength*) | 3 / 0 mm |
+| Sparse infill density / pattern (*Strength*) | **15 %** / **Grid** (schneller als Gyroid; außerhalb der Kammern ist ohnehin kaum Infill) |
 | Infill combination (*Strength → Advanced*) | an |
 | Ironing (*Quality*) | aus |
 | Support (*Support*) | wie beim massiven Druck: an, Type *tree(auto)* |
@@ -93,7 +97,7 @@ die Werte setzen. Nur diese Werte überschreiben, alles andere erbt der Modifier
 
 | Einstellung | `__quarzharz`, `__schaum` | `__hohl` |
 |---|---|---|
-| Bottom shell layers | **0** | (nicht ändern, 4) |
+| Bottom shell layers | **0** | (nicht ändern, 3) |
 | Bottom shell thickness | **0** | (nicht ändern) |
 | Sparse infill pattern | **Lightning** | Lightning |
 | Sparse infill density | 15 % | 15 % |
@@ -112,8 +116,8 @@ die Werte setzen. Nur diese Werte überschreiben, alles andere erbt der Modifier
 - **Kammerdecke:** Mit dem Schichtregler bis zur Oberkante der Kammern gehen. Darüber folgen die 5
   Deckschichten. Wenn die erste Deckschicht weit frei überbrückt, im Modifier *Sparse infill pattern* auf
   **Gyroid 10 %** stellen. Das wird ebenfalls eingegossen.
-- Die Druckzeit oben rechts mit dem massiven Druck vergleichen. Erwartet wird etwa die Hälfte (moderner
-  Drucker: Gehäusehälfte ca. 2,5 h statt 5 h, Schafthälfte ca. 1 h statt 2 h).
+- Die Druckzeit oben rechts mit dem massiven Druck vergleichen. Beim P2S geslict: Gehäusehälfte 4,0 h statt
+  7,8 h, beide Schafthälften 2,7 h statt 6,6 h, die ganze Waffe 21 h statt 41 h.
 
 ### 5. Speichern
 

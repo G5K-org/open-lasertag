@@ -11,7 +11,8 @@ bringt mehr Handarbeit und lohnt sich erst ab ca. 8–10 Waffen.
 
 **Ziele**
 
-- Druckzeit pro Waffe von ~50 h auf ~15–20 h (Schätzung, mit dem Slicer prüfen)
+- Druckzeit pro Waffe senken. Mit Bambu Studio für den P2S geslict: 41 h → 21 h, Filament 933 g → 503 g
+  (Projekte in [`gehaeuse/bambu/`](../bambu/README.md))
 - Griff, Schaft und Verschraubungspunkte fester als heute
 - Gewicht und Balance gezielt einstellbar
 - Alles bleibt zerlegbar (Platine, Akku, Kabel, Lautsprecher erreichbar)
@@ -143,7 +144,7 @@ Handschutz vorn L/R):
 
 ## 4a. Maximale Druckzeit-Reduktion
 
-Ziel: Druckzeit pro Waffe auf **ca. 15–20 h** bei detailreicher Außenseite
+Ergebnis (P2S, geslict): Druckzeit pro Waffe **ca. 21 h statt 41 h** bei detailreicher Außenseite
 (Schätzung, mit Slicer prüfen).
 Die Füllung übernimmt Festigkeit und Gewicht, die Schale ist nur noch Form und Haut.
 
