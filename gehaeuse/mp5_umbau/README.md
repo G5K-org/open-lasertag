@@ -62,7 +62,7 @@ Elektrische Teile außerhalb der Platine mit LCSC-Nummer: [`waffe_lose_teile.csv
 | Handschutz vorn ↔ hinten | 4 × M3 × 10 ISO 4762, 4 × Einschmelzmutter M3 × 5,7 (in den Zapfen) |
 | Lautsprecher | Ø 40 mm, 4–8 Ω, 2–3 W, bis 6 mm Einbautiefe |
 | Sensorkabel Weste | GX16-7 Einbaubuchse (Gewinde M16 × 1, Mutter SW 19, Flansch bis Ø 20) + GX16-7 Kabelstecker; 7 Litzen AWG 28 zu J2 (JST-SH 7) |
-| Kabel innen | Litze AWG 28 (Ø ≤ 0,9 mm), Akku AWG 24 (Ø ≤ 1,3 mm) |
+| Kabel innen | Litze AWG 28 (Ø ≤ 0,9 mm), Akku AWG 24 (Ø ≤ 1,3 mm); Stecker, Längen und fertige Kabel unter [Kabelwege](#kabelwege) |
 | TSOP 6 | TSOP34838 (6 × 6,95 × 5,6 mm) |
 | Externe Antenne | Knick-Stabantenne 2,4 GHz RP-SMA, 3,2 dBi, 142 mm (TE/Linx ANT-2.4-CW-HWR-RPS); Pigtail RP-SMA-Einbaubuchse auf U.FL, 100 mm, Kabel 1,13 mm (TE/Linx CSI-RGFB-100-UFFR); nur mit ESP32-S3-WROOM-1U auf der Platine |
 
@@ -176,21 +176,71 @@ den Kanal zum Abzugsschalter (Tasche dort bis 9,5 mm unter die Platine); die Abz
 Die Tasche folgt der Platinenkontur mit der Lasche oben links (Akkuschutz, Ein/Aus); das Westenkabel geht von J2 an der
 rechten Kante nach oben in die VIB-Zone und von dort in den Motorschacht.
 
-| Leitung | Stecker | Adern | Weg | Länge ca. |
-|---|---|---|---|---|
-| Akku | BT1 (JST-PH 2) | 2 × AWG 24 | linke Zone → Hauptschacht → Abzweig in den Magazinschacht → JST-PH im Magazin | 35 mm + Stecker |
-| IR-LED | J6 (JST-SH 5, Pins 1/2, verdrillt) | 2 | linke Zone → Hauptschacht → Zwischenring → Handschutz (um den Lautsprecher) → LED-Sitz | 349 mm |
-| TSOP 6 | J6 (JST-SH 5, Pins 3/4/5) | 3 | wie IR-LED bis Y −129, senkrecht hoch in den TSOP-Einsatz | 303 mm |
-| Ringlicht | J1 (JST-PH 3) | 3 | linke Zone → Hauptschacht → Bohrung → Kanal unten im Schalldämpfer → Frontkappe | 410 mm |
-| Lautsprecher | SP1 (JST-PH 2) | 2 | linke Zone → Hauptschacht → Kabelnut → Bohrung in die Basskammer | 305 mm |
-| Abzug | J8 (JST-SH 3, Pins 1/2) | 2 | untere Zone → Schaltertasche | 47 mm |
-| Nachladen | J8 (JST-SH 3, Pins 3/2) | 2 | untere Zone → Schaltertasche → Nut an der Teilung → Taster | 66 mm |
-| Weste | J2 (JST-SH 7) | 7 | rechte Zone → Motorschacht → Westenschacht → GX16-Buchse | 90 mm |
-| OLED | J4 (JST-SH 4) | 4 | Zone rechts oben → OLED-Schacht → OLED im Schaft | 95 mm |
-| Drehgeber | J5 (JST-SH 4) | 4 | Zone rechts oben → VIB-Zone → Motorschacht → Motorraum → Drehgeber | 145 mm |
-| Vibrationsmotor | M1 (JST-SH 2) | 2 | rechte Zone → Motorschacht → Motor | 80 mm |
-| Antenne | U.FL am WROOM-1U | Koax 1,13 | Schlaufe vor der Buchse in der Antennenzone → RP-SMA-Buchse | 100 mm (Pigtail) |
+| Leitung | Stecker | Adern | Weg | Länge ca. | Zuschnitt |
+|---|---|---|---|---|---|
+| Akku | BT1 (JST-PH 2) | 2 × AWG 24 | linke Zone → Hauptschacht → Abzweig in den Magazinschacht → Kupplung im Magazin | 35 mm + Stecker | 70 mm |
+| IR-LED | J6 (JST-SH 5, Pins 1/2, verdrillt) | 2 | linke Zone → Hauptschacht → Zwischenring → Handschutz (um den Lautsprecher) → LED-Sitz | 349 mm | 400 mm |
+| TSOP 6 | J6 (JST-SH 5, Pins 3/4/5) | 3 | wie IR-LED bis Y −129, senkrecht hoch in den TSOP-Einsatz | 303 mm | 350 mm |
+| Ringlicht | J1 (JST-PH 3) | 3 | linke Zone → Hauptschacht → Bohrung → Kanal unten im Schalldämpfer → Frontkappe | 410 mm | 450 mm |
+| Lautsprecher | SP1 (JST-PH 2) | 2 | linke Zone → Hauptschacht → Kabelnut → Bohrung in die Basskammer | 305 mm | 350 mm |
+| Abzug | J8 (JST-SH 3, Pins 1/2) | 2 | untere Zone → Schaltertasche | 47 mm | 80 mm |
+| Nachladen | J8 (JST-SH 3, Pins 3/2) | 2 | untere Zone → Schaltertasche → Nut an der Teilung → Taster | 66 mm | 100 mm |
+| Weste | J2 (JST-SH 7) | 7 | rechte Zone → Motorschacht → Westenschacht → GX16-Buchse | 90 mm | 120 mm |
+| OLED | J4 (JST-SH 4) | 4 | Zone rechts oben → OLED-Schacht → OLED im Schaft | 95 mm | 130 mm |
+| Drehgeber | J5 (JST-SH 4) | 4 | Zone rechts oben → VIB-Zone → Motorschacht → Motorraum → Drehgeber | 145 mm | 180 mm |
+| Vibrationsmotor | M1 (JST-SH 2) | 2 | rechte Zone → Motorschacht → Motor | 80 mm | 110 mm |
+| Antenne | U.FL am WROOM-1U | Koax 1,13 | Schlaufe vor der Buchse in der Antennenzone → RP-SMA-Buchse | 100 mm (Pigtail) | – |
 
-Füllung der Schächte (Querschnitt der Adern / Schacht): Hauptschacht im Gehäuse 46 % (12 Adern inkl. Akku,
-dünne Silikonlitze verwenden), im Handschutz 32 %, Motorschacht 29 % (Motor, Drehgeber, Weste: 13 Adern),
-Westenschacht 23 %, OLED-Schacht 16 %. Längen ohne Zugabe; je Leitung ca. 30 mm Reserve lassen.
+„Länge ca.“ ist der Weg ohne Zugabe, „Zuschnitt“ enthält ca. 30 mm Reserve. Zusammen ca. 6,6 m Litze AWG 28 und
+0,15 m AWG 24 je Waffe. Zwei Stecker werden aufgeteilt: **J6** läuft mit allen 5 Adern bis Y −129, dort gehen
+3 Adern hoch zum TSOP und 2 weiter zur LED. Bei **J8** ist Pin 2 die gemeinsame Masse für Abzug und Nachladetaster.
+
+Füllung der Schächte (Querschnitt der Adern / Schacht, Litze Ø 0,9 mm, Akku Ø 1,3 mm):
+
+| Schacht | Ø | Adern | Ø 0,9 | Ø 1,0 | Ø 1,1 |
+|---|---|---|---|---|---|
+| Hauptschacht im Gehäuse | 5,0 | 10 × AWG 28 + 2 × AWG 24 | 46 % | 54 % | 62 % |
+| Hauptschacht Zwischenring/Handschutz | 5,0 | 10 × AWG 28 | 32 % | 40 % | 48 % |
+| Motorschacht | 6,0 | 13 × AWG 28 (Motor, Drehgeber, Weste) | 29 % | 36 % | 44 % |
+| Westenschacht | 5,0 | 7 × AWG 28 | 23 % | | |
+| OLED-Schacht | 4,5 | 4 × AWG 28 | 16 % | | |
+
+### Stecker und Kabel
+
+| Serie | Raster | auf der Platine | Gegenstück |
+|---|---|---|---|
+| JST-SH | 1,0 mm | M1 (2), J8 (3), J4 + J5 (4), J6 (5), J2 (7) | SHR-02V-S … SHR-07V-S, Crimpkontakte SSH-003T-P0.2 |
+| JST-PH | 2,0 mm | BT1 + SP1 (2), J1 (3) | PHR-2, PHR-3, Crimpkontakte SPH-002T-P0.5S |
+
+JST-XH (2,5 mm) passt auf keinen Stecker der Platine und ist für die Platinentasche zu hoch (THT, ca. 7 mm).
+Möglich ist XH nur als Kupplung zwischen Akkukabel und Akku im Magazin.
+
+Am einfachsten sind fertig gecrimpte Kabel mit Stecker an einem Ende („Single Head“), auf Länge gekürzt.
+Je Waffe:
+
+| Serie | Pole | Länge | Anzahl | für |
+|---|---|---|---|---|
+| JST-SH | 2 | 15 cm | 1 | M1 Vibrationsmotor |
+| JST-SH | 3 | 15 cm | 1 | J8 Abzug + Nachladen |
+| JST-SH | 4 | 15 cm | 1 | J4 OLED |
+| JST-SH | 4 | 20 cm | 1 | J5 Drehgeber |
+| JST-SH | 5 | 50 cm | 1 | J6 IR-LED + TSOP (ohne Verlängerung) |
+| JST-SH | 7 | 15 cm | 1 | J2 Weste → GX16-Buchse |
+| JST-PH | 2 | 10 cm | 1 | BT1 Akku → Kupplung im Magazin |
+| JST-PH | 2 | 50 cm | 1 | SP1 Lautsprecher |
+| JST-PH | 3 | 50 cm | 1 | J1 Ringlicht |
+
+Dazu die Kupplung zum Akku (JST-PH- oder JST-XH-Paar, passend zum Stecker am Akku).
+
+### Verlegen
+
+- **Litze:** Silikonlitze AWG 28 mit Außendurchmesser ≤ 0,9 mm (bei fertig gecrimpten Kabeln auf den Durchmesser
+  achten). Mit dickerer PVC-Litze (UL1007, ca. 1,1 mm) wird der Hauptschacht im Gehäuse zu voll (62 %).
+- **Einlegen:** Gehäuse, Schaft und vorderer Handschutz sind an der Teilungsebene geteilt, die Schächte liegen dort
+  je zur Hälfte in beiden Teilen. Bei offenen Hälften werden die Kabel in die Rinnen gelegt, nicht gezogen.
+- **Durchziehen** nur durch Zwischenring und hinteren Handschutz (geschlossen, zusammen ca. 75 mm, 10 Adern):
+  alle Adern zusammen, die Spitze mit etwas Klebeband gebündelt. Das muss vor dem Spannen der Zuganker passieren.
+- **Lötstellen** (Verlängerungen) nicht in den Hauptschacht im Gehäuse legen, sondern in die Platinentasche direkt
+  hinter den Stecker oder vorn in den Handschutz. Versetzt anordnen, mit dünnem Schrumpfschlauch.
+- IR-LED-Adern verdrillen. Die Leitung zum Lautsprecher nach dem Löten in der Bohrung zur Basskammer abdichten
+  (Heißkleber), sonst leckt die Kammer.
