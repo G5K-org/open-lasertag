@@ -1,0 +1,91 @@
+{
+ "guss": {
+  "platten": [
+   {
+    "platte": 1,
+    "stunden": 15.47,
+    "gramm": 129.5,
+    "name": "Gehäuse links",
+    "teile": [
+     "gehaeuse_links"
+    ]
+   },
+   {
+    "platte": 2,
+    "stunden": 14.37,
+    "gramm": 125.1,
+    "name": "Gehäuse rechts",
+    "teile": [
+     "gehaeuse_rechts"
+    ]
+   },
+   {
+    "platte": 3,
+    "stunden": 8.49,
+    "gramm": 65.1,
+    "name": "Handschutz vorn links",
+    "teile": [
+     "handschutz_vorn_links"
+    ]
+   },
+   {
+    "platte": 4,
+    "stunden": 8.81,
+    "gramm": 66.8,
+    "name": "Handschutz vorn rechts",
+    "teile": [
+     "handschutz_vorn_rechts"
+    ]
+   },
+   {
+    "platte": 5,
+    "stunden": 5.41,
+    "gramm": 44.7,
+    "name": "Schaft links",
+    "teile": [
+     "schaft_links"
+    ]
+   },
+   {
+    "platte": 6,
+    "stunden": 5.38,
+    "gramm": 44.6,
+    "name": "Schaft rechts",
+    "teile": [
+     "schaft_rechts"
+    ]
+   },
+   {
+    "platte": 7,
+    "stunden": 19.31,
+    "gramm": 163.2,
+    "name": "Handschutz hinten, Zwischenring, Magazin",
+    "teile": [
+     "handschutz_hinten",
+     "zwischenring",
+     "magazin",
+     "magazin_unterteil"
+    ]
+   },
+   {
+    "platte": 8,
+    "stunden": 2.03,
+    "gramm": 15.9,
+    "name": "Kleinteile",
+    "teile": [
+     "abzug",
+     "nachladehebel",
+     "frontkappe",
+     "linsenhuelse",
+     "tsop_einsatz",
+     "oled_rahmen",
+     "korn",
+     "spannhebel_knauf",
+     "spannhebel_stift"
+    ]
+   }
+  ],
+  "stunden": 79.3,
+  "gramm": 655
+ }
+}
