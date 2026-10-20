@@ -7,6 +7,8 @@ Gleiche Teile und Einstellungen wie mp5_guss_p2s.3mf aus bambu_projekte.py, ange
   - "Partial" der vertikalen Schalendicke heißt in Orca ensure_critical_only.
   - Orca übernimmt aus der Liste zum Zusammenfügen weder subtype noch print_params der Teile (alles wird
     normal_part, die Kammern würden mit Infill gefüllt). fix_parts trägt beides danach in die 3MF ein.
+  - Die Kommandozeile lässt different_settings_to_system leer. Die Oberfläche lädt dann das Systemprofil
+    unverändert (Brim, Skirt, 15 % Crosshatch ...). fix_settings trägt die geänderten Schlüssel ein.
 
 Ergebnis: gehaeuse/orca/mp5_guss_i3megas.3mf, Druckzeit und Filament je Platte in orca/druckzeiten.json.
 
@@ -141,13 +143,37 @@ def fix_parts(path):
     os.replace(tmp, path)
 
 
+def fix_settings(path, changed):
+    """different_settings_to_system füllen: [Prozess, Filament, Drucker], je Schlüssel mit ';' getrennt."""
+    with zipfile.ZipFile(path) as z:
+        items = [(i, z.read(i.filename)) for i in z.infolist()]
+    tmp = path + ".tmp"
+    with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as z:
+        for info, data in items:
+            if info.filename == "Metadata/project_settings.config":
+                cfg = json.loads(data)
+                cfg["different_settings_to_system"] = [";".join(sorted(changed[k])) for k in ("process", "filament",
+                                                                                            "machine")]
+                data = json.dumps(cfg, indent=4, ensure_ascii=False).encode()
+            z.writestr(info, data)
+    os.replace(tmp, path)
+
+
+def differs(base, extra):
+    """Schlüssel aus extra, deren Wert vom Systemprofil abweicht (Listenwerte wie im Profil verglichen)."""
+    def norm(v):
+        return [str(x) for x in v] if isinstance(v, list) else [str(v)]
+    return [k for k, v in extra.items() if k not in base or norm(base[k]) != norm(v)]
+
+
 def build(cli, root):
     os.makedirs(OUT, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
-        files = {}
+        files, changed = {}, {}
         for kind, name, extra in (("machine", MACHINE, {}), ("process", PROCESS, GUSS_GLOBAL), ("filament", FILAMENT, {})):
             files[kind] = os.path.join(tmp, f"{kind}.json")
             json.dump(BP.profile(root, kind, name, extra), open(files[kind], "w"), indent=1)
+            changed[kind] = differs(BP.profile(root, kind, name, {}), extra)
         lst = os.path.join(tmp, "list.json")
         json.dump(assemble_list(tmp), open(lst, "w"), indent=1)
         proj = os.path.join(OUT, "mp5_guss_i3megas.3mf")
@@ -158,6 +184,7 @@ def build(cli, root):
             sys.exit(f"Export fehlgeschlagen ({code})\n{log[-2000:]}")
         BP.rename_objects(proj)
         fix_parts(proj)
+        fix_settings(proj, changed)
         sliced = os.path.join(tmp, "sliced.3mf")
         code, log = BP.run(cli, [proj, "--slice", "0", "--export-3mf", os.path.basename(sliced), "--outputdir", tmp])
         if code != 0:
