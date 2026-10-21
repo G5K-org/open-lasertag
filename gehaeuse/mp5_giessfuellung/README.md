@@ -53,7 +53,7 @@ Nicht gefüllt (normal aus `mp5_umbau/` drucken): Zwischenring, Magazin, Magazin
 ## Bambu Studio (X1, P1, P2, A1)
 
 **Fertige Projekte für den P2S** (alle Teile und Einstellungen schon drin):
-[`gehaeuse/bambu/`](../bambu/README.md). Für den **Anycubic i3 Mega S** in OrcaSlicer:
+[`gehaeuse/bambu/`](../bambu/README.md). Für den **Anycubic i3 Mega S** und den **Artillery Sidewinder X2** in OrcaSlicer:
 [`gehaeuse/orca/`](../orca/README.md). Die Schritte unten braucht man nur für einen anderen Drucker oder
 eigene Änderungen.
 

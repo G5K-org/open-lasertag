@@ -1,12 +1,18 @@
-# OrcaSlicer-Projekt Gießvariante (Anycubic i3 Mega S, PETG)
+# OrcaSlicer-Projekte Gießvariante (PETG)
 
-`mp5_guss_i3megas.3mf` ist das Gegenstück zu [`bambu/mp5_guss_p2s.3mf`](../bambu/README.md) für den
-**Anycubic i3 Mega S, Düse 0,4, Anycubic Generic PETG** in OrcaSlicer 2.4. Gleiche Teile aus
+Gegenstücke zu [`bambu/mp5_guss_p2s.3mf`](../bambu/README.md) für OrcaSlicer 2.4, Düse 0,4. Gleiche Teile aus
 [`mp5_giessfuellung/`](../mp5_giessfuellung/README.md), gleiche Einstellungen, an den Drucker angepasst.
 In OrcaSlicer öffnen, Platte wählen, slicen, G-Code auf die SD-Karte.
 
-**Druckzeit gesamt 79,3 h, 655 g** (Orca 2.4.2, `druckzeiten.json`). Länger als beim P2S (24,8 h), weil das
-Systemprofil des Mega S mit 40–60 mm/s druckt.
+| Datei | Drucker | Filament | Druckzeit | Filament |
+|---|---|---|---|---|
+| `mp5_guss_i3megas.3mf` | Anycubic i3 Mega S (Bett 210 × 210) | Anycubic Generic PETG | **79,3 h** | 655 g |
+| `mp5_guss_x2.3mf` | Artillery Sidewinder X2 (Bett 300 × 300) | Artillery Generic PETG | **71,1 h** | 614 g |
+
+Zeiten aus Orca 2.4.2 (`druckzeiten.json`). Länger als beim P2S (24,8 h), weil die Systemprofile beider Drucker
+mit 30–60 mm/s drucken.
+
+## Anycubic i3 Mega S
 
 | Platte | Teile | Zeit · Filament |
 |---|---|---|
@@ -19,32 +25,57 @@ Systemprofil des Mega S mit 40–60 mm/s druckt.
 | 7 | Handschutz hinten, Zwischenring, Magazin, Magazin-Unterteil | 19,3 h · 163 g |
 | 8 | Kleinteile | 2,0 h · 16 g |
 
-## Unterschiede zum Bambu-Projekt
-
 - **Bett 210 × 210 mm:** Die Gehäusehälften (194 × 198 mm) passen knapp. Der vordere Handschutz (206 mm lang)
   liegt um 45° gedreht, die Schafthälften liegen auf je einer eigenen Platte.
 - **Gehäusehälften 4,5 mm nach hinten verschoben:** Der Tree-Support an der Vorderkante läge sonst auf der
   Reinigungslinie des Startcodes (Y 1–2). Das Teil reicht jetzt bis Y 208,3.
 - **Kein Brim, kein Skirt:** Beide ragten bei den Gehäusehälften über das Bett. Die Reinigungslinie im Startcode
   bleibt.
-- Grundlage ist das Systemprofil **0.20mm Standard @Anycubic i3MegaS**. Geschwindigkeit, Beschleunigung und
-  Retract kommen unverändert aus dem Profil, *Adaptive layer height* ist aus.
+- Grundlage ist das Systemprofil **0.20mm Standard @Anycubic i3MegaS**.
+- Filament **Anycubic Generic PETG**: 255 °C Düse, 80 °C Bett.
+
+Auf Platte 5 meldet Orca „Potentially lost branch“ (Tree-Support), der G-Code entsteht trotzdem. Dort in der
+Vorschau den Support unter dem Schaft ansehen.
+
+## Artillery Sidewinder X2
+
+| Platte | Teile | Zeit · Filament |
+|---|---|---|
+| 1 | Gehäuse links, Handschutz vorn links | 21,5 h · 182 g |
+| 2 | Gehäuse rechts, Handschutz vorn rechts | 21,1 h · 181 g |
+| 3 | Schaft links + rechts, Handschutz hinten, Zwischenring, Magazin, Magazin-Unterteil, Kleinteile | 28,5 h · 250 g |
+
+- **Bett 300 × 300 mm, alles auf 3 Platten:** Gehäusehälfte und vorderer Handschutz liegen nebeneinander, der Rest
+  auf Platte 3. Jedes Teil kommt in die erste Reihe, in der noch Platz ist. Nichts ist gedreht oder verschoben, und
+  die Teile halten mindestens 10 mm Abstand zum Rand.
+- **Kein Brim:** Der Auto-Brim des Profils wird um die Gehäusehälften 17 mm breit und lief neben dem Handschutz
+  über das Bett. Der Skirt (3 Runden) bleibt. Die Reinigungslinie des Startcodes (Y 0,2–0,5, X 10–100) bleibt frei.
+- Platte 3 läuft über einen Tag. Geht ein Teil schief, ist die ganze Platte verloren. Wer das vermeiden will,
+  löscht in Orca Teile von der Platte und druckt sie getrennt.
+- Grundlage ist das Systemprofil **0.20mm Standard @Artillery X2**. Startcode mit G29 (Bettvermessung vor jedem
+  Druck) aus dem Druckerprofil.
+- Filament **Artillery Generic PETG**: 255 °C Düse, 80 °C Bett, Flussrate 0,95.
+
+## Für beide
+
+- Geschwindigkeit, Beschleunigung und Retract kommen unverändert aus dem Systemprofil, *Adaptive layer height*
+  ist aus (Kammerdecken brauchen feste 0,2 mm).
 - *Ensure vertical shell thickness* „Partial“ heißt in Orca **Critical only**.
-- Filament **Anycubic Generic PETG**: 255 °C Düse, 80 °C Bett. Vor dem Druck an die eigene Rolle anpassen.
+- Filament vor dem Druck an die eigene Rolle anpassen.
 
 Wände, Infill, Schalen, Support-Blocker über den Kammern, Modifier am Zapfen (60 %) und die massiven Kleinteile
 sind wie im [Bambu-README](../bambu/README.md#einstellungen).
 
-Geprüft im G-Code: Alle Bahnen liegen im Bett. In den Kammern der Gehäusehälfte steht kein Support. Auf
-Platte 5 meldet Orca „Potentially lost branch“ (Tree-Support), der G-Code entsteht trotzdem. Dort in der
-Vorschau den Support unter dem Schaft ansehen.
+Geprüft im G-Code: Alle Bahnen liegen im Bett. In den Kammern der Gehäusehälfte steht kein Support.
 
 ## Neu erzeugen
 
 ```
-python gehaeuse/scripts/orca_projekte.py        # braucht numpy, trimesh, manifold3d; orca-slicer im PATH
+python gehaeuse/scripts/orca_projekte.py          # beide Drucker
+python gehaeuse/scripts/orca_projekte.py x2       # nur Sidewinder X2 (i3megas für den Mega S)
 ```
 
-Andere Programmdatei mit `ORCA_SLICER=…`, anderer Profilordner mit `ORCA_PROFILES=…` (Standard
-`~/.config/OrcaSlicer/system`). Das Skript slict zur Kontrolle alle Platten. Orca braucht dabei mehrere GB
-Speicher.
+Braucht numpy, trimesh mit scipy und shapely (`trimesh[easy]`), manifold3d; orca-slicer im PATH. Andere
+Programmdatei mit `ORCA_SLICER=…`, anderer Profilordner mit `ORCA_PROFILES=…` (sonst `~/.config/OrcaSlicer/system`,
+und wenn der Hersteller dort fehlt, die mitgelieferten Profile neben orca-slicer). Das Skript slict zur Kontrolle
+alle Platten. Orca braucht dabei mehrere GB Speicher.
