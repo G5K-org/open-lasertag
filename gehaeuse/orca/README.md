@@ -7,7 +7,7 @@ In OrcaSlicer öffnen, Platte wählen, slicen, G-Code auf die SD-Karte.
 | Datei | Drucker | Filament | Druckzeit | Filament |
 |---|---|---|---|---|
 | `mp5_guss_i3megas.3mf` | Anycubic i3 Mega S (Bett 210 × 210) | Anycubic Generic PETG | **79,3 h** | 655 g |
-| `mp5_guss_x2.3mf` | Artillery Sidewinder X2 (Bett 300 × 300) | Artillery Generic PETG | **63,6 h** | 614 g |
+| `mp5_guss_x2.3mf` | Artillery Sidewinder X2 (Bett 300 × 300) | Artillery Generic PETG | **63,4 h** | 613 g |
 
 Zeiten aus Orca 2.4.2 (`druckzeiten.json`). Länger als beim P2S (24,8 h), weil die Systemprofile beider Drucker
 mit 30–60 mm/s drucken (beim X2 schneller eingestellt, siehe unten).
@@ -41,23 +41,30 @@ Vorschau den Support unter dem Schaft ansehen.
 
 | Platte | Teile | Zeit · Filament |
 |---|---|---|
-| 1 | Gehäuse links, Handschutz vorn links | 19,2 h · 182 g |
-| 2 | Gehäuse rechts, Handschutz vorn rechts | 18,9 h · 181 g |
-| 3 | Schaft links + rechts, Handschutz hinten, Zwischenring, Magazin, Magazin-Unterteil, Kleinteile | 25,6 h · 250 g |
+| 1 | Gehäuse links, Handschutz vorn links | 19,1 h · 182 g |
+| 2 | Gehäuse rechts, Handschutz vorn rechts | 18,8 h · 181 g |
+| 3 | Schaft links + rechts, Handschutz hinten, Zwischenring, Magazin, Magazin-Unterteil, Kleinteile | 25,5 h · 250 g |
 
 - **Bett 300 × 300 mm, alles auf 3 Platten:** Gehäusehälfte und vorderer Handschutz liegen nebeneinander, der Rest
   auf Platte 3. Jedes Teil kommt in die erste Reihe, in der noch Platz ist. Nichts ist gedreht oder verschoben, und
   die Teile halten mindestens 10 mm Abstand zum Rand.
 - **Kein Brim:** Der Auto-Brim des Profils wird um die Gehäusehälften 17 mm breit und lief neben dem Handschutz
-  über das Bett. Der Skirt (3 Runden) bleibt. Die Reinigungslinie des Startcodes (Y 0,2–0,5, X 10–100) bleibt frei.
-- Platte 3 läuft über einen Tag. Geht ein Teil schief, ist die ganze Platte verloren. Wer das vermeiden will,
-  löscht in Orca Teile von der Platte und druckt sie getrennt.
-- Grundlage ist das Systemprofil **0.20mm Standard @Artillery X2**. Startcode mit G29 (Bettvermessung vor jedem
-  Druck) aus dem Druckerprofil.
+  über das Bett. Der Skirt (3 Runden) bleibt.
+- Platte 3 läuft über einen Tag. Geht ein Teil schief, lässt es sich in Klipper einzeln abbrechen
+  (*Exclude Object* ist an, braucht `[exclude_object]` in der `printer.cfg`). Sonst Teile in Orca von der Platte
+  löschen und getrennt drucken.
+- Grundlage ist das Systemprofil **0.20mm Standard @Artillery X2**.
+- **Klipper:** G-Code-Flavor *Klipper* (Beschleunigung per `SET_VELOCITY_LIMIT`). Eigener Startcode: Bett und Düse
+  auf 150 °C vorheizen, G28, `BED_MESH_CALIBRATE`, Düse auf Drucktemperatur, zwei Reinigungslinien bei X 5–5,4,
+  Y 20–200 (der Skirt auf Platte 3 liegt bei X 7,3). Pressure Advance und Mesh kommen aus der `printer.cfg`, das
+  `M221 S95` des alten Startcodes fällt weg (zusammen mit Flussrate 0,95 waren das effektiv 90 %). Endcode ohne
+  `M150`/`M85`/`M200`, die Klipper nicht kennt: Retract, Kopf 120 mm hoch, nach X 5, Y 290, Heizungen und
+  Motoren aus.
 - Filament **Artillery Generic PETG**, gegen Stringing angepasst (mit dem Profil zog es starke Fäden):
   240 °C Düse (erste Schicht 245 °C, Profil 255 °C), Retract 1,6 mm mit 40 mm/s (Profil 1 mm, 35 mm/s),
-  Wiedereinschub 30 mm/s, Wipe 2 mm mit 70 % Retract davor, Z-Hop 0,2 mm (Profil 0,4 mm). 80 °C Bett,
-  Flussrate 0,95.
+  Wiedereinschub 30 mm/s, Wipe 2 mm mit 70 % Retract davor, Z-Hop 0,2 mm (Profil 0,4 mm). Flussrate 0,95.
+- **Bett 80 °C:** Das Profil steht auf *Cool Plate*, die beim Artillery-PETG nur 60 °C hat. Die Temperatur der
+  Cool Plate ist im Filament auf 80 °C gesetzt.
 - **Avoid crossing walls** an: Leerfahrten bleiben innerhalb der Wände, Fäden landen im Infill statt quer über
   Kammern und Außenflächen. Kostet 4 h über alle Platten.
 - **Schneller als das Profil** (das druckt mit 500 mm/s² und 30–60 mm/s): Beschleunigung 1000 mm/s² (Limit im

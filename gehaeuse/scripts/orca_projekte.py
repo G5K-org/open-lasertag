@@ -43,6 +43,32 @@ GUSS_GLOBAL.update(ensure_vertical_shell_thickness="ensure_critical_only",
 MARGIN = 5.0                                            # Rand zum Bettrand (Skirt liegt 2 mm neben dem Teil)
 GAP = 12.0                                              # Abstand der Teile; bei 8 mm Bahnkonflikt im Tree-Support
 
+X2_START = """M140 S[bed_temperature_initial_layer_single]
+M104 S150
+G28
+M190 S[bed_temperature_initial_layer_single]
+BED_MESH_CALIBRATE
+M109 S[nozzle_temperature_initial_layer]
+M83
+G1 X5 Y20 Z0.3 F5000
+G1 X5 Y200 Z0.3 F1500 E15
+G1 X5.4 Y200 Z0.3 F5000
+G1 X5.4 Y20 Z0.3 F1500 E15
+G1 E-0.8 F2400
+G1 Z2 F3000
+"""
+X2_END = """G1 E-1 F2400
+G91
+G1 Z2 F3000
+G90
+{if layer_z < printable_height}G1 Z{z_offset+min(layer_z+120, printable_height)} F600{endif}
+G1 X5 Y290 F6000
+M106 S0
+M104 S0
+M140 S0
+M84
+"""
+
 PRINTERS = {
     "i3megas": {
         "vendor": "Anycubic", "machine": "Anycubic i3 Mega S 0.4 nozzle",
@@ -59,7 +85,6 @@ PRINTERS = {
                    ("Handschutz vorn rechts", ["handschutz_vorn_rechts"]),
                    ("Schaft links", ["schaft_links"]), ("Schaft rechts", ["schaft_rechts"])] + BP.PLATES[5:],
     },
-    # Reinigungslinie im Startcode bei Y 0,2–0,5, X 10–100; die mittig liegenden Teile bleiben weit davon weg
     "x2": {
         "vendor": "Artillery", "machine": "Artillery Sidewinder X2 0.4 nozzle",
         "process": "0.20mm Standard @Artillery X2", "filament": "Artillery Generic PETG",
@@ -75,11 +100,18 @@ PRINTERS = {
                   "sparse_infill_speed": "100", "internal_solid_infill_speed": "80", "top_surface_speed": "45",
                   "support_speed": "70", "gap_infill_speed": "40", "travel_speed": "200"},
         # PETG kühler, mehr und schneller zurückziehen, beim Zurückziehen wischen, niedrigerer Z-Hop
-        "filament_extra": {"nozzle_temperature": ["240"], "nozzle_temperature_initial_layer": ["245"],
+        # Bett 80 °C: das Profil steht auf Cool Plate, die nimmt beim Artillery-PETG 60 °C
+        "filament_extra": {"cool_plate_temp": ["80"], "cool_plate_temp_initial_layer": ["80"],
+                           "nozzle_temperature": ["240"], "nozzle_temperature_initial_layer": ["245"],
                            "filament_retraction_length": ["1.6"], "filament_retraction_speed": ["40"],
                            "filament_deretraction_speed": ["30"], "filament_wipe": ["1"],
                            "filament_wipe_distance": ["2"], "filament_retract_before_wipe": ["70%"],
                            "filament_z_hop": ["0.2"]},
+        # Läuft mit Klipper: Startcode ohne G29/M420/M900/M221 (Mesh und Pressure Advance aus printer.cfg),
+        # Reinigungslinie bei X 5–5,4, Y 20–200 (Teile halten 10 mm Rand). Endcode ohne M150/M85/M200, die Klipper
+        # nicht kennt. exclude_object, damit sich einzelne Teile im Druck abbrechen lassen
+        "machine_extra": {"gcode_flavor": "klipper", "exclude_object": "1", "machine_start_gcode": X2_START,
+                          "machine_end_gcode": X2_END},
         # Gehäusehälfte und vorderer Handschutz nebeneinander, alles Übrige auf eine Platte
         "plates": [("Gehäuse links, Handschutz vorn links", ["gehaeuse_links", "handschutz_vorn_links"]),
                    ("Gehäuse rechts, Handschutz vorn rechts", ["gehaeuse_rechts", "handschutz_vorn_rechts"]),
@@ -219,7 +251,8 @@ def build(cli, key):
     os.makedirs(OUT, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         files, changed = {}, {}
-        for kind, extra in (("machine", {}), ("process", glob), ("filament", pr.get("filament_extra", {}))):
+        for kind, extra in (("machine", pr.get("machine_extra", {})), ("process", glob),
+                            ("filament", pr.get("filament_extra", {}))):
             files[kind] = os.path.join(tmp, f"{kind}.json")
             json.dump(BP.profile(root, kind, pr[kind], extra), open(files[kind], "w"), indent=1)
             changed[kind] = differs(BP.profile(root, kind, pr[kind], {}), extra)
