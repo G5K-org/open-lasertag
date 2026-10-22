@@ -5,7 +5,7 @@ Gleiche Teile und Einstellungen wie mp5_guss_p2s.3mf aus bambu_projekte.py, ange
     gedreht, Systemprofil 0.20mm Standard @Anycubic i3MegaS, Filament Anycubic Generic PETG.
   - Sidewinder X2, Bett 300 × 300 mm: Platten wie beim P2S, Systemprofil 0.20mm Standard @Artillery X2, Filament
     Artillery Generic PETG.
-  - Geschwindigkeiten und Beschleunigung bleiben wie im Systemprofil, Retract auch (außer X2, siehe filament_extra).
+  - Geschwindigkeiten, Beschleunigung und Retract bleiben beim Mega S wie im Systemprofil (X2: extra, filament_extra).
   - "Partial" der vertikalen Schalendicke heißt in Orca ensure_critical_only.
   - Orca übernimmt aus der Liste zum Zusammenfügen weder subtype noch print_params der Teile (alles wird
     normal_part, die Kammern würden mit Infill gefüllt). fix_parts trägt beides danach in die 3MF ein.
@@ -67,7 +67,13 @@ PRINTERS = {
         # Skirt (3 Runden, 2 mm Abstand) bleibt, 10 mm Rand reichen dafür
         "bed": 300.0, "margin": 10.0, "rot": {}, "shift_y": {},
         # Starkes Stringing mit dem Systemprofil (255 °C, 1 mm Retract, kein Wipe): Leerfahrten innerhalb der Wände
-        "extra": {"brim_type": "no_brim", "reduce_crossing_wall": "1"},
+        "extra": {"brim_type": "no_brim", "reduce_crossing_wall": "1",
+                  # Profil druckt mit 500 mm/s² und 30–60 mm/s (71 h). Beschleunigung bis zum Maschinenlimit (1000),
+                  # Innenbahnen schneller; PETG mit 10 mm³/s schafft bei 0,5 × 0,2 mm etwa 100 mm/s, Orca begrenzt
+                  # darauf. Außenwand bleibt bei 60 mm/s und 700 mm/s² (Oberfläche)
+                  "default_acceleration": "1000", "travel_acceleration": "1000", "inner_wall_speed": "80",
+                  "sparse_infill_speed": "100", "internal_solid_infill_speed": "80", "top_surface_speed": "45",
+                  "support_speed": "70", "gap_infill_speed": "40", "travel_speed": "200"},
         # PETG kühler, mehr und schneller zurückziehen, beim Zurückziehen wischen, niedrigerer Z-Hop
         "filament_extra": {"nozzle_temperature": ["240"], "nozzle_temperature_initial_layer": ["245"],
                            "filament_retraction_length": ["1.6"], "filament_retraction_speed": ["40"],

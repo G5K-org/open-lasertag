@@ -7,10 +7,10 @@ In OrcaSlicer öffnen, Platte wählen, slicen, G-Code auf die SD-Karte.
 | Datei | Drucker | Filament | Druckzeit | Filament |
 |---|---|---|---|---|
 | `mp5_guss_i3megas.3mf` | Anycubic i3 Mega S (Bett 210 × 210) | Anycubic Generic PETG | **79,3 h** | 655 g |
-| `mp5_guss_x2.3mf` | Artillery Sidewinder X2 (Bett 300 × 300) | Artillery Generic PETG | **78,8 h** | 614 g |
+| `mp5_guss_x2.3mf` | Artillery Sidewinder X2 (Bett 300 × 300) | Artillery Generic PETG | **63,6 h** | 614 g |
 
 Zeiten aus Orca 2.4.2 (`druckzeiten.json`). Länger als beim P2S (24,8 h), weil die Systemprofile beider Drucker
-mit 30–60 mm/s drucken.
+mit 30–60 mm/s drucken (beim X2 schneller eingestellt, siehe unten).
 
 ## Anycubic i3 Mega S
 
@@ -41,9 +41,9 @@ Vorschau den Support unter dem Schaft ansehen.
 
 | Platte | Teile | Zeit · Filament |
 |---|---|---|
-| 1 | Gehäuse links, Handschutz vorn links | 23,7 h · 182 g |
-| 2 | Gehäuse rechts, Handschutz vorn rechts | 23,3 h · 181 g |
-| 3 | Schaft links + rechts, Handschutz hinten, Zwischenring, Magazin, Magazin-Unterteil, Kleinteile | 31,9 h · 250 g |
+| 1 | Gehäuse links, Handschutz vorn links | 19,2 h · 182 g |
+| 2 | Gehäuse rechts, Handschutz vorn rechts | 18,9 h · 181 g |
+| 3 | Schaft links + rechts, Handschutz hinten, Zwischenring, Magazin, Magazin-Unterteil, Kleinteile | 25,6 h · 250 g |
 
 - **Bett 300 × 300 mm, alles auf 3 Platten:** Gehäusehälfte und vorderer Handschutz liegen nebeneinander, der Rest
   auf Platte 3. Jedes Teil kommt in die erste Reihe, in der noch Platz ist. Nichts ist gedreht oder verschoben, und
@@ -59,13 +59,17 @@ Vorschau den Support unter dem Schaft ansehen.
   Wiedereinschub 30 mm/s, Wipe 2 mm mit 70 % Retract davor, Z-Hop 0,2 mm (Profil 0,4 mm). 80 °C Bett,
   Flussrate 0,95.
 - **Avoid crossing walls** an: Leerfahrten bleiben innerhalb der Wände, Fäden landen im Infill statt quer über
-  Kammern und Außenflächen. Kostet etwa 7 h über alle Platten.
+  Kammern und Außenflächen. Kostet 4 h über alle Platten.
+- **Schneller als das Profil** (das druckt mit 500 mm/s² und 30–60 mm/s): Beschleunigung 1000 mm/s² (Limit im
+  Druckerprofil), Innenwand 80, Infill 100, inneres Solid-Infill 80, Oberseite 45, Support 70, Gap-Fill 40,
+  Leerfahrt 200 mm/s. Orca begrenzt auf die 10 mm³/s des Filaments (bei 0,5 × 0,2 mm etwa 100 mm/s). Außenwand
+  bleibt 60 mm/s mit 700 mm/s².
 - Fädelt es weiter: zuerst Temperatur in 5-°C-Schritten senken (bis 230 °C), dann Retract in 0,2-mm-Schritten
   erhöhen (Direktantrieb, nicht über 2,5 mm). Feuchtes PETG fädelt unabhängig davon, dann trocknen (65 °C, 4–6 h).
 
 ## Für beide
 
-- Geschwindigkeit und Beschleunigung kommen unverändert aus dem Systemprofil, Retract auch (außer beim X2), *Adaptive layer height*
+- Geschwindigkeit, Beschleunigung und Retract kommen beim Mega S unverändert aus dem Systemprofil, *Adaptive layer height*
   ist aus (Kammerdecken brauchen feste 0,2 mm).
 - *Ensure vertical shell thickness* „Partial“ heißt in Orca **Critical only**.
 - Filament vor dem Druck an die eigene Rolle anpassen.
