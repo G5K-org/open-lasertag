@@ -95,7 +95,7 @@
    "platten": [
     {
      "platte": 1,
-     "stunden": 21.5,
+     "stunden": 23.66,
      "gramm": 181.9,
      "name": "Gehäuse links, Handschutz vorn links",
      "teile": [
@@ -105,7 +105,7 @@
     },
     {
      "platte": 2,
-     "stunden": 21.11,
+     "stunden": 23.25,
      "gramm": 181.3,
      "name": "Gehäuse rechts, Handschutz vorn rechts",
      "teile": [
@@ -115,7 +115,7 @@
     },
     {
      "platte": 3,
-     "stunden": 28.47,
+     "stunden": 31.86,
      "gramm": 250.3,
      "name": "Schaft, Handschutz hinten, Zwischenring, Magazin, Kleinteile",
      "teile": [
@@ -137,7 +137,7 @@
      ]
     }
    ],
-   "stunden": 71.1,
+   "stunden": 78.8,
    "gramm": 614
   }
  }

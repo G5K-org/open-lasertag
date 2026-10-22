@@ -7,7 +7,7 @@ In OrcaSlicer öffnen, Platte wählen, slicen, G-Code auf die SD-Karte.
 | Datei | Drucker | Filament | Druckzeit | Filament |
 |---|---|---|---|---|
 | `mp5_guss_i3megas.3mf` | Anycubic i3 Mega S (Bett 210 × 210) | Anycubic Generic PETG | **79,3 h** | 655 g |
-| `mp5_guss_x2.3mf` | Artillery Sidewinder X2 (Bett 300 × 300) | Artillery Generic PETG | **71,1 h** | 614 g |
+| `mp5_guss_x2.3mf` | Artillery Sidewinder X2 (Bett 300 × 300) | Artillery Generic PETG | **78,8 h** | 614 g |
 
 Zeiten aus Orca 2.4.2 (`druckzeiten.json`). Länger als beim P2S (24,8 h), weil die Systemprofile beider Drucker
 mit 30–60 mm/s drucken.
@@ -41,9 +41,9 @@ Vorschau den Support unter dem Schaft ansehen.
 
 | Platte | Teile | Zeit · Filament |
 |---|---|---|
-| 1 | Gehäuse links, Handschutz vorn links | 21,5 h · 182 g |
-| 2 | Gehäuse rechts, Handschutz vorn rechts | 21,1 h · 181 g |
-| 3 | Schaft links + rechts, Handschutz hinten, Zwischenring, Magazin, Magazin-Unterteil, Kleinteile | 28,5 h · 250 g |
+| 1 | Gehäuse links, Handschutz vorn links | 23,7 h · 182 g |
+| 2 | Gehäuse rechts, Handschutz vorn rechts | 23,3 h · 181 g |
+| 3 | Schaft links + rechts, Handschutz hinten, Zwischenring, Magazin, Magazin-Unterteil, Kleinteile | 31,9 h · 250 g |
 
 - **Bett 300 × 300 mm, alles auf 3 Platten:** Gehäusehälfte und vorderer Handschutz liegen nebeneinander, der Rest
   auf Platte 3. Jedes Teil kommt in die erste Reihe, in der noch Platz ist. Nichts ist gedreht oder verschoben, und
@@ -54,11 +54,18 @@ Vorschau den Support unter dem Schaft ansehen.
   löscht in Orca Teile von der Platte und druckt sie getrennt.
 - Grundlage ist das Systemprofil **0.20mm Standard @Artillery X2**. Startcode mit G29 (Bettvermessung vor jedem
   Druck) aus dem Druckerprofil.
-- Filament **Artillery Generic PETG**: 255 °C Düse, 80 °C Bett, Flussrate 0,95.
+- Filament **Artillery Generic PETG**, gegen Stringing angepasst (mit dem Profil zog es starke Fäden):
+  240 °C Düse (erste Schicht 245 °C, Profil 255 °C), Retract 1,6 mm mit 40 mm/s (Profil 1 mm, 35 mm/s),
+  Wiedereinschub 30 mm/s, Wipe 2 mm mit 70 % Retract davor, Z-Hop 0,2 mm (Profil 0,4 mm). 80 °C Bett,
+  Flussrate 0,95.
+- **Avoid crossing walls** an: Leerfahrten bleiben innerhalb der Wände, Fäden landen im Infill statt quer über
+  Kammern und Außenflächen. Kostet etwa 7 h über alle Platten.
+- Fädelt es weiter: zuerst Temperatur in 5-°C-Schritten senken (bis 230 °C), dann Retract in 0,2-mm-Schritten
+  erhöhen (Direktantrieb, nicht über 2,5 mm). Feuchtes PETG fädelt unabhängig davon, dann trocknen (65 °C, 4–6 h).
 
 ## Für beide
 
-- Geschwindigkeit, Beschleunigung und Retract kommen unverändert aus dem Systemprofil, *Adaptive layer height*
+- Geschwindigkeit und Beschleunigung kommen unverändert aus dem Systemprofil, Retract auch (außer beim X2), *Adaptive layer height*
   ist aus (Kammerdecken brauchen feste 0,2 mm).
 - *Ensure vertical shell thickness* „Partial“ heißt in Orca **Critical only**.
 - Filament vor dem Druck an die eigene Rolle anpassen.

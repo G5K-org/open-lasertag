@@ -5,7 +5,7 @@ Gleiche Teile und Einstellungen wie mp5_guss_p2s.3mf aus bambu_projekte.py, ange
     gedreht, Systemprofil 0.20mm Standard @Anycubic i3MegaS, Filament Anycubic Generic PETG.
   - Sidewinder X2, Bett 300 × 300 mm: Platten wie beim P2S, Systemprofil 0.20mm Standard @Artillery X2, Filament
     Artillery Generic PETG.
-  - Geschwindigkeiten, Beschleunigung und Retract bleiben wie im Systemprofil.
+  - Geschwindigkeiten und Beschleunigung bleiben wie im Systemprofil, Retract auch (außer X2, siehe filament_extra).
   - "Partial" der vertikalen Schalendicke heißt in Orca ensure_critical_only.
   - Orca übernimmt aus der Liste zum Zusammenfügen weder subtype noch print_params der Teile (alles wird
     normal_part, die Kammern würden mit Infill gefüllt). fix_parts trägt beides danach in die 3MF ein.
@@ -65,7 +65,15 @@ PRINTERS = {
         "process": "0.20mm Standard @Artillery X2", "filament": "Artillery Generic PETG",
         # Auto-Brim des Profils wird um die Gehäusehälften 17 mm breit und lief neben dem Handschutz übers Bett;
         # Skirt (3 Runden, 2 mm Abstand) bleibt, 10 mm Rand reichen dafür
-        "bed": 300.0, "margin": 10.0, "extra": {"brim_type": "no_brim"}, "rot": {}, "shift_y": {},
+        "bed": 300.0, "margin": 10.0, "rot": {}, "shift_y": {},
+        # Starkes Stringing mit dem Systemprofil (255 °C, 1 mm Retract, kein Wipe): Leerfahrten innerhalb der Wände
+        "extra": {"brim_type": "no_brim", "reduce_crossing_wall": "1"},
+        # PETG kühler, mehr und schneller zurückziehen, beim Zurückziehen wischen, niedrigerer Z-Hop
+        "filament_extra": {"nozzle_temperature": ["240"], "nozzle_temperature_initial_layer": ["245"],
+                           "filament_retraction_length": ["1.6"], "filament_retraction_speed": ["40"],
+                           "filament_deretraction_speed": ["30"], "filament_wipe": ["1"],
+                           "filament_wipe_distance": ["2"], "filament_retract_before_wipe": ["70%"],
+                           "filament_z_hop": ["0.2"]},
         # Gehäusehälfte und vorderer Handschutz nebeneinander, alles Übrige auf eine Platte
         "plates": [("Gehäuse links, Handschutz vorn links", ["gehaeuse_links", "handschutz_vorn_links"]),
                    ("Gehäuse rechts, Handschutz vorn rechts", ["gehaeuse_rechts", "handschutz_vorn_rechts"]),
@@ -205,7 +213,7 @@ def build(cli, key):
     os.makedirs(OUT, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         files, changed = {}, {}
-        for kind, extra in (("machine", {}), ("process", glob), ("filament", {})):
+        for kind, extra in (("machine", {}), ("process", glob), ("filament", pr.get("filament_extra", {}))):
             files[kind] = os.path.join(tmp, f"{kind}.json")
             json.dump(BP.profile(root, kind, pr[kind], extra), open(files[kind], "w"), indent=1)
             changed[kind] = differs(BP.profile(root, kind, pr[kind], {}), extra)
