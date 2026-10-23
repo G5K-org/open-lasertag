@@ -33,6 +33,10 @@ mit 30–60 mm/s drucken (beim X2 schneller eingestellt, siehe unten).
   bleibt.
 - Grundlage ist das Systemprofil **0.20mm Standard @Anycubic i3MegaS**.
 - Filament **Anycubic Generic PETG**: 255 °C Düse, 80 °C Bett.
+- **Startcode:** der des Systemprofils, nur die Reinigungslinie korrigiert. Das Profil schaltet `M83` (relativ)
+  ein, rechnet die Linie aber absolut (`E9`, dann `E12.5` auf 40 mm). Relativ sind das 0,75 mm² Querschnitt,
+  Klipper bricht mit „Move exceeds maximum extrusion“ ab (`max_extrude_cross_section` 0,64 mm²). Jetzt `E6`
+  auf 40 mm (0,36 mm² wie auf dem ersten Stück).
 
 Auf Platte 5 meldet Orca „Potentially lost branch“ (Tree-Support), der G-Code entsteht trotzdem. Dort in der
 Vorschau den Support unter dem Schaft ansehen.

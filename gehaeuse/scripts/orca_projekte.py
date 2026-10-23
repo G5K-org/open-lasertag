@@ -57,6 +57,29 @@ G1 X5.4 Y20 Z0.3 F1500 E15
 G1 E-0.8 F2400
 G1 Z2 F3000
 """
+# Startcode des Systemprofils, nur die Reinigungslinie geändert: Das Profil schaltet M83 (relativ) ein, rechnet die
+# Linie aber absolut (E9 bis X 65, dann E12.5 bis X 105). Relativ sind das 12,5 mm Filament auf 40 mm Weg, 0,75 mm²
+# Querschnitt, Klipper bricht ab (max_extrude_cross_section 0,64 mm²). Jetzt 6 mm auf 40 mm wie auf den ersten 60 mm
+I3_START = """G90 ; use absolute coordinates
+M83 ; extruder relative mode
+M204 P[machine_max_acceleration_extruding] R[machine_max_acceleration_retracting] T[machine_max_acceleration_travel]
+M104 S[nozzle_temperature_initial_layer] ; set extruder temp
+M140 S[bed_temperature_initial_layer_single] ; set bed temp
+G28 ; home all
+G1 Y1.0 Z0.3 F{travel_speed*60} ; move print head up
+M190 S[bed_temperature_initial_layer_single] ; wait for bed temp
+M109 S[nozzle_temperature_initial_layer] ; wait for extruder temp
+G92 E0.0
+; initial load
+G1 X205.0 E19 F1000
+G1 Y1.6
+G1 X5.0 E19 F1000
+G92 E0.0
+; intro line
+G1 Y2.0 Z0.2 F1000
+G1 X65.0 E9.0 F1000
+G1 X105.0 E6.0 F1000
+G92 E0.0"""
 X2_END = """G1 E-1 F2400
 G91
 G1 Z2 F3000
@@ -80,6 +103,7 @@ PRINTERS = {
         # Gehäusehälften 4,5 mm nach hinten: Der Tree-Support an der Vorderkante reicht sonst bis Y 0,2 und liegt auf
         # der Reinigungslinie des Startcodes (Y 1–2, X 5–205)
         "shift_y": {"gehaeuse_links": 4.5, "gehaeuse_rechts": 4.5},
+        "machine_extra": {"machine_start_gcode": I3_START},
         "plates": [("Gehäuse links", ["gehaeuse_links"]), ("Gehäuse rechts", ["gehaeuse_rechts"]),
                    ("Handschutz vorn links", ["handschutz_vorn_links"]),
                    ("Handschutz vorn rechts", ["handschutz_vorn_rechts"]),
